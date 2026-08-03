@@ -112,12 +112,15 @@ export default function HeroSlider() {
           while the subject stays clear in the lower frame. Hidden on desktop,
           which stays overlay-free as specified. */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-charcoal/85 via-charcoal/25 to-transparent lg:hidden" />
+      {/* Mobile-only bottom scrim — keeps the bottom-anchored CTAs and dots
+          legible over the lower part of the image. Desktop stays overlay-free. */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-charcoal/70 via-charcoal/15 to-transparent lg:hidden" />
 
-      {/* Text block — mobile: anchored to the top (over the clean space in the
-          purpose-shot crop), left-aligned, clearing the fixed nav.
+      {/* Text block — mobile: text anchored to the top (over the clean space in
+          the purpose-shot crop), CTAs pushed to the bottom of the image.
           Desktop (lg+): right-aligned, vertically centered (unchanged). */}
-      <div className="container-luxe relative flex h-full items-start justify-start pt-28 sm:pt-32 lg:items-center lg:justify-end lg:pt-0">
-        <div className="w-full max-w-xl text-left text-cream lg:text-right">
+      <div className="container-luxe relative flex h-full items-stretch justify-start pb-20 pt-28 sm:pb-24 sm:pt-32 lg:items-center lg:justify-end lg:pb-0 lg:pt-0">
+        <div className="flex h-full w-full max-w-xl flex-col text-left text-cream lg:block lg:h-auto lg:text-right">
           <AnimatePresence mode="wait">
             <motion.div
               key={index}
@@ -140,9 +143,10 @@ export default function HeroSlider() {
             </motion.div>
           </AnimatePresence>
 
-          {/* CTAs — identical across all slides. Mobile: stacked, full-width.
-              sm+ : inline row. lg: right-aligned (unchanged). */}
-          <div className="mt-7 flex flex-col gap-3 sm:mt-9 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 lg:justify-end">
+          {/* CTAs — identical across all slides. Mobile: stacked full-width,
+              pushed to the bottom of the image via mt-auto. sm+: inline row.
+              lg: back inline under the paragraph, right-aligned (unchanged). */}
+          <div className="mt-auto flex flex-col gap-3 pt-8 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 lg:mt-9 lg:justify-end lg:pt-0">
             <ButtonLink href="/book" variant="solid" size="lg" className="w-full sm:w-auto">
               Book Now
             </ButtonLink>
