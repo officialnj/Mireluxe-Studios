@@ -21,6 +21,9 @@ yarn-error.log*
 .env*.local
 .env
 
+# supabase CLI local link metadata (can contain a pooler connection string)
+/supabase/.temp/
+
 # claude code local settings
 .claude/settings.local.json
 
