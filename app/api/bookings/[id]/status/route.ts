@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createServiceRoleClient } from '@/lib/supabase/server';
 
+export const dynamic = 'force-dynamic';
+
 const paramsSchema = z.object({ id: z.string().uuid() });
 
 // The booking id itself acts as an unguessable capability token here — this

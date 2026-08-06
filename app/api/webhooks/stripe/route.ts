@@ -3,7 +3,7 @@ import type Stripe from 'stripe';
 import { getStripe } from '@/lib/stripe';
 import { createServiceRoleClient } from '@/lib/supabase/server';
 import { getResend } from '@/lib/resend';
-import { customerConfirmationEmail, ownerNotificationEmail } from '@/lib/email/templates';
+import { customerConfirmationEmail, ownerNotificationEmail, type BundleLineInfo } from '@/lib/email/templates';
 import type { DbBooking, DbService } from '@/lib/booking/types';
 
 export const runtime = 'nodejs';
@@ -59,11 +59,25 @@ async function sendConfirmationEmails(
   const { data: service } = await supabase.from('services').select('*').eq('id', booking.service_id).single();
   if (!service) return;
 
+  const { data: bookingBundles } = await supabase
+    .from('booking_bundles')
+    .select('quantity, price_pence_at_booking, bundle_variants(inches, colour)')
+    .eq('booking_id', booking.id);
+
+  const bundleLines: BundleLineInfo[] = (bookingBundles ?? [])
+    .filter((line) => line.bundle_variants)
+    .map((line) => ({
+      inches: (line.bundle_variants as unknown as { inches: number; colour: string }).inches,
+      colour: (line.bundle_variants as unknown as { inches: number; colour: string }).colour,
+      quantity: line.quantity,
+      pricePence: line.price_pence_at_booking,
+    }));
+
   try {
     const resend = getResend();
     const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL;
-    const customerEmail = customerConfirmationEmail(booking, service as DbService);
-    const ownerEmail = ownerNotificationEmail(booking, service as DbService);
+    const customerEmail = customerConfirmationEmail(booking, service as DbService, bundleLines);
+    const ownerEmail = ownerNotificationEmail(booking, service as DbService, bundleLines);
 
     await Promise.allSettled([
       resend.emails.send({

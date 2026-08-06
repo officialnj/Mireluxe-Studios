@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { getAdminUser } from '@/lib/supabase/admin-auth';
 import { createServiceRoleClient } from '@/lib/supabase/server';
 
+export const dynamic = 'force-dynamic';
+
 const bodySchema = z.object({
   blockedDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   startTime: z.string().nullable(),

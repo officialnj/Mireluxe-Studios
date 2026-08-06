@@ -7,7 +7,7 @@ export default async function AdminBookingsPage() {
   const supabase = createServiceRoleClient();
   const { data: bookings } = await supabase
     .from('bookings')
-    .select('*, services(name, duration_mins)')
+    .select('*, services(name, service_time_mins)')
     .in('status', ['pending_payment', 'confirmed'])
     .order('appointment_start', { ascending: true });
 

@@ -2,14 +2,20 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createServiceRoleClient } from '@/lib/supabase/server';
 import { getDayAvailability } from '@/lib/booking/availability';
-import { computeTotals } from '@/lib/booking/pricing';
+import { computeTotals, type BundleLine } from '@/lib/booking/pricing';
 import { BOOKING_HOLD_MINUTES } from '@/lib/booking/constants';
 import { getStripe } from '@/lib/stripe';
-import type { DbBundle } from '@/lib/booking/types';
+import type { DbBundleVariant } from '@/lib/booking/types';
 
 const payloadSchema = z.object({
   serviceId: z.string().uuid(),
-  bundleId: z.string().uuid().nullable(),
+  hairIncluded: z.boolean(),
+  bundleLines: z.array(
+    z.object({
+      bundleVariantId: z.string().uuid(),
+      quantity: z.number().int().min(1).max(20),
+    })
+  ),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   slotStart: z.string().datetime(),
   customerName: z.string().trim().min(1).max(200),
@@ -30,11 +36,15 @@ export async function POST(request: NextRequest) {
 
   // Re-derive availability server-side rather than trusting the client's
   // requested slot outright — this is also what enforces hours/window/
-  // blocked-date rules and appointment_end, since the client can't be
-  // trusted to compute any of that correctly.
+  // blocked-date/morning-only rules and appointment_end, since the client
+  // can't be trusted to compute any of that correctly.
   const { slots, service } = await getDayAvailability(supabase, payload.serviceId, payload.date);
   if (!service) {
     return NextResponse.json({ error: 'service_not_found' }, { status: 404 });
+  }
+
+  if (payload.hairIncluded && service.hair_incl_price_pence == null) {
+    return NextResponse.json({ error: 'hair_included_unavailable' }, { status: 400 });
   }
 
   const matchedSlot = slots.find((s) => s.start === payload.slotStart);
@@ -42,16 +52,22 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'slot_unavailable' }, { status: 409 });
   }
 
-  let bundle: DbBundle | null = null;
-  if (payload.bundleId) {
-    const { data } = await supabase.from('bundles').select('*').eq('id', payload.bundleId).eq('active', true).single();
-    bundle = (data as DbBundle) ?? null;
-    if (!bundle) {
-      return NextResponse.json({ error: 'bundle_not_found' }, { status: 404 });
+  const bundleLines: BundleLine[] = [];
+  if (payload.bundleLines.length > 0) {
+    const variantIds = payload.bundleLines.map((line) => line.bundleVariantId);
+    const { data: variants } = await supabase.from('bundle_variants').select('*').in('id', variantIds).eq('in_stock', true);
+    const variantsById = new Map((variants as DbBundleVariant[] | null ?? []).map((v) => [v.id, v]));
+
+    for (const line of payload.bundleLines) {
+      const variant = variantsById.get(line.bundleVariantId);
+      if (!variant) {
+        return NextResponse.json({ error: 'bundle_variant_unavailable' }, { status: 400 });
+      }
+      bundleLines.push({ variant, quantity: line.quantity });
     }
   }
 
-  const totals = computeTotals(service, bundle);
+  const totals = computeTotals(service, payload.hairIncluded, bundleLines);
   const nowIso = new Date().toISOString();
 
   // Opportunistic cleanup: free any stale pending_payment hold that overlaps
@@ -71,7 +87,7 @@ export async function POST(request: NextRequest) {
     .from('bookings')
     .insert({
       service_id: service.id,
-      bundle_id: bundle?.id ?? null,
+      hair_included: payload.hairIncluded,
       customer_name: payload.customerName,
       customer_email: payload.customerEmail,
       customer_phone: payload.customerPhone,
@@ -79,7 +95,6 @@ export async function POST(request: NextRequest) {
       appointment_start: matchedSlot.start,
       appointment_end: matchedSlot.end,
       service_price_pence: totals.servicePricePence,
-      bundle_price_pence: totals.bundlePricePence,
       deposit_due_pence: totals.depositDuePence,
       total_price_pence: totals.totalPricePence,
       expires_at: new Date(Date.now() + BOOKING_HOLD_MINUTES * 60_000).toISOString(),
@@ -106,10 +121,18 @@ export async function POST(request: NextRequest) {
       receipt_email: payload.customerEmail,
     });
 
-    await supabase
-      .from('bookings')
-      .update({ stripe_payment_intent_id: paymentIntent.id })
-      .eq('id', booking.id);
+    await supabase.from('bookings').update({ stripe_payment_intent_id: paymentIntent.id }).eq('id', booking.id);
+
+    if (bundleLines.length > 0) {
+      await supabase.from('booking_bundles').insert(
+        bundleLines.map((line) => ({
+          booking_id: booking.id,
+          bundle_variant_id: line.variant.id,
+          quantity: line.quantity,
+          price_pence_at_booking: line.variant.price_pence,
+        }))
+      );
+    }
 
     return NextResponse.json({
       bookingId: booking.id,
@@ -120,6 +143,8 @@ export async function POST(request: NextRequest) {
   } catch {
     // Stripe setup failed (bad/placeholder key, network, etc.) — free the
     // slot immediately rather than holding it for the full 15 minutes.
+    // Cascades away any booking_bundles too, but none exist yet at this
+    // point since those are only inserted after Stripe succeeds.
     await supabase.from('bookings').delete().eq('id', booking.id);
     return NextResponse.json({ error: 'payment_setup_failed' }, { status: 502 });
   }

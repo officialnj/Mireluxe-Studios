@@ -7,7 +7,7 @@ import { STUDIO_TIMEZONE } from '@/lib/booking/constants';
 import { formatPence } from '@/lib/booking/pricing';
 import type { DbBooking } from '@/lib/booking/types';
 
-type BookingRow = DbBooking & { services: { name: string; duration_mins: number } | null };
+type BookingRow = DbBooking & { services: { name: string; service_time_mins: number } | null };
 
 export default function BookingsTable({ initialBookings }: { initialBookings: BookingRow[] }) {
   const router = useRouter();

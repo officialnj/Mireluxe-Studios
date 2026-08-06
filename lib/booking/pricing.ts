@@ -1,8 +1,13 @@
-import type { DbBundle, DbService } from './types';
+import type { DbBundleVariant, DbService } from './types';
+
+export type BundleLine = {
+  variant: DbBundleVariant;
+  quantity: number;
+};
 
 export type BookingTotals = {
   servicePricePence: number;
-  bundlePricePence: number;
+  bundlesPricePence: number;
   depositDuePence: number;
   totalPricePence: number;
   balanceAtAppointmentPence: number;
@@ -13,15 +18,16 @@ export type BookingTotals = {
  * recomputes this from the DB when a booking is actually created — this
  * function is never the source of truth for what gets charged.
  */
-export function computeTotals(service: DbService, bundle: DbBundle | null): BookingTotals {
-  const servicePricePence = service.price_from_pence;
-  const bundlePricePence = bundle ? bundle.price_pence : 0;
+export function computeTotals(service: DbService, hairIncluded: boolean, bundleLines: BundleLine[]): BookingTotals {
+  const servicePricePence =
+    hairIncluded && service.hair_incl_price_pence != null ? service.hair_incl_price_pence : service.base_price_pence;
+  const bundlesPricePence = bundleLines.reduce((sum, line) => sum + line.variant.price_pence * line.quantity, 0);
   const depositDuePence = service.deposit_pence;
-  const totalPricePence = servicePricePence + bundlePricePence;
+  const totalPricePence = servicePricePence + bundlesPricePence;
 
   return {
     servicePricePence,
-    bundlePricePence,
+    bundlesPricePence,
     depositDuePence,
     totalPricePence,
     balanceAtAppointmentPence: totalPricePence - depositDuePence,

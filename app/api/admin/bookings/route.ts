@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAdminUser } from '@/lib/supabase/admin-auth';
 import { createServiceRoleClient } from '@/lib/supabase/server';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   const admin = await getAdminUser();
   if (!admin) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
@@ -10,7 +12,7 @@ export async function GET(request: NextRequest) {
   const supabase = createServiceRoleClient();
   let query = supabase
     .from('bookings')
-    .select('*, services(name, duration_mins)')
+    .select('*, services(name, service_time_mins)')
     .in('status', ['pending_payment', 'confirmed'])
     .order('appointment_start', { ascending: true });
 

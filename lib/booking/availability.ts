@@ -100,7 +100,8 @@ function generateCandidateSlots(
   dateStr: string,
   openTime: string,
   closeTime: string,
-  durationMins: number
+  durationMins: number,
+  morningOnly: boolean
 ): TimeSlot[] {
   const closeUtc = fromZonedTime(`${dateStr}T${closeTime}`, STUDIO_TIMEZONE);
   let cursorUtc = fromZonedTime(`${dateStr}T${openTime}`, STUDIO_TIMEZONE);
@@ -109,11 +110,16 @@ function generateCandidateSlots(
   while (true) {
     const slotEndUtc = addMinutes(cursorUtc, durationMins);
     if (isAfter(slotEndUtc, closeUtc)) break;
-    slots.push({
-      start: cursorUtc.toISOString(),
-      end: slotEndUtc.toISOString(),
-      label: formatInTimeZone(cursorUtc, STUDIO_TIMEZONE, 'h:mmaaa'),
-    });
+
+    const localStartTime = formatInTimeZone(cursorUtc, STUDIO_TIMEZONE, 'HH:mm');
+    if (!morningOnly || localStartTime < '12:00') {
+      slots.push({
+        start: cursorUtc.toISOString(),
+        end: slotEndUtc.toISOString(),
+        label: formatInTimeZone(cursorUtc, STUDIO_TIMEZONE, 'h:mmaaa'),
+      });
+    }
+
     cursorUtc = addMinutes(cursorUtc, SLOT_INTERVAL_MINUTES);
   }
 
@@ -139,13 +145,21 @@ async function candidateSlotsForDay(
   hoursByWeekday: Map<number, StudioHoursRow>,
   blocked: BlockedDateRow[]
 ): Promise<TimeSlot[]> {
+  if (service.service_time_mins == null) return [];
+
   const hours = hoursByWeekday.get(weekdayOf(dateStr));
   if (!hours || hours.is_closed || !hours.open_time || !hours.close_time) return [];
 
   const { wholeDay, ranges: blockedRanges } = blockedRangesForDay(dateStr, blocked);
   if (wholeDay) return [];
 
-  const candidates = generateCandidateSlots(dateStr, hours.open_time, hours.close_time, service.duration_mins);
+  const candidates = generateCandidateSlots(
+    dateStr,
+    hours.open_time,
+    hours.close_time,
+    service.service_time_mins,
+    service.morning_only
+  );
   if (candidates.length === 0) return [];
 
   const dayStartUtc = candidates[0].start;

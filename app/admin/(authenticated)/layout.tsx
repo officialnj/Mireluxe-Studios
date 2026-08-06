@@ -17,6 +17,15 @@ export default async function AdminLayout({ children }: { children: ReactNode })
           <Link href="/admin/blocked-dates" className="text-sm text-cream/70 hover:text-gold">
             Blocked Dates
           </Link>
+          <Link href="/admin/services" className="text-sm text-cream/70 hover:text-gold">
+            Services
+          </Link>
+          <Link href="/admin/bundles" className="text-sm text-cream/70 hover:text-gold">
+            Bundle Stock
+          </Link>
+          <Link href="/admin/consumables" className="text-sm text-cream/70 hover:text-gold">
+            Consumables
+          </Link>
         </div>
         <SignOutButton />
       </nav>

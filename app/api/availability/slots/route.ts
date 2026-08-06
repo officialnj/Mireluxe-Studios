@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { createServiceRoleClient } from '@/lib/supabase/server';
 import { getDayAvailability } from '@/lib/booking/availability';
 
+export const dynamic = 'force-dynamic';
+
 const querySchema = z.object({
   serviceId: z.string().uuid(),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'date must be YYYY-MM-DD'),

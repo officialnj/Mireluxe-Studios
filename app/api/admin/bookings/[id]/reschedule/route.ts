@@ -17,12 +17,12 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const supabase = createServiceRoleClient();
   const { data: booking } = await supabase
     .from('bookings')
-    .select('*, services(duration_mins)')
+    .select('*, services(service_time_mins)')
     .eq('id', params.id)
     .single();
   if (!booking) return NextResponse.json({ error: 'not_found' }, { status: 404 });
 
-  const durationMins = booking.services?.duration_mins ?? 60;
+  const durationMins = booking.services?.service_time_mins ?? 60;
   const newStart = new Date(parsed.data.newStart);
   const newEnd = addMinutes(newStart, durationMins);
 
