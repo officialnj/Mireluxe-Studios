@@ -1,0 +1,57 @@
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
+
+let serviceRoleClient: SupabaseClient | null = null;
+
+/**
+ * Service-role client for Route Handlers, webhooks, and cron jobs.
+ * Bypasses RLS entirely — never expose this client or its key to the browser.
+ */
+export function createServiceRoleClient(): SupabaseClient {
+  if (serviceRoleClient) return serviceRoleClient;
+
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) {
+    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
+  }
+
+  serviceRoleClient = createClient(url, key, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+  return serviceRoleClient;
+}
+
+/**
+ * Cookie-bound SSR client for reading the logged-in admin's session in
+ * Server Components / Route Handlers. Respects RLS — used for auth checks,
+ * not for privileged reads/writes (use createServiceRoleClient for those).
+ */
+export function createSsrClient(): SupabaseClient {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !anonKey) {
+    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY');
+  }
+
+  const cookieStore = cookies();
+
+  return createServerClient(url, anonKey, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll();
+      },
+      setAll(cookiesToSet) {
+        try {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options);
+          });
+        } catch {
+          // Called from a Server Component render — middleware refreshes
+          // the session instead, so this can be safely ignored.
+        }
+      },
+    },
+  });
+}

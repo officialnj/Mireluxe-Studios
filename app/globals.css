@@ -77,3 +77,38 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Booking calendar (react-day-picker) — retheme the library's default CSS
+   variables to match the site's gold/charcoal/cream palette instead of
+   writing a full custom classNames map. */
+.rdp-luxe {
+  --rdp-cell-size: 42px;
+  --rdp-accent-color: #b08d57;
+  --rdp-background-color: rgba(176, 141, 87, 0.12);
+  --rdp-accent-color-dark: #c6a678;
+  --rdp-background-color-dark: rgba(198, 166, 120, 0.16);
+  --rdp-outline: 2px solid #b08d57;
+  --rdp-outline-selected: 3px solid #b08d57;
+  --rdp-selected-color: #1a1a1a;
+  margin: 0;
+  color: inherit;
+  font-family: inherit;
+}
+.rdp-luxe .rdp-caption_label,
+.rdp-luxe .rdp-head_cell {
+  font-family: inherit;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.7rem;
+  opacity: 0.6;
+}
+.rdp-luxe .rdp-day_selected,
+.rdp-luxe .rdp-day_selected:hover {
+  background-color: #b08d57;
+  color: #1a1a1a;
+  font-weight: 500;
+}
+.rdp-luxe .rdp-day_today:not(.rdp-day_selected) {
+  color: #b08d57;
+  font-weight: 600;
+}
