@@ -9,7 +9,7 @@ import CTABanner from '@/components/sections/CTABanner';
 export const metadata: Metadata = {
   title: 'About Us — MIRILUXE Studios',
   description:
-    'The story of MIRILUXE Studios — a luxury braid studio in Wembley founded by Miracle De’Shanae.',
+    "The story of MIRILUXE Studios — a luxury braid studio in Wembley founded by Mirakle De'shane.",
 };
 
 export default function AboutPage() {
@@ -45,7 +45,7 @@ export default function AboutPage() {
                 What began as a passion for detail-driven braided styles has grown
                 into a private Wembley studio where every appointment is treated as
                 an experience. With over three years in the hair and beauty
-                industry, founder Miracle has refined a signature approach: precise,
+                industry, founder Mirakle has refined a signature approach: precise,
                 tension-free, and unmistakably luxurious.
               </p>
               <p>

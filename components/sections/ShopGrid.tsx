@@ -3,6 +3,8 @@
 import Image from 'next/image';
 import { useMemo, useState } from 'react';
 import { PRODUCTS, PRODUCT_CATEGORIES, IMG } from '@/lib/site';
+import { formatPence } from '@/lib/booking/pricing';
+import { useCart } from '@/components/CartProvider';
 import Reveal from '@/components/Reveal';
 import { Tag } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -16,20 +18,19 @@ const IMAGES = [
   `${IMG}/ceo.jpg`,
 ];
 
-const priceNum = (p: string) => Number(p.replace(/[^0-9.]/g, ''));
-
 export default function ShopGrid() {
   const [category, setCategory] = useState('All');
   const [sort, setSort] = useState('Featured');
+  const cart = useCart();
 
   const items = useMemo(() => {
     let list = PRODUCTS.filter(
       (p) => category === 'All' || p.category === category
     );
     if (sort === 'Price: Low to High')
-      list = [...list].sort((a, b) => priceNum(a.price) - priceNum(b.price));
+      list = [...list].sort((a, b) => a.pricePence - b.pricePence);
     if (sort === 'Price: High to Low')
-      list = [...list].sort((a, b) => priceNum(b.price) - priceNum(a.price));
+      list = [...list].sort((a, b) => b.pricePence - a.pricePence);
     if (sort === 'Name')
       list = [...list].sort((a, b) => a.name.localeCompare(b.name));
     return list;
@@ -102,12 +103,24 @@ export default function ShopGrid() {
                   {product.spec}
                 </p>
                 <p className="mt-4 font-serif text-2xl font-light text-gold">
-                  {product.price}
+                  {formatPence(product.pricePence)}
                 </p>
                 <p className="mt-2 text-[0.68rem] uppercase tracking-[0.15em] text-charcoal/45 dark:text-cream/45">
                   Add to your appointment at checkout
                 </p>
-                <Button size="sm" className="mt-5 w-full">
+                <Button
+                  size="sm"
+                  className="mt-5 w-full"
+                  onClick={() =>
+                    cart.addProductLine({
+                      slug: product.slug,
+                      name: product.name,
+                      pricePence: product.pricePence,
+                      spec: product.spec,
+                      category: product.category,
+                    })
+                  }
+                >
                   Add to Cart
                 </Button>
               </div>

@@ -1,7 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { addMinutes, addMonths, endOfMonth, format, isAfter, parseISO } from 'date-fns';
+import { addDays, addMinutes, format, isAfter, parseISO } from 'date-fns';
 import { fromZonedTime, formatInTimeZone, toZonedTime } from 'date-fns-tz';
-import { SLOT_INTERVAL_MINUTES, SLOT_RELEASE_DAY, STUDIO_TIMEZONE } from './constants';
+import { SLOT_INTERVAL_MINUTES, STUDIO_TIMEZONE } from './constants';
 import type { AvailableDayMap, DbService, TimeSlot } from './types';
 
 type StudioHoursRow = {
@@ -22,6 +22,11 @@ type BookingRangeRow = {
   appointment_end: string;
 };
 
+type BookingSettingsRow = {
+  buffer_minutes: number;
+  advance_booking_days: number;
+};
+
 /**
  * Dates below are always treated as Europe/London calendar dates
  * (YYYY-MM-DD), independent of the server's runtime timezone. Any Date
@@ -31,11 +36,13 @@ type BookingRangeRow = {
  * server timezone.
  */
 
-export function getReleasedWindow(now: Date = new Date()): { from: string; through: string } {
+export function getReleasedWindow(
+  advanceBookingDays: number,
+  now: Date = new Date()
+): { from: string; through: string } {
   const londonNow = toZonedTime(now, STUDIO_TIMEZONE);
   const from = format(londonNow, 'yyyy-MM-dd');
-  const releaseMonthAnchor = londonNow.getDate() >= SLOT_RELEASE_DAY ? addMonths(londonNow, 1) : londonNow;
-  const through = format(endOfMonth(releaseMonthAnchor), 'yyyy-MM-dd');
+  const through = format(addDays(londonNow, advanceBookingDays), 'yyyy-MM-dd');
   return { from, through };
 }
 
@@ -60,6 +67,12 @@ async function fetchStudioHours(supabase: SupabaseClient): Promise<Map<number, S
   const { data, error } = await supabase.from('studio_hours').select('*');
   if (error || !data) return new Map();
   return new Map((data as StudioHoursRow[]).map((row) => [row.day_of_week, row]));
+}
+
+async function fetchBookingSettings(supabase: SupabaseClient): Promise<BookingSettingsRow> {
+  const { data, error } = await supabase.from('booking_settings').select('*').eq('id', true).single();
+  if (error || !data) return { buffer_minutes: 0, advance_booking_days: 60 };
+  return data as BookingSettingsRow;
 }
 
 async function fetchBlockedDates(
@@ -143,7 +156,8 @@ async function candidateSlotsForDay(
   service: DbService,
   dateStr: string,
   hoursByWeekday: Map<number, StudioHoursRow>,
-  blocked: BlockedDateRow[]
+  blocked: BlockedDateRow[],
+  bufferMinutes: number
 ): Promise<TimeSlot[]> {
   if (service.service_time_mins == null) return [];
 
@@ -165,7 +179,10 @@ async function candidateSlotsForDay(
   const dayStartUtc = candidates[0].start;
   const dayEndUtc = candidates[candidates.length - 1].end;
   const bookings = await fetchActiveBookings(supabase, dayStartUtc, dayEndUtc);
-  const bookingRanges = bookings.map((b) => ({ start: new Date(b.appointment_start), end: new Date(b.appointment_end) }));
+  const bookingRanges = bookings.map((b) => ({
+    start: new Date(b.appointment_start),
+    end: addMinutes(new Date(b.appointment_end), bufferMinutes),
+  }));
 
   return candidates.filter((slot) => {
     const start = new Date(slot.start);
@@ -182,13 +199,13 @@ export async function getMonthAvailability(
   const service = await fetchService(supabase, serviceId);
   if (!service) return {};
 
-  const window = getReleasedWindow();
+  const settings = await fetchBookingSettings(supabase);
+  const window = getReleasedWindow(settings.advance_booking_days);
   const [year, month] = monthStr.split('-').map(Number);
-  const monthStart = new Date(Date.UTC(year, month - 1, 1));
   const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
 
   const hoursByWeekday = await fetchStudioHours(supabase);
-  const blocked = await fetchBlockedDates(supabase, `${monthStr}-01`, format(endOfMonth(monthStart), 'yyyy-MM-dd'));
+  const blocked = await fetchBlockedDates(supabase, `${monthStr}-01`, `${monthStr}-${String(daysInMonth).padStart(2, '0')}`);
 
   const result: AvailableDayMap = {};
   for (let day = 1; day <= daysInMonth; day++) {
@@ -197,7 +214,7 @@ export async function getMonthAvailability(
       result[dateStr] = false;
       continue;
     }
-    const slots = await candidateSlotsForDay(supabase, service, dateStr, hoursByWeekday, blocked);
+    const slots = await candidateSlotsForDay(supabase, service, dateStr, hoursByWeekday, blocked, settings.buffer_minutes);
     result[dateStr] = slots.length > 0;
   }
 
@@ -212,7 +229,8 @@ export async function getDayAvailability(
   const service = await fetchService(supabase, serviceId);
   if (!service) return { slots: [], fullyBooked: false, service: null };
 
-  const window = getReleasedWindow();
+  const settings = await fetchBookingSettings(supabase);
+  const window = getReleasedWindow(settings.advance_booking_days);
   if (dateStr < window.from || dateStr > window.through) {
     return { slots: [], fullyBooked: false, service };
   }
@@ -222,7 +240,7 @@ export async function getDayAvailability(
   const hours = hoursByWeekday.get(weekdayOf(dateStr));
 
   const wasOpenDay = !!hours && !hours.is_closed && !!hours.open_time && !!hours.close_time;
-  const slots = await candidateSlotsForDay(supabase, service, dateStr, hoursByWeekday, blocked);
+  const slots = await candidateSlotsForDay(supabase, service, dateStr, hoursByWeekday, blocked, settings.buffer_minutes);
 
   return { slots, fullyBooked: wasOpenDay && slots.length === 0, service };
 }

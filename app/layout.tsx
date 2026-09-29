@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Fraunces, Inter } from 'next/font/google';
 import './globals.css';
 import ThemeProvider from '@/components/ThemeProvider';
+import CartProvider from '@/components/CartProvider';
+import CartDrawer from '@/components/CartDrawer';
 import Nav from '@/components/Nav';
 import Footer from '@/components/Footer';
 
@@ -21,7 +23,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: 'MIRILUXE Studios — Luxury Braid Studio · Wembley, NW London',
   description:
-    'Where braiding is elevated into a luxury experience. Detail-driven, flawless braided styles crafted by Miracle in a private Wembley studio.',
+    'Where braiding is elevated into a luxury experience. Detail-driven, flawless braided styles crafted by Mirakle in a private Wembley studio.',
   keywords: [
     'braiding',
     'knotless braids',
@@ -40,9 +42,12 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning className={`${fraunces.variable} ${inter.variable}`}>
       <body className="font-sans">
         <ThemeProvider>
-          <Nav />
-          <main>{children}</main>
-          <Footer />
+          <CartProvider>
+            <Nav />
+            <main>{children}</main>
+            <Footer />
+            <CartDrawer />
+          </CartProvider>
         </ThemeProvider>
       </body>
     </html>

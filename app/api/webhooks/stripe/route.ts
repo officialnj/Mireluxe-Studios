@@ -3,7 +3,13 @@ import type Stripe from 'stripe';
 import { getStripe } from '@/lib/stripe';
 import { createServiceRoleClient } from '@/lib/supabase/server';
 import { getResend } from '@/lib/resend';
-import { customerConfirmationEmail, ownerNotificationEmail, type BundleLineInfo } from '@/lib/email/templates';
+import {
+  customerConfirmationEmail,
+  ownerNotificationEmail,
+  shopOrderConfirmationEmail,
+  type BundleLineInfo,
+  type ShopOrder,
+} from '@/lib/email/templates';
 import type { DbBooking, DbService } from '@/lib/booking/types';
 
 export const runtime = 'nodejs';
@@ -40,6 +46,18 @@ export async function POST(request: NextRequest) {
 
     if (booking) {
       await sendConfirmationEmails(supabase, booking as DbBooking);
+    } else {
+      const { data: order } = await supabase
+        .from('shop_orders')
+        .update({ status: 'paid' })
+        .eq('stripe_payment_intent_id', intent.id)
+        .eq('status', 'pending_payment')
+        .select()
+        .single();
+
+      if (order) {
+        await sendShopOrderConfirmationEmail(order as ShopOrder);
+      }
     }
   }
 
@@ -98,5 +116,21 @@ async function sendConfirmationEmails(
   } catch {
     // Resend not configured yet (placeholder key) — booking is already
     // confirmed in the DB regardless, email is a best-effort side effect.
+  }
+}
+
+async function sendShopOrderConfirmationEmail(order: ShopOrder) {
+  try {
+    const resend = getResend();
+    const email = shopOrderConfirmationEmail(order);
+    await resend.emails.send({
+      from: 'MIRILUXE Studios <bookings@mireluxestudios.co.uk>',
+      to: order.customer_email,
+      subject: email.subject,
+      html: email.html,
+    });
+  } catch {
+    // Same best-effort semantics as sendConfirmationEmails — the order is
+    // already marked paid in the DB regardless of email delivery.
   }
 }

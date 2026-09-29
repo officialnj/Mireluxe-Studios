@@ -1,4 +1,3 @@
-export const SLOT_RELEASE_DAY = 20;
 export const STUDIO_TIMEZONE = 'Europe/London';
 export const BOOKING_HOLD_MINUTES = 15;
 export const SLOT_INTERVAL_MINUTES = 30;

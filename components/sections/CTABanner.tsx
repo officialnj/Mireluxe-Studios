@@ -5,7 +5,7 @@ import { ButtonLink } from '@/components/ui/Button';
 
 export default function CTABanner({
   title = 'Ready to slay your crown?',
-  support = 'New slots release on the 20th of every month. Reserve your chair and leave feeling like the most confident version of yourself.',
+  support = 'Reserve your chair and leave feeling like the most confident version of yourself.',
 }: {
   title?: string;
   support?: string;

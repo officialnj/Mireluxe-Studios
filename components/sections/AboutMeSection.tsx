@@ -19,7 +19,7 @@ export default function AboutMeSection() {
           <div className="relative aspect-[4/5] w-full overflow-hidden rounded-3xl">
             <Image
               src={`${IMG}/ceo.jpg`}
-              alt="Miracle De'Shanae, Founder of MIRILUXE Studios"
+              alt="Mirakle De'shane, Founder of MIRILUXE Studios"
               fill
               sizes="(max-width: 1024px) 90vw, 45vw"
               className="object-cover"
@@ -31,7 +31,7 @@ export default function AboutMeSection() {
         <Reveal direction="left" delay={0.1}>
           <span className="eyebrow">Meet the founder</span>
           <h2 className="mt-3 font-serif text-4xl font-light leading-tight tracking-tightest sm:text-5xl">
-            Miracle De’Shanae
+            Mirakle De'shane
           </h2>
           <div className="mt-6 space-y-5 text-sm leading-relaxed text-charcoal/70 dark:text-cream/70 sm:text-base">
             {PARAGRAPHS.map((p) => (
@@ -40,7 +40,7 @@ export default function AboutMeSection() {
           </div>
           <div className="mt-9">
             <ButtonLink href="/book" variant="solid" size="lg">
-              Book with Miracle
+              Book with Mirakle
             </ButtonLink>
           </div>
         </Reveal>

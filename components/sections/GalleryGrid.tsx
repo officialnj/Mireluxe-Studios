@@ -1,19 +1,14 @@
 'use client';
 
 import Image from 'next/image';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GALLERY, GALLERY_CATEGORIES } from '@/lib/site';
+import { GALLERY } from '@/lib/site';
 
 export default function GalleryGrid() {
-  const [category, setCategory] = useState('All');
   const [lightbox, setLightbox] = useState<number | null>(null);
 
-  const items = useMemo(
-    () =>
-      GALLERY.filter((g) => category === 'All' || g.category === category),
-    [category]
-  );
+  const items = GALLERY;
 
   const spanClass = (span: string) =>
     span === 'tall'
@@ -24,23 +19,6 @@ export default function GalleryGrid() {
 
   return (
     <section className="container-luxe pb-24 lg:pb-32">
-      {/* Filters */}
-      <div className="mb-12 flex flex-wrap justify-center gap-2">
-        {GALLERY_CATEGORIES.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setCategory(cat)}
-            className={`rounded-full border px-5 py-2 text-[0.7rem] font-medium uppercase tracking-[0.15em] transition-all duration-300 ${
-              category === cat
-                ? 'border-gold bg-gold text-charcoal'
-                : 'border-charcoal/20 text-charcoal/70 hover:border-gold hover:text-gold dark:border-cream/20 dark:text-cream/70'
-            }`}
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
-
       {/* Masonry-style grid */}
       <motion.div
         layout
