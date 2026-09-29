@@ -14,7 +14,7 @@ export default function GalleryPage() {
       <PageHero
         eyebrow="The Gallery"
         title="A portfolio of finished crowns"
-        intro="Browse a curated selection of recent work. Filter by style, and tap any image to view it in full."
+        intro="Browse a curated selection of recent work. Tap any image to view it in full."
       />
       <GalleryGrid />
     </>

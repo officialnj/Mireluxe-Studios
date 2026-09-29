@@ -10,6 +10,7 @@ import OrderSummary from '@/components/booking/OrderSummary';
 import PaymentStep from '@/components/booking/PaymentStep';
 import BundleUpsell, { type BundleLine } from '@/components/booking/BundleUpsell';
 import { computeTotals, formatPence } from '@/lib/booking/pricing';
+import { useCart } from '@/components/CartProvider';
 import type { DbBundleVariant, DbService, DbServiceCategory, TimeSlot } from '@/lib/booking/types';
 
 const field =
@@ -28,6 +29,8 @@ type Props = {
   categories: DbServiceCategory[];
   services: DbService[];
   bundleVariants: DbBundleVariant[];
+  initialServiceSlug?: string;
+  advanceBookingDays: number;
 };
 
 function formatDuration(mins: number): string {
@@ -38,14 +41,31 @@ function formatDuration(mins: number): string {
 const PREP_NOTICE =
   'Please arrive with natural hair freshly washed and blow-dried, free of any oils or conditioners.';
 
-export default function BookingForm({ categories, services, bundleVariants }: Props) {
+export default function BookingForm({ categories, services, bundleVariants, initialServiceSlug, advanceBookingDays }: Props) {
+  const cart = useCart();
   const categoriesWithServices = categories.filter((c) => services.some((s) => s.category_id === c.id));
 
-  const [step, setStep] = useState<Step>('service');
-  const [activeCategoryId, setActiveCategoryId] = useState<string | null>(categoriesWithServices[0]?.id ?? null);
-  const [serviceId, setServiceId] = useState<string | null>(null);
-  const [hairIncluded, setHairIncluded] = useState(false);
-  const [bundleLines, setBundleLines] = useState<BundleLine[]>([]);
+  const matchedService = initialServiceSlug
+    ? services.find((s) => s.slug === initialServiceSlug) ?? null
+    : null;
+
+  const [step, setStep] = useState<Step>(matchedService ? 'bundles' : 'service');
+  const [activeCategoryId, setActiveCategoryId] = useState<string | null>(
+    matchedService?.category_id ?? categoriesWithServices[0]?.id ?? null
+  );
+  const [serviceId, setServiceId] = useState<string | null>(matchedService?.id ?? null);
+  const [hairIncluded, setHairIncluded] = useState(
+    matchedService ? matchedService.hair_incl_price_pence != null : false
+  );
+  const bundleLines = cart.bundleLines;
+  function setBundleLines(lines: BundleLine[]) {
+    cart.setBundleLines(
+      lines.map((l) => ({
+        ...l,
+        pricePence: bundleVariants.find((v) => v.id === l.variantId)?.price_pence ?? 0,
+      }))
+    );
+  }
 
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
@@ -219,6 +239,9 @@ export default function BookingForm({ categories, services, bundleVariants }: Pr
                     )}
                   </div>
                   <p className="mt-1 text-xs text-charcoal/55 dark:text-cream/55">{service.description}</p>
+                  {service.note && (
+                    <p className="mt-1 text-xs text-gold">{service.note}</p>
+                  )}
                   <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-charcoal/50 dark:text-cream/50">
                     {service.service_time_mins != null && <span>Service time: {formatDuration(service.service_time_mins)}</span>}
                     {service.style_duration_weeks && <span>Lasts: {service.style_duration_weeks}</span>}
@@ -429,7 +452,7 @@ export default function BookingForm({ categories, services, bundleVariants }: Pr
       )}
 
       <p className="mt-10 text-center text-[0.68rem] text-charcoal/45 dark:text-cream/45">
-        New slots release on the 20th of each month.
+        Book up to {advanceBookingDays} days ahead.
       </p>
     </div>
   );

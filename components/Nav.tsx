@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { NAV_LINKS } from '@/lib/site';
 import { ButtonLink } from '@/components/ui/Button';
 import ThemeToggle from '@/components/ThemeToggle';
+import { useCart } from '@/components/CartProvider';
 
 function Icon({ name }: { name: 'search' | 'account' | 'cart' }) {
   const paths: Record<string, JSX.Element> = {
@@ -64,6 +65,7 @@ export default function Nav() {
   const overHero = pathname === '/';
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const cart = useCart();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -116,11 +118,17 @@ export default function Nav() {
           <button aria-label="Account" className="hidden h-9 w-9 items-center justify-center rounded-full transition-colors hover:text-gold sm:flex">
             <Icon name="account" />
           </button>
-          <button aria-label="Cart" className="relative flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:text-gold">
+          <button
+            aria-label="Cart"
+            onClick={cart.openCart}
+            className="relative flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:text-gold"
+          >
             <Icon name="cart" />
-            <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-gold text-[0.55rem] font-semibold text-charcoal">
-              0
-            </span>
+            {cart.itemCount > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-gold text-[0.55rem] font-semibold text-charcoal">
+                {cart.itemCount}
+              </span>
+            )}
           </button>
           <ThemeToggle />
           <ButtonLink href="/book" variant="outline" size="sm" className="ml-2 hidden md:inline-flex">

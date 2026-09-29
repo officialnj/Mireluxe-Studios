@@ -1,12 +1,21 @@
 'use client';
 
-import { DEALS } from '@/lib/site';
+import { IMG } from '@/lib/site';
+import { formatPence } from '@/lib/booking/pricing';
+import type { DbService } from '@/lib/booking/types';
 import Reveal from '@/components/Reveal';
 import SectionHeader from '@/components/ui/SectionHeader';
 import { Card, CardImage, Tag } from '@/components/ui/Card';
 import { ButtonLink } from '@/components/ui/Button';
 
-export default function DealsSection() {
+// Placeholder imagery — the `services` table has no image column yet (same
+// gap ServicesCarousel already works around), so these round-robin existing
+// hero photos by deal slug until real per-deal photography exists.
+const DEAL_IMAGES = [`${IMG}/hero-slide-1.jpg`, `${IMG}/hero-slide-2.jpg`, `${IMG}/hero-slide-3.jpg`, `${IMG}/hero.jpg`];
+
+export default function DealsSection({ deals }: { deals: DbService[] }) {
+  if (deals.length === 0) return null;
+
   return (
     <section className="container-luxe py-24 lg:py-32">
       <SectionHeader
@@ -17,15 +26,15 @@ export default function DealsSection() {
       />
 
       <div className="mt-14 grid grid-cols-1 gap-7 md:grid-cols-3">
-        {DEALS.map((deal, i) => (
-          <Reveal key={deal.name} delay={i * 0.1}>
+        {deals.map((deal, i) => (
+          <Reveal key={deal.id} delay={i * 0.1}>
             <Card className="flex h-full flex-col">
-              <CardImage src={deal.image} alt={deal.name} ratio="aspect-[4/5]" />
+              <CardImage src={DEAL_IMAGES[i % DEAL_IMAGES.length]} alt={deal.name} ratio="aspect-[4/5]" />
               <div className="flex flex-1 flex-col p-6">
                 <div className="flex items-center justify-between">
-                  <Tag>{deal.category}</Tag>
+                  <Tag>Trending Deal</Tag>
                   <span className="font-serif text-2xl font-light text-gold">
-                    {deal.price}
+                    {formatPence(deal.hair_incl_price_pence ?? deal.base_price_pence)}
                   </span>
                 </div>
                 <h3 className="mt-4 font-serif text-xl font-light tracking-tight">
@@ -39,7 +48,7 @@ export default function DealsSection() {
                     ✦ {deal.note}
                   </p>
                 )}
-                <ButtonLink href="/book" variant="outline" size="sm" className="mt-6 w-full">
+                <ButtonLink href={`/book?service=${deal.slug}`} variant="outline" size="sm" className="mt-6 w-full">
                   Book Now
                 </ButtonLink>
               </div>

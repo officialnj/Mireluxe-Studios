@@ -93,34 +93,6 @@ export const SERVICES: Service[] = [
   },
 ];
 
-export const DEALS = [
-  {
-    name: 'Goddess Knotless — August Rate',
-    price: '£120',
-    category: 'Signature',
-    image: `${IMG}/hero-slide-1.jpg`,
-    description:
-      'Our most-loved goddess knotless set at a curated August rate. Curled ends included.',
-    note: 'Only 6 premium slots this month',
-  },
-  {
-    name: 'Sew-In Install Edit',
-    price: '£130',
-    category: 'Install',
-    image: `${IMG}/hero-slide-2.jpg`,
-    description:
-      'A flawless, natural sew-in with a bespoke leave-out — book the full glam experience.',
-  },
-  {
-    name: 'Boho Twist Deal',
-    price: '£100',
-    category: 'Textured',
-    image: `${IMG}/hero-slide-3.jpg`,
-    description:
-      'Free-spirited boho twists with curly human-hair blend, finished to perfection.',
-  },
-];
-
 export const HAIR_INCLUDED = SERVICES.filter((s) =>
   ['Hair Included Styles', 'Sew-In Install', 'Goddess Knotless Braids'].includes(
     s.name
@@ -130,7 +102,7 @@ export const HAIR_INCLUDED = SERVICES.filter((s) =>
 export const REVIEWS = [
   {
     quote:
-      'Miracle is genuinely an artist. My knotless braids were the neatest I have ever had, and the studio felt like a private retreat from start to finish.',
+      'Mirakle is genuinely an artist. My knotless braids were the neatest I have ever had, and the studio felt like a private retreat from start to finish.',
     author: 'Verified client',
   },
   {
@@ -147,59 +119,67 @@ export const REVIEWS = [
 
 export const PRODUCTS = [
   {
+    slug: 'signature-knotless-bundle',
     name: 'Signature Knotless Bundle',
     category: 'Braiding Hair',
     spec: 'Pre-stretched · 3 packs · 26"',
-    price: '£28',
+    pricePence: 2800,
     stock: 'In stock',
   },
   {
+    slug: 'goddess-curl-pack',
     name: 'Goddess Curl Pack',
     category: 'Curly Add-On',
     spec: 'Human-blend · Water-wave · 18"',
-    price: '£22',
+    pricePence: 2200,
     stock: 'In stock',
   },
   {
+    slug: 'boho-human-hair-curls',
     name: 'Boho Human Hair Curls',
     category: 'Curly Add-On',
     spec: '100% human hair · 20"',
-    price: '£34',
+    pricePence: 3400,
     stock: 'Low stock',
   },
   {
+    slug: 'premium-sew-in-weft',
     name: 'Premium Sew-In Weft',
     category: 'Wefts',
     spec: 'Double-drawn · Bundle of 3 · 22"',
-    price: '£120',
+    pricePence: 12000,
     stock: 'In stock',
   },
   {
+    slug: 'edge-control-lay-kit',
     name: 'Edge Control & Lay Kit',
     category: 'Aftercare',
     spec: 'Strong hold · Flake-free · 100ml',
-    price: '£14',
+    pricePence: 1400,
     stock: 'In stock',
   },
   {
+    slug: 'silk-sleep-bonnet',
     name: 'Silk Sleep Bonnet',
     category: 'Aftercare',
     spec: '100% mulberry silk · Adjustable',
-    price: '£18',
+    pricePence: 1800,
     stock: 'In stock',
   },
   {
+    slug: 'feed-in-control-pack',
     name: 'Feed-In Control Pack',
     category: 'Braiding Hair',
     spec: 'Pre-stretched · 2 packs · 24"',
-    price: '£19',
+    pricePence: 1900,
     stock: 'In stock',
   },
   {
+    slug: 'scalp-soothe-oil',
     name: 'Scalp Soothe Oil',
     category: 'Aftercare',
     spec: 'Tea tree & peppermint · 60ml',
-    price: '£16',
+    pricePence: 1600,
     stock: 'Low stock',
   },
 ];
@@ -227,23 +207,14 @@ export const GALLERY = [
   { src: `${IMG}/hero-slide-1.jpg`, category: 'Boho', span: 'normal' },
 ];
 
-export const GALLERY_CATEGORIES = [
-  'All',
-  'Knotless',
-  'Boho',
-  'Stitch',
-  'Feed-Ins',
-  'Kids',
-];
-
 export const FAQS = [
   {
     q: 'How do I book an appointment?',
     a: 'All appointments are booked online through the Book Appointment page. Choose your style, add any bundle you need, and select a date and time. A booking deposit secures your slot.',
   },
   {
-    q: 'When are new appointment slots released?',
-    a: 'Fresh slots are released on the 20th of every month. Join the newsletter to be notified the moment booking opens, as premium slots move quickly.',
+    q: 'How far ahead can I book?',
+    a: 'New availability opens continuously, so you can always book a future date directly on the Book Appointment page — no need to wait for a fixed release day.',
   },
   {
     q: 'Do you provide the hair?',
@@ -263,7 +234,7 @@ export const STATS = [
   { value: '3+', label: 'Years of craft' },
   { value: '500+', label: 'Crowns styled' },
   { value: '5.0', label: 'Average rating' },
-  { value: '20th', label: 'Monthly slot drop' },
+  { value: '1:1', label: 'Private studio experience' },
 ];
 
 export const WHY_CHOOSE = [

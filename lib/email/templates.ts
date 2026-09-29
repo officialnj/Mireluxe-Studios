@@ -74,6 +74,47 @@ export function customerConfirmationEmail(
   };
 }
 
+export type ShopOrderItem = { slug: string; name: string; quantity: number; pricePence: number };
+
+export type ShopOrder = {
+  id: string;
+  customer_name: string;
+  customer_email: string;
+  shipping_line1: string;
+  shipping_line2: string | null;
+  shipping_city: string;
+  shipping_postcode: string;
+  shipping_country: string;
+  items: ShopOrderItem[];
+  subtotal_pence: number;
+};
+
+export function shopOrderConfirmationEmail(order: ShopOrder): EmailContent {
+  const itemsHtml = order.items
+    .map((item) => `${item.quantity}× ${item.name} — ${formatPence(item.pricePence * item.quantity)}`)
+    .join('<br/>');
+  const address = [order.shipping_line1, order.shipping_line2, order.shipping_city, order.shipping_postcode, order.shipping_country]
+    .filter(Boolean)
+    .join(', ');
+
+  return {
+    subject: `Order confirmed — MIRILUXE Studios`,
+    html: `
+      <div style="font-family: Georgia, serif; max-width: 480px; margin: 0 auto; color:#1a1a1a;">
+        <h1 style="font-size: 22px; font-weight: 400;">Your order is confirmed</h1>
+        <p>Hi ${escapeHtml(order.customer_name)},</p>
+        <p>Thank you for your order from MIRILUXE Studios. Here's what's on its way:</p>
+        <table style="width:100%;border-collapse:collapse;margin:20px 0;">
+          ${row('Items', itemsHtml)}
+          ${row('Total', formatPence(order.subtotal_pence))}
+          ${row('Shipping to', escapeHtml(address))}
+        </table>
+        <p>We can't wait for you to try it.<br/>MIRILUXE Studios</p>
+      </div>
+    `,
+  };
+}
+
 export function ownerNotificationEmail(
   booking: DbBooking,
   service: DbService,

@@ -26,9 +26,9 @@ const SLIDES: Slide[] = [
     eyebrow: 'Wembley · NW London',
     headline: ['Welcome to', 'Miriluxe Studios.'],
     paragraph:
-      'Where braiding is elevated into a luxury experience. I am Miracle, Founder & CEO, with over three years of experience in the hair and beauty industry and a passion for creating flawless, detail-driven braided styles.',
+      'Where braiding is elevated into a luxury experience. I am Mirakle, Founder & CEO, with over three years of experience in the hair and beauty industry and a passion for creating flawless, detail-driven braided styles.',
     paragraphShort:
-      'Where braiding is elevated into a luxury experience, by Miracle — Founder & CEO.',
+      'Where braiding is elevated into a luxury experience, by Mirakle — Founder & CEO.',
     mobilePosition: 'object-[55%_top]',
   },
   {

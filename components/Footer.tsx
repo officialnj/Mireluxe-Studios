@@ -70,8 +70,7 @@ export default function Footer() {
         <div>
           <h4 className="eyebrow mb-6">Newsletter</h4>
           <p className="mb-4 text-sm text-charcoal/70 dark:text-cream/70">
-            New appointment slots release on the 20th of every month. Be the
-            first to know.
+            Be the first to know about new deals and availability.
           </p>
           {joined ? (
             <p className="text-sm text-gold">Thank you — you’re on the list.</p>

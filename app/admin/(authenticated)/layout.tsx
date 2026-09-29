@@ -26,6 +26,9 @@ export default async function AdminLayout({ children }: { children: ReactNode })
           <Link href="/admin/consumables" className="text-sm text-cream/70 hover:text-gold">
             Consumables
           </Link>
+          <Link href="/admin/settings" className="text-sm text-cream/70 hover:text-gold">
+            Settings
+          </Link>
         </div>
         <SignOutButton />
       </nav>

@@ -13,9 +13,10 @@ type Props = {
   clientSecret: string;
   onSuccess: () => void;
   onError: (message: string) => void;
+  buttonLabel?: string;
 };
 
-function PayButton({ onSuccess, onError }: Pick<Props, 'onSuccess' | 'onError'>) {
+function PayButton({ onSuccess, onError, buttonLabel = 'Pay deposit & confirm' }: Pick<Props, 'onSuccess' | 'onError' | 'buttonLabel'>) {
   const stripe = useStripe();
   const elements = useElements();
   const [submitting, setSubmitting] = useState(false);
@@ -44,12 +45,12 @@ function PayButton({ onSuccess, onError }: Pick<Props, 'onSuccess' | 'onError'>)
 
   return (
     <Button type="button" size="md" className="w-full" disabled={!stripe || submitting} onClick={handleSubmit}>
-      {submitting ? 'Processing…' : 'Pay deposit & confirm'}
+      {submitting ? 'Processing…' : buttonLabel}
     </Button>
   );
 }
 
-export default function PaymentStep({ clientSecret, onSuccess, onError }: Props) {
+export default function PaymentStep({ clientSecret, onSuccess, onError, buttonLabel }: Props) {
   if (!stripePromise) {
     return (
       <p className="rounded-xl bg-gold/10 px-4 py-3 text-sm text-charcoal/70 dark:text-cream/70">
@@ -62,7 +63,7 @@ export default function PaymentStep({ clientSecret, onSuccess, onError }: Props)
     <Elements stripe={stripePromise} options={{ clientSecret }}>
       <div className="space-y-5">
         <PaymentElement />
-        <PayButton onSuccess={onSuccess} onError={onError} />
+        <PayButton onSuccess={onSuccess} onError={onError} buttonLabel={buttonLabel} />
       </div>
     </Elements>
   );
