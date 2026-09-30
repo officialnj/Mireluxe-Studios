@@ -1,0 +1,902 @@
+{
+  "_meta": {
+    "source": "https://bookwithmiriluxe.as.me/schedule/0adf12a2",
+    "scraped_at": "2026-09-30",
+    "scraper": "manual browser scrape via claude-in-chrome (Agent A, GATE 1 - no migration written)",
+    "categories_scraped": [
+      "Braids",
+      "FeedIns",
+      "Hair Included Styles",
+      "Miracle Knots",
+      "Ponytails",
+      "Sew-Ins",
+      "Touch-Ups",
+      "Twists"
+    ],
+    "categories_skipped": ["Trending DEALS!"],
+    "notes": "All prices in GBP as displayed on Acuity (e.g. 220.00 = £220.00). duration_mins is the parsed total minutes from the displayed duration string. 'hair_included' true means the Acuity listing itself states hair/bundles are included in the price (usually the 'Hair Included Styles' category or Miracle Knots hair-included variants); false/omitted means the client supplies their own hair/packs. Every 'SHOW ALL' truncation on Braids and Touch-Ups categories was expanded before capture so notes are verbatim and complete."
+  },
+  "categories": {
+    "Braids": [
+      {
+        "name": "Small Knotless Braids",
+        "duration": "10 hours",
+        "duration_mins": 600,
+        "price_gbp": 220.00,
+        "hair_included": false,
+        "notes": [
+          "Hair MUST be clean and rid of any oils and/or conditioners.",
+          "These braids require 4-5 packs of PRE-STRETCHED braiding hair (Depending on length)",
+          "Must be booked in a morning slot (10am-12pm)"
+        ]
+      },
+      {
+        "name": "SMedium Knotless Braids",
+        "duration": "7 hours",
+        "duration_mins": 420,
+        "price_gbp": 180.00,
+        "hair_included": false,
+        "notes": [
+          "Hair MUST be clean and rid of any oils and/or conditioners.",
+          "These braids require 4-5 packs of PRE-STRETCHED braiding hair (Depending on length)",
+          "Must be booked in a morning slot (10am-12pm)"
+        ]
+      },
+      {
+        "name": "Medium Knotless Braids",
+        "duration": "4 hours",
+        "duration_mins": 240,
+        "price_gbp": 140.00,
+        "hair_included": false,
+        "notes": [
+          "Hair MUST be clean and rid of any oils and/or conditioners.",
+          "These braids require 3-4 packs of PRE-STRETCHED braiding hair (Depending on length)",
+          "Can be booked in any slot."
+        ]
+      },
+      {
+        "name": "Large Knotless Braids",
+        "duration": "3 hours",
+        "duration_mins": 180,
+        "price_gbp": 100.00,
+        "hair_included": false,
+        "notes": [
+          "Hair MUST be clean and rid of any oils and/or conditioners.",
+          "These braids require 2-3 packs of PRE-STRETCHED braiding hair.",
+          "Can be booked in any slot."
+        ]
+      },
+      {
+        "name": "Small Fulani Braids",
+        "duration": "8 hours",
+        "duration_mins": 480,
+        "price_gbp": 235.00,
+        "hair_included": false,
+        "notes": [
+          "Hair MUST be clean and rid of any oils and/or conditioners.",
+          "These braids require 4-5 packs of PRE-STRETCHED braiding hair (Depending on length)",
+          "Must be booked in a morning slot (10am-12pm)",
+          "Please add on 'LUXE FREESTYLE' for designs (Curved braids, heart, crisscross etc)"
+        ]
+      },
+      {
+        "name": "Medium Fulani Braids",
+        "duration": "4 hours",
+        "duration_mins": 240,
+        "price_gbp": 120.00,
+        "hair_included": false,
+        "notes": [
+          "Hair MUST be clean and rid of any oils and/or conditioners.",
+          "These braids require 3-4 packs of PRE-STRETCHED braiding hair (Depending on length)",
+          "Can be booked in any slot.",
+          "Please add on 'LUXE FREESTYLE' for designs (Curved braids, heart, crisscross etc)"
+        ]
+      },
+      {
+        "name": "Large Fulani Braids",
+        "duration": "3 hours",
+        "duration_mins": 180,
+        "price_gbp": 100.00,
+        "hair_included": false,
+        "notes": [
+          "Hair MUST be clean and rid of any oils and/or conditioners.",
+          "These braids require 2-3 packs of PRE-STRETCHED braiding hair (Depending on length)",
+          "Can be booked in any slot.",
+          "Please add on 'LUXE FREESTYLE' for designs (Curved braids, heart, crisscross etc)"
+        ]
+      }
+    ],
+    "FeedIns": [
+      {
+        "name": "2 FeedIn Braids",
+        "duration": "30 minutes",
+        "duration_mins": 30,
+        "price_gbp": 40.00,
+        "hair_included": false,
+        "notes": [
+          "Hair MUST be clean and rid of any oils and/or conditioners.",
+          "These braids require 1-2 packs of PRE-STRETCHED braiding hair.",
+          "Can be booked in any slot."
+        ]
+      },
+      {
+        "name": "4 FeedIn Braids",
+        "duration": "1 hour",
+        "duration_mins": 60,
+        "price_gbp": 60.00,
+        "hair_included": false,
+        "notes": []
+      },
+      {
+        "name": "6-8 FeedIn Braids",
+        "duration": "3 hours",
+        "duration_mins": 180,
+        "price_gbp": 80.00,
+        "hair_included": false,
+        "notes": [
+          "Please add on 'LUXE FREESTYLE' for designs (Curved braids, heart, crisscross etc)"
+        ]
+      },
+      {
+        "name": "10-12 FeedIn Braids",
+        "duration": "5 hours",
+        "duration_mins": 300,
+        "price_gbp": 100.00,
+        "hair_included": false,
+        "notes": [
+          "Please add on 'LUXE FREESTYLE' for designs (Curved braids, heart, crisscross etc)"
+        ]
+      },
+      {
+        "name": "12-14 FeedIn Braids",
+        "duration": "5 hours",
+        "duration_mins": 300,
+        "price_gbp": 120.00,
+        "hair_included": false,
+        "notes": [
+          "Please add on 'LUXE FREESTYLE' for designs (Curved braids, heart, crisscross etc)"
+        ]
+      },
+      {
+        "name": "20+ feedins",
+        "duration": "6 hours",
+        "duration_mins": 360,
+        "price_gbp": 160.00,
+        "hair_included": false,
+        "notes": [
+          "Please add on 'LUXE FREESTYLE' for designs (Curved braids, heart, crisscross etc)"
+        ]
+      },
+      {
+        "name": "Small Lemonade Braids",
+        "duration": "6 hours",
+        "duration_mins": 360,
+        "price_gbp": 260.00,
+        "hair_included": null,
+        "notes": [
+          "Cornrows that start from one side of the head and end on the other.",
+          "MUST be booked in an AM slot",
+          "2 packs of x-Preston braiding hair required (verbatim as shown; likely a typo/OCR of 'Xpression' braiding hair)"
+        ],
+        "flag": "Only Lemonade Braids listing found anywhere on the live site. No 'Medium' or 'Large' Lemonade Braids exist on Acuity, and it is filed under the FeedIns category rather than its own 'Lemonade Braids' category. Price (£260) and duration (6h) exactly match the DB's Small Lemonade hair_incl_price_pence/service_time_mins, not its base_price_pence -- see comparison notes."
+      }
+    ],
+    "Hair Included Styles": [
+      {
+        "name": "Small Knotless Boho Braids",
+        "duration": "12 hours",
+        "duration_mins": 720,
+        "price_gbp": 340.00,
+        "hair_included": true,
+        "notes": [
+          "All hair included",
+          "Hair MUST be clean and rid of any oils/ conditioners.",
+          "Must be booked in a morning slot"
+        ]
+      },
+      {
+        "name": "Smedium Knotless Boho Braids",
+        "duration": "8 hours",
+        "duration_mins": 480,
+        "price_gbp": 300.00,
+        "hair_included": true,
+        "notes": [
+          "All hair included",
+          "Hair MUST be clean and rid of any oils/ conditioners.",
+          "Must be booked in a morning slot"
+        ]
+      },
+      {
+        "name": "Medium Knotless Boho Braids",
+        "duration": "6 hours",
+        "duration_mins": 360,
+        "price_gbp": 260.00,
+        "hair_included": true,
+        "notes": [
+          "All hair included",
+          "Hair MUST be clean and rid of any oils/ conditioners.",
+          "Must be booked in a morning slot",
+          "Miriluxe will contact you for consultation after booking"
+        ]
+      },
+      {
+        "name": "Large Knotless Boho Braids",
+        "duration": "4 hours",
+        "duration_mins": 240,
+        "price_gbp": 240.00,
+        "hair_included": true,
+        "notes": [
+          "All hair included",
+          "Hair MUST be clean and rid of any oils/ conditioners.",
+          "Must be booked in a morning slot",
+          "Miriluxe will contact you for consultation after booking"
+        ]
+      },
+      {
+        "name": "Small Fulani Boho Braids",
+        "duration": "10 hours",
+        "duration_mins": 600,
+        "price_gbp": 355.00,
+        "hair_included": true,
+        "notes": [
+          "All hair included",
+          "Hair MUST be clean and rid of any oils/ conditioners.",
+          "Must be booked in a morning slot",
+          "Miriluxe will contact you for consultation after booking"
+        ]
+      },
+      {
+        "name": "Medium Fulani Boho Braids",
+        "duration": "7 hours",
+        "duration_mins": 420,
+        "price_gbp": 275.00,
+        "hair_included": true,
+        "notes": [
+          "All hair included",
+          "Hair MUST be clean and rid of any oils/ conditioners.",
+          "Must be booked in a morning slot",
+          "Miriluxe will contact you for consultation after booking"
+        ]
+      },
+      {
+        "name": "Large Fulani Boho Braids",
+        "duration": "5 hours",
+        "duration_mins": 300,
+        "price_gbp": 225.00,
+        "hair_included": true,
+        "notes": [
+          "All hair included",
+          "Hair MUST be clean and rid of any oils/ conditioners.",
+          "Must be booked in a morning slot",
+          "Miriluxe will contact you for consultation after booking"
+        ]
+      },
+      {
+        "name": "6-8 Boho FeedIns",
+        "duration": "4 hours",
+        "duration_mins": 240,
+        "price_gbp": 150.00,
+        "hair_included": true,
+        "notes": [
+          "All hair included",
+          "Hair MUST be clean and rid of any oils/ conditioners.",
+          "Miriluxe will contact you for consultation after booking"
+        ]
+      },
+      {
+        "name": "10-12 Boho FeedIns",
+        "duration": "5 hours 30 minutes",
+        "duration_mins": 330,
+        "price_gbp": 160.00,
+        "hair_included": true,
+        "notes": [
+          "All hair included",
+          "Hair MUST be clean and rid of any oils/ conditioners.",
+          "Miriluxe will contact you for consultation after booking"
+        ]
+      },
+      {
+        "name": "12-14 Boho FeedIns",
+        "duration": "6 hours",
+        "duration_mins": 360,
+        "price_gbp": 170.00,
+        "hair_included": true,
+        "notes": [
+          "All hair included",
+          "Hair MUST be clean and rid of any oils/ conditioners.",
+          "Miriluxe will contact you for consultation after booking"
+        ]
+      },
+      {
+        "name": "20+ Boho FeedIns",
+        "duration": "7 hours 10 minutes",
+        "duration_mins": 430,
+        "price_gbp": 180.00,
+        "hair_included": true,
+        "notes": [
+          "All hair included",
+          "Hair MUST be clean and rid of any oils/ conditioners.",
+          "Miriluxe will contact you for consultation after booking"
+        ]
+      },
+      {
+        "name": "Small Fulani X Hair Sewin",
+        "duration": "5 hours",
+        "duration_mins": 300,
+        "price_gbp": 350.00,
+        "hair_included": true,
+        "notes": [
+          "All hair included",
+          "Hair MUST be clean and rid of any oils/ conditioners.",
+          "This included x3 18 inch bundles, please contact for different lengths prices",
+          "Miriluxe will contact you for consultation after booking"
+        ]
+      },
+      {
+        "name": "Medium Fulani X Hair Sewin",
+        "duration": "4 hours",
+        "duration_mins": 240,
+        "price_gbp": 310.00,
+        "hair_included": true,
+        "notes": [
+          "All hair included",
+          "Hair MUST be clean and rid of any oils/ conditioners.",
+          "This includes x3 18 inch bundles, please contact for other lengths prices",
+          "Miriluxe will contact you for consultation after booking"
+        ]
+      },
+      {
+        "name": "Large Fulani X Hair Sewin",
+        "duration": "3 hours 30 minutes",
+        "duration_mins": 210,
+        "price_gbp": 270.00,
+        "hair_included": true,
+        "notes": [
+          "All hair included",
+          "Hair MUST be clean and rid of any oils/ conditioners.",
+          "This includes x3 18 inch bundles, please contact for other lengths prices",
+          "Miriluxe will contact you for consultation after booking"
+        ]
+      },
+      {
+        "name": "Small Knotless Boho Twists",
+        "duration": "10 hours",
+        "duration_mins": 600,
+        "price_gbp": 310.00,
+        "hair_included": true,
+        "notes": [
+          "All hair included",
+          "Hair MUST be clean and rid of any oils/ conditioners.",
+          "MUST be booked between 9am - 11am",
+          "Miriluxe will contact you for consultation after booking"
+        ]
+      },
+      {
+        "name": "Smedium Knotless Boho Twists",
+        "duration": "6 hours",
+        "duration_mins": 360,
+        "price_gbp": 270.00,
+        "hair_included": true,
+        "notes": [
+          "All hair included",
+          "Hair MUST be clean and rid of any oils/ conditioners.",
+          "MUST be booked between 9am - 11am",
+          "Miriluxe will contact you for consultation after booking"
+        ]
+      },
+      {
+        "name": "Medium Boho Knotless Twist",
+        "duration": "5 hours",
+        "duration_mins": 300,
+        "price_gbp": 230.00,
+        "hair_included": true,
+        "notes": [
+          "All hair included",
+          "Hair MUST be clean and rid of any oils/ conditioners",
+          "Miriluxe will contact you for consultation after booking"
+        ]
+      },
+      {
+        "name": "Large Knotless Boho Twists",
+        "duration": "3 hours 30 minutes",
+        "duration_mins": 210,
+        "price_gbp": 190.00,
+        "hair_included": true,
+        "notes": [
+          "All hair included",
+          "Hair MUST be clean and rid of any oils/ conditioners.",
+          "Miriluxe will contact you for consultation after booking"
+        ]
+      },
+      {
+        "name": "Small Fulani Boho Twists",
+        "duration": "8 hours",
+        "duration_mins": 480,
+        "price_gbp": 325.00,
+        "hair_included": true,
+        "notes": [
+          "All hair included",
+          "Hair MUST be clean and rid of any oils/ conditioners.",
+          "Miriluxe will contact you for consultation after booking"
+        ]
+      },
+      {
+        "name": "Medium Fulani Boho Twists",
+        "duration": "6 hours",
+        "duration_mins": 360,
+        "price_gbp": 285.00,
+        "hair_included": true,
+        "notes": [
+          "All hair included",
+          "Hair MUST be clean and rid of any oils/ conditioners.",
+          "Miriluxe will contact you for consultation after booking"
+        ]
+      },
+      {
+        "name": "Large Fulani Boho Twists",
+        "duration": "4 hours",
+        "duration_mins": 240,
+        "price_gbp": 265.00,
+        "hair_included": true,
+        "notes": [
+          "All hair included",
+          "Hair MUST be clean and rid of any oils/ conditioners.",
+          "Miriluxe will contact you for consultation after booking"
+        ]
+      },
+      {
+        "name": "Small Miracle Knots",
+        "duration": "6 hours",
+        "duration_mins": 360,
+        "price_gbp": 290.00,
+        "hair_included": true,
+        "notes": [
+          "Includes 2 bundles of our 100% human 18 inch crotchet feathered hair",
+          "Must be booked between 8am-12 midday"
+        ]
+      },
+      {
+        "name": "Smedium Miracle Knots",
+        "duration": "5 hours",
+        "duration_mins": 300,
+        "price_gbp": 250.00,
+        "hair_included": true,
+        "notes": [
+          "Includes x2 of our 100% human 18 inch crotchet feathered hair",
+          "Must be booked between 9am-12 midday"
+        ]
+      }
+    ],
+    "Miracle Knots": [
+      {
+        "name": "Small Miracle Knots",
+        "duration": "7 hours",
+        "duration_mins": 420,
+        "price_gbp": 135.00,
+        "hair_included": false,
+        "notes": [
+          "Must be booked in a morning slot between 8am-12pm",
+          "Requires 2 bundles of crotchet HUMAN HAIR only"
+        ]
+      },
+      {
+        "name": "SMedium Miracle Knots",
+        "duration": "5 hours",
+        "duration_mins": 300,
+        "price_gbp": 115.00,
+        "hair_included": false,
+        "notes": [
+          "Can be booked in any slot",
+          "Requires a minimum of 2 crotchet bundles HUMAN HAIR only"
+        ]
+      },
+      {
+        "name": "Medium Miracle Knots",
+        "duration": "4 hours",
+        "duration_mins": 240,
+        "price_gbp": 95.00,
+        "hair_included": false,
+        "notes": [
+          "Can be booked in any slot",
+          "Requires a minimum of 2 crotchet bundles HUMAN HAIR ONLY"
+        ],
+        "flag": "NO HAIR-INCLUDED COUNTERPART FOUND in 'Hair Included Styles' category (only Small and Smedium Miracle Knots have a Boho/hair-included version)."
+      },
+      {
+        "name": "Large Miracle Knots",
+        "duration": "3 hours",
+        "duration_mins": 180,
+        "price_gbp": 75.00,
+        "hair_included": false,
+        "notes": [
+          "Can be booked in any slot",
+          "Requires a minimum of 1 crotchet bundle HUMAN HAIR only"
+        ],
+        "flag": "NO HAIR-INCLUDED COUNTERPART FOUND in 'Hair Included Styles' category (only Small and Smedium Miracle Knots have a Boho/hair-included version)."
+      }
+    ],
+    "Ponytails": [
+      {
+        "name": "Sleek ponytail x small feedins",
+        "duration": "4 hours",
+        "duration_mins": 240,
+        "price_gbp": 110.00,
+        "hair_included": null,
+        "notes": [
+          "A sleek ponytail finish with cornrows covering a quarter of the head. This style requires 2 bundles of human hair."
+        ]
+      },
+      {
+        "name": "Sleek Ponytail X Medium FeedIns",
+        "duration": "3 hours 30 minutes",
+        "duration_mins": 210,
+        "price_gbp": 90.00,
+        "hair_included": null,
+        "notes": []
+      },
+      {
+        "name": "Sleek Ponytail X Large FeedIns",
+        "duration": "3 hours",
+        "duration_mins": 180,
+        "price_gbp": 70.00,
+        "hair_included": null,
+        "notes": []
+      },
+      {
+        "name": "Small FeedIns Ponytail",
+        "duration": "8 hours",
+        "duration_mins": 480,
+        "price_gbp": 150.00,
+        "hair_included": null,
+        "notes": [
+          "Must be booked between 8am - 12 midday"
+        ]
+      },
+      {
+        "name": "Medium FeedIns Ponytail",
+        "duration": "5 hours",
+        "duration_mins": 300,
+        "price_gbp": 125.00,
+        "hair_included": null,
+        "notes": [
+          "Must be booked between 8am-12 midday",
+          "Please add 'luxe freestyle' If designs are required"
+        ]
+      },
+      {
+        "name": "Large FeedIns Ponytail",
+        "duration": "4 hours",
+        "duration_mins": 240,
+        "price_gbp": 100.00,
+        "hair_included": null,
+        "notes": [
+          "Please add on 'luxe freestyle' if designs are required"
+        ]
+      },
+      {
+        "name": "Small Double Ponytails",
+        "duration": "8 hours",
+        "duration_mins": 480,
+        "price_gbp": 165.00,
+        "hair_included": null,
+        "notes": [
+          "Must be booked between 8am - 12 Midday",
+          "Please add 'luxe freestyle' if designs are required"
+        ]
+      },
+      {
+        "name": "Medium Double Ponytail",
+        "duration": "6 hours",
+        "duration_mins": 360,
+        "price_gbp": 140.00,
+        "hair_included": null,
+        "notes": [
+          "Must be booked between 8am - 12 midday",
+          "Please add on 'luxe freestyle' if designs are required"
+        ]
+      },
+      {
+        "name": "Large Double Ponytail",
+        "duration": "4 hours",
+        "duration_mins": 240,
+        "price_gbp": 115.00,
+        "hair_included": null,
+        "notes": [
+          "Can be booked in any slot",
+          "Please add on 'luxe freestyle' if designs are required"
+        ]
+      },
+      {
+        "name": "Half up , Half Down X FeedIns",
+        "duration": "4 hours",
+        "duration_mins": 240,
+        "price_gbp": 100.00,
+        "hair_included": null,
+        "notes": [
+          "Can be booked in any slot"
+        ]
+      }
+    ],
+    "Sew-Ins": [
+      {
+        "name": "Small Fulani X SewIn",
+        "duration": "4 hours",
+        "duration_mins": 240,
+        "price_gbp": 130.00,
+        "hair_included": false,
+        "notes": [
+          "Please add on bum length if bundles are longer than 24 inches.",
+          "Please add on 'LUXE FREESTYLE' for designs (Curved braids, heart, crisscross etc)"
+        ]
+      },
+      {
+        "name": "Medium Fulani X SewIn",
+        "duration": "4 hours",
+        "duration_mins": 240,
+        "price_gbp": 110.00,
+        "hair_included": false,
+        "notes": [
+          "Please add on 'LUXE FREESTYLE' for designs (Curved braids, heart, crisscross etc)"
+        ]
+      },
+      {
+        "name": "Large Fulani X SewIn",
+        "duration": "3 hours",
+        "duration_mins": 180,
+        "price_gbp": 90.00,
+        "hair_included": false,
+        "notes": []
+      }
+    ],
+    "Touch-Ups": [
+      {
+        "name": "Braids Touch-Up",
+        "duration": "2 hours",
+        "duration_mins": 120,
+        "price_gbp": 50.00,
+        "hair_included": null,
+        "notes": [
+          "Price WILL vary.",
+          "Braids Touch up will be 50% of the original hairstyle price e.g. Original hairstyle : £150, Touch Up: £75",
+          "If you would like a different design from your original designed hairstyle please contact me before your appointment."
+        ]
+      },
+      {
+        "name": "Fulani Touch-Up",
+        "duration": "2 hours",
+        "duration_mins": 120,
+        "price_gbp": 50.00,
+        "hair_included": null,
+        "notes": [
+          "Price WILL vary.",
+          "Fulani Touch up will be 50% of the original hairstyle price e.g. Original hairstyle : £150, Touch Up: £75",
+          "If you would like a different design from your original designed hairstyle please contact me before your appointment."
+        ]
+      }
+    ],
+    "Twists": [
+      {
+        "name": "Small Knotless Twists",
+        "duration": "8 hours",
+        "duration_mins": 480,
+        "price_gbp": 140.00,
+        "hair_included": false,
+        "notes": [
+          "Hair MUST be clean and rid of any oils and/or conditioners.",
+          "These Braids require 4-5 packs of PRE-STRECTHED hair (depending on length)",
+          "Must be booked in a morning slot (10am -12pm)"
+        ]
+      },
+      {
+        "name": "Medium Knotless Twist",
+        "duration": "6 hours",
+        "duration_mins": 360,
+        "price_gbp": 100.00,
+        "hair_included": false,
+        "notes": [
+          "Hair MUST be clean and rid of any oils and/or conditioners.",
+          "These Braids require 3-4 packs of PRE-STRECTHED hair (depending on length)",
+          "Can be booked I any slot."
+        ]
+      },
+      {
+        "name": "Large Knotless Twist",
+        "duration": "4 hours",
+        "duration_mins": 240,
+        "price_gbp": 80.00,
+        "hair_included": false,
+        "notes": [
+          "Hair MUST be clean and rid of any oils and/or conditioners.",
+          "These Braids require 2-3 packs of PRE-STRECTHED hair (depending on length)",
+          "Can be booked I any slot."
+        ]
+      },
+      {
+        "name": "Small Fulani Twists",
+        "duration": "10 hours",
+        "duration_mins": 600,
+        "price_gbp": 130.00,
+        "hair_included": false,
+        "notes": [
+          "Hair MUST be clean and rid of any oils and/or conditioners.",
+          "These Braids require 4-5 packs of PRE-STRECTHED hair (depending on length)",
+          "Must be booked in a morning slot (10am-12pm)."
+        ]
+      },
+      {
+        "name": "Medium Fulani Twists",
+        "duration": "5 hours",
+        "duration_mins": 300,
+        "price_gbp": 110.00,
+        "hair_included": false,
+        "notes": [
+          "Hair MUST be clean and rid of any oils and/or conditioners.",
+          "These Braids require 3-4 packs of PRE-STRECTHED hair (depending on length)",
+          "Can be booked I any slot."
+        ]
+      },
+      {
+        "name": "Large Fulani Twists",
+        "duration": "5 hours 20 minutes",
+        "duration_mins": 320,
+        "price_gbp": 90.00,
+        "hair_included": false,
+        "notes": [
+          "Hair MUST be clean and rid of any oils and/or conditioners.",
+          "These Braids require 2-3 packs of PRE-STRECTHED hair (depending on length)",
+          "Can be booked I any slot."
+        ]
+      },
+      {
+        "name": "Smedium Knotless Twists",
+        "duration": "5 hours",
+        "duration_mins": 300,
+        "price_gbp": 120.00,
+        "hair_included": false,
+        "notes": []
+      }
+    ]
+  },
+  "hair_included_pairing_analysis": [
+    {
+      "no_hair": "Small Knotless Braids (Braids, 600min, £220)",
+      "hair_included": "Small Knotless Boho Braids (Hair Included Styles, 720min, £340)",
+      "confidence": "high"
+    },
+    {
+      "no_hair": "SMedium Knotless Braids (Braids, 420min, £180)",
+      "hair_included": "Smedium Knotless Boho Braids (Hair Included Styles, 480min, £300)",
+      "confidence": "high"
+    },
+    {
+      "no_hair": "Medium Knotless Braids (Braids, 240min, £140)",
+      "hair_included": "Medium Knotless Boho Braids (Hair Included Styles, 360min, £260)",
+      "confidence": "high"
+    },
+    {
+      "no_hair": "Large Knotless Braids (Braids, 180min, £100)",
+      "hair_included": "Large Knotless Boho Braids (Hair Included Styles, 240min, £240)",
+      "confidence": "high"
+    },
+    {
+      "no_hair": "Small Fulani Braids (Braids, 480min, £235)",
+      "hair_included": "Small Fulani Boho Braids (Hair Included Styles, 600min, £355)",
+      "confidence": "high"
+    },
+    {
+      "no_hair": "Medium Fulani Braids (Braids, 240min, £120)",
+      "hair_included": "Medium Fulani Boho Braids (Hair Included Styles, 420min, £275)",
+      "confidence": "high"
+    },
+    {
+      "no_hair": "Large Fulani Braids (Braids, 180min, £100)",
+      "hair_included": "Large Fulani Boho Braids (Hair Included Styles, 300min, £225)",
+      "confidence": "high"
+    },
+    {
+      "no_hair": null,
+      "hair_included": "6-8 Boho FeedIns (Hair Included Styles, 240min, £150)",
+      "confidence": "n/a",
+      "flag": "NO NO-HAIR COUNTERPART FOUND -- the 'FeedIns' category has no hair-included tier in the current DB schema/data at all; this is a wholly new hair-included FeedIns line."
+    },
+    {
+      "no_hair": null,
+      "hair_included": "10-12 Boho FeedIns (Hair Included Styles, 330min, £160)",
+      "confidence": "n/a",
+      "flag": "NO NO-HAIR COUNTERPART FOUND -- same as above."
+    },
+    {
+      "no_hair": null,
+      "hair_included": "12-14 Boho FeedIns (Hair Included Styles, 360min, £170)",
+      "confidence": "n/a",
+      "flag": "NO NO-HAIR COUNTERPART FOUND -- same as above."
+    },
+    {
+      "no_hair": null,
+      "hair_included": "20+ Boho FeedIns (Hair Included Styles, 430min, £180)",
+      "confidence": "n/a",
+      "flag": "NO NO-HAIR COUNTERPART FOUND -- same as above."
+    },
+    {
+      "no_hair": "Small Fulani X SewIn (Sew-Ins, 240min, £130)",
+      "hair_included": "Small Fulani X Hair Sewin (Hair Included Styles, 300min, £350)",
+      "confidence": "medium",
+      "flag": "Plausible match by size/type (same 'Fulani X SewIn' family) but the task brief flagged 'Fulani X Hair Sewin' styles as having no plausible counterpart -- we found one. The +£220 hair premium is much larger than the ~£100-150 premium seen elsewhere, and the name changes from 'SewIn' to 'Hair Sewin'. Flagging for human confirmation rather than asserting certainty."
+    },
+    {
+      "no_hair": "Medium Fulani X SewIn (Sew-Ins, 240min, £110)",
+      "hair_included": "Medium Fulani X Hair Sewin (Hair Included Styles, 240min, £310)",
+      "confidence": "medium",
+      "flag": "Same caveat as Small Fulani X SewIn above -- plausible but unusually large (+£200) premium, and durations happen to be identical (240min) rather than hair-included taking longer."
+    },
+    {
+      "no_hair": "Large Fulani X SewIn (Sew-Ins, 180min, £90)",
+      "hair_included": "Large Fulani X Hair Sewin (Hair Included Styles, 210min, £270)",
+      "confidence": "medium",
+      "flag": "Same caveat as above -- plausible but unusually large (+£180) premium."
+    },
+    {
+      "no_hair": "Small Knotless Twists (Twists, 480min, £140)",
+      "hair_included": "Small Knotless Boho Twists (Hair Included Styles, 600min, £310)",
+      "confidence": "high"
+    },
+    {
+      "no_hair": "Smedium Knotless Twists (Twists, 300min, £120)",
+      "hair_included": "Smedium Knotless Boho Twists (Hair Included Styles, 360min, £270)",
+      "confidence": "high"
+    },
+    {
+      "no_hair": "Medium Knotless Twist (Twists, 360min, £100)",
+      "hair_included": "Medium Boho Knotless Twist (Hair Included Styles, 300min, £230)",
+      "confidence": "high",
+      "flag": "EDGE CASE: hair-included duration (300min/5h) is SHORTER than the no-hair duration (360min/6h) -- the reverse of the usual pattern. Same reversal recurs on every Twists hair-included pair below; verify this isn't a data-entry quirk on Acuity's side before trusting it as real."
+    },
+    {
+      "no_hair": "Large Knotless Twist (Twists, 240min, £80)",
+      "hair_included": "Large Knotless Boho Twists (Hair Included Styles, 210min, £190)",
+      "confidence": "high",
+      "flag": "EDGE CASE: hair-included duration (210min) shorter than no-hair duration (240min) -- see note on Medium Knotless Twist pairing."
+    },
+    {
+      "no_hair": "Small Fulani Twists (Twists, 600min, £130)",
+      "hair_included": "Small Fulani Boho Twists (Hair Included Styles, 480min, £325)",
+      "confidence": "high",
+      "flag": "EDGE CASE: hair-included duration (480min) shorter than no-hair duration (600min) -- see note on Medium Knotless Twist pairing."
+    },
+    {
+      "no_hair": "Medium Fulani Twists (Twists, 300min, £110)",
+      "hair_included": "Medium Fulani Boho Twists (Hair Included Styles, 360min, £285)",
+      "confidence": "high",
+      "flag": "Both sides of this pair are entirely NEW vs the DB -- 'Medium Fulani Twists' does not exist in the DB at all (0002's migration comment explicitly says it was omitted pending confirmation that it exists -- it does)."
+    },
+    {
+      "no_hair": "Large Fulani Twists (Twists, 320min, £90)",
+      "hair_included": "Large Fulani Boho Twists (Hair Included Styles, 240min, £265)",
+      "confidence": "high",
+      "flag": "EDGE CASE: hair-included duration (240min) shorter than no-hair duration (320min) -- see note on Medium Knotless Twist pairing."
+    },
+    {
+      "no_hair": "Small Miracle Knots (Miracle Knots, 420min, £135)",
+      "hair_included": "Small Miracle Knots (Hair Included Styles, 360min, £290)",
+      "confidence": "high",
+      "flag": "Identical service name used in both categories -- disambiguate by category, not name, when importing."
+    },
+    {
+      "no_hair": "SMedium Miracle Knots (Miracle Knots, 300min, £115)",
+      "hair_included": "Smedium Miracle Knots (Hair Included Styles, 300min, £250)",
+      "confidence": "high"
+    },
+    {
+      "no_hair": "Medium Miracle Knots (Miracle Knots, 240min, £95)",
+      "hair_included": null,
+      "confidence": "n/a",
+      "flag": "NO HAIR-INCLUDED COUNTERPART FOUND -- Medium Miracle Knots has no Boho/hair-included tier on the live site."
+    },
+    {
+      "no_hair": "Large Miracle Knots (Miracle Knots, 180min, £75)",
+      "hair_included": null,
+      "confidence": "n/a",
+      "flag": "NO HAIR-INCLUDED COUNTERPART FOUND -- Large Miracle Knots has no Boho/hair-included tier on the live site."
+    }
+  ]
+}

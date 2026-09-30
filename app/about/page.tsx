@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import type { Metadata } from 'next';
-import { IMG, STATS, WHY_CHOOSE, FAQS } from '@/lib/site';
+import { ABOUT_PAGE_HERO_IMAGE, STATS, WHY_CHOOSE, FAQS } from '@/lib/site';
 import Reveal from '@/components/Reveal';
 import PageHero from '@/components/ui/PageHero';
 import Accordion from '@/components/ui/Accordion';
@@ -27,7 +27,7 @@ export default function AboutPage() {
           <Reveal direction="right">
             <div className="relative aspect-[4/5] w-full overflow-hidden rounded-3xl">
               <Image
-                src={`${IMG}/hero-slide-1.jpg`}
+                src={ABOUT_PAGE_HERO_IMAGE}
                 alt="Inside the MIRILUXE studio"
                 fill
                 sizes="(max-width: 1024px) 90vw, 45vw"

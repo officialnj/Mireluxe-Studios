@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getAdminUser } from '@/lib/supabase/admin-auth';
 import { createServiceRoleClient } from '@/lib/supabase/server';
+import { revalidatePublicPages } from '@/lib/revalidate';
 
 const bodySchema = z.object({
   buffer_minutes: z.number().int().min(0).max(240),
@@ -23,5 +24,6 @@ export async function PATCH(request: NextRequest) {
     .eq('id', true);
   if (error) return NextResponse.json({ error: 'update_failed' }, { status: 500 });
 
+  revalidatePublicPages();
   return NextResponse.json({ ok: true });
 }

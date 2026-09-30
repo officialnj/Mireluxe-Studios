@@ -3,9 +3,7 @@ import { Fraunces, Inter } from 'next/font/google';
 import './globals.css';
 import ThemeProvider from '@/components/ThemeProvider';
 import CartProvider from '@/components/CartProvider';
-import CartDrawer from '@/components/CartDrawer';
-import Nav from '@/components/Nav';
-import Footer from '@/components/Footer';
+import SiteChrome from '@/components/SiteChrome';
 
 const fraunces = Fraunces({
   subsets: ['latin'],
@@ -43,10 +41,7 @@ export default function RootLayout({
       <body className="font-sans">
         <ThemeProvider>
           <CartProvider>
-            <Nav />
-            <main>{children}</main>
-            <Footer />
-            <CartDrawer />
+            <SiteChrome>{children}</SiteChrome>
           </CartProvider>
         </ThemeProvider>
       </body>

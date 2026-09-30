@@ -1,11 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import PageHero from '@/components/ui/PageHero';
 import { Button } from '@/components/ui/Button';
 import PaymentStep from '@/components/booking/PaymentStep';
 import { useCart } from '@/components/CartProvider';
 import { formatPence } from '@/lib/booking/pricing';
+import { computeShippingPence } from '@/lib/shop/shipping';
+import { createBrowserSupabaseClient } from '@/lib/supabase/browser';
+import type { DbShippingSettings } from '@/lib/shop/types';
 
 const field =
   'w-full rounded-xl border border-charcoal/20 bg-transparent px-4 py-3 text-sm outline-none transition-colors placeholder:text-charcoal/40 focus:border-gold dark:border-cream/20 dark:placeholder:text-cream/40 dark:[color-scheme:dark]';
@@ -27,8 +30,25 @@ export default function ShopCheckoutPage() {
   const [line2, setLine2] = useState('');
   const [city, setCity] = useState('');
   const [postcode, setPostcode] = useState('');
+  const [discountCode, setDiscountCode] = useState('');
+  const [shippingSettings, setShippingSettings] = useState<DbShippingSettings | null>(null);
 
-  const subtotal = cart.productSubtotalPence;
+  const merchandisePence = cart.productSubtotalPence;
+  // Estimate only — the real charge (including discount validation) is
+  // always computed server-side in /api/shop/checkout at submit time.
+  const estimatedShippingPence = shippingSettings ? computeShippingPence(merchandisePence, shippingSettings) : null;
+
+  useEffect(() => {
+    const supabase = createBrowserSupabaseClient();
+    supabase
+      .from('shipping_settings')
+      .select('*')
+      .eq('id', true)
+      .single()
+      .then(({ data }) => {
+        if (data) setShippingSettings(data as DbShippingSettings);
+      });
+  }, []);
 
   async function handleSubmitDetails(e: React.FormEvent) {
     e.preventDefault();
@@ -45,12 +65,17 @@ export default function ShopCheckoutPage() {
           customerEmail,
           customerPhone: customerPhone || undefined,
           shipping: { line1, line2: line2 || undefined, city, postcode, country: 'GB' },
+          discountCode: discountCode.trim() || undefined,
         }),
       });
       const data = await res.json();
 
       if (!res.ok) {
-        setErrorMessage('Something went wrong creating your order. Please try again.');
+        if (data?.error === 'invalid_discount_code') {
+          setErrorMessage(`Discount code: ${data.reason ?? 'not valid'}.`);
+        } else {
+          setErrorMessage('Something went wrong creating your order. Please try again.');
+        }
         return;
       }
 
@@ -97,10 +122,17 @@ export default function ShopCheckoutPage() {
                   <span>{formatPence(line.pricePence * line.quantity)}</span>
                 </div>
               ))}
-              <div className="mt-3 flex justify-between border-t border-charcoal/12 pt-3 text-sm font-medium dark:border-cream/12">
-                <span>Total</span>
-                <span>{formatPence(subtotal)}</span>
+              <div className="flex justify-between py-1 text-sm text-charcoal/65 dark:text-cream/65">
+                <span>Shipping</span>
+                <span>{estimatedShippingPence != null ? formatPence(estimatedShippingPence) : '—'}</span>
               </div>
+              <div className="mt-3 flex justify-between border-t border-charcoal/12 pt-3 text-sm font-medium dark:border-cream/12">
+                <span>Estimated total</span>
+                <span>{formatPence(merchandisePence + (estimatedShippingPence ?? 0))}</span>
+              </div>
+              <p className="mt-2 text-[0.68rem] text-charcoal/45 dark:text-cream/45">
+                A discount code, if applied, is deducted at the next step. Final amount is confirmed before payment.
+              </p>
             </div>
 
             <form onSubmit={handleSubmitDetails} className="space-y-5">
@@ -147,6 +179,18 @@ export default function ShopCheckoutPage() {
                   </label>
                   <input id="postcode" required className={field} value={postcode} onChange={(e) => setPostcode(e.target.value)} />
                 </div>
+              </div>
+              <div>
+                <label className={label} htmlFor="discountCode">
+                  Discount code (optional)
+                </label>
+                <input
+                  id="discountCode"
+                  className={field}
+                  value={discountCode}
+                  onChange={(e) => setDiscountCode(e.target.value)}
+                  placeholder="e.g. WELCOME10"
+                />
               </div>
               <Button type="submit" size="md" className="w-full" disabled={submitting}>
                 {submitting ? 'Please wait…' : 'Continue to payment'}

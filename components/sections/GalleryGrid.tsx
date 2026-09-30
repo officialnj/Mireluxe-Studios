@@ -1,60 +1,60 @@
 'use client';
 
-import Image from 'next/image';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GALLERY } from '@/lib/site';
 
-export default function GalleryGrid() {
+function labelFor(src: string): string {
+  const filename = decodeURIComponent(src.split('/').pop() ?? '');
+  return filename.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').trim() || 'MIRILUXE braided style';
+}
+
+export default function GalleryGrid({ images }: { images: string[] }) {
   const [lightbox, setLightbox] = useState<number | null>(null);
 
-  const items = GALLERY;
-
-  const spanClass = (span: string) =>
-    span === 'tall'
-      ? 'row-span-2'
-      : span === 'wide'
-      ? 'sm:col-span-2'
-      : '';
+  if (images.length === 0) {
+    return (
+      <section className="container-luxe pb-24 text-center lg:pb-32">
+        <p className="text-sm text-charcoal/55 dark:text-cream/55">
+          Photos coming soon.
+        </p>
+      </section>
+    );
+  }
 
   return (
     <section className="container-luxe pb-24 lg:pb-32">
-      {/* Masonry-style grid */}
-      <motion.div
-        layout
-        className="grid auto-rows-[220px] grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4"
-      >
+      {/* Natural-height masonry — each photo keeps its own (typically vertical)
+          proportions rather than being cropped into a fixed box. CSS columns
+          reflow cleanly from 2-up on phones to 4-up on desktop with no JS. */}
+      <div className="columns-2 gap-4 sm:columns-3 lg:columns-4">
         <AnimatePresence>
-          {items.map((item, i) => (
+          {images.map((src, i) => (
             <motion.button
-              layout
-              key={`${item.src}-${item.category}-${i}`}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              key={src}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: Math.min(i * 0.03, 0.3) }}
               onClick={() => setLightbox(i)}
-              className={`group relative overflow-hidden rounded-2xl ${spanClass(item.span)}`}
+              className="group relative mb-4 block w-full overflow-hidden rounded-2xl break-inside-avoid"
             >
-              <Image
-                src={item.src}
-                alt={`${item.category} braided style`}
-                fill
-                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                className="object-cover transition-transform duration-[900ms] ease-luxe group-hover:scale-105"
+              {/* eslint-disable-next-line @next/next/no-img-element -- intrinsic
+                  size is the point: no fixed aspect-ratio box, no crop. */}
+              <img
+                src={src}
+                alt={labelFor(src)}
+                loading="lazy"
+                className="block h-auto w-full rounded-2xl transition-transform duration-[900ms] ease-luxe group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-charcoal/0 transition-colors duration-500 group-hover:bg-charcoal/30" />
-              <span className="absolute bottom-3 left-3 rounded-full bg-charcoal/60 px-3 py-1 text-[0.6rem] font-medium uppercase tracking-[0.15em] text-cream opacity-0 backdrop-blur-sm transition-opacity duration-500 group-hover:opacity-100">
-                {item.category}
-              </span>
+              <div className="absolute inset-0 bg-charcoal/0 transition-colors duration-500 group-hover:bg-charcoal/20" />
             </motion.button>
           ))}
         </AnimatePresence>
-      </motion.div>
+      </div>
 
       {/* Lightbox */}
       <AnimatePresence>
-        {lightbox !== null && items[lightbox] && (
+        {lightbox !== null && images[lightbox] && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -72,22 +72,13 @@ export default function GalleryGrid() {
                 <path d="M18 6 6 18M6 6l12 12" />
               </svg>
             </button>
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={images[lightbox]}
+              alt={labelFor(images[lightbox])}
               onClick={(e) => e.stopPropagation()}
-              className="relative h-[75vh] w-full max-w-4xl overflow-hidden rounded-2xl"
-            >
-              <Image
-                src={items[lightbox].src}
-                alt={`${items[lightbox].category} braided style`}
-                fill
-                sizes="90vw"
-                className="object-contain"
-              />
-            </motion.div>
+              className="max-h-[85vh] max-w-full rounded-2xl object-contain"
+            />
           </motion.div>
         )}
       </AnimatePresence>
