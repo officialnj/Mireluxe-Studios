@@ -24,6 +24,10 @@ yarn-error.log*
 # supabase CLI local link metadata (can contain a pooler connection string)
 /supabase/.temp/
 
+# raw source-photo dump (unoptimized originals, ~864MB) — the resized,
+# deployed copies live in /public/Mireluxe-Studios/ and are tracked normally
+/New Folder With Items/
+
 # claude code local settings
 .claude/settings.local.json
 
