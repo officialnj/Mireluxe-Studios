@@ -4,7 +4,10 @@
 
 @layer base {
   :root {
-    color-scheme: light;
+    /* The site is forced into dark mode site-wide (see
+       components/ThemeProvider.tsx — forcedTheme="dark"), so native form
+       controls/scrollbars should render with the dark UA palette too. */
+    color-scheme: dark;
   }
 
   html {
@@ -111,4 +114,29 @@
 .rdp-luxe .rdp-day_today:not(.rdp-day_selected) {
   color: #b08d57;
   font-weight: 600;
+}
+
+/* Dark-mode overrides — the site now forces dark mode (see
+   components/ThemeProvider.tsx), and these variables previously had no
+   consumer wiring them in (react-day-picker's own -dark suffixed vars are
+   inert unless a theme explicitly reassigns them), so the calendar rendered
+   with the same values in both modes. Swap in higher-contrast gold/cream
+   values against the charcoal background here. */
+.dark .rdp-luxe {
+  --rdp-accent-color: #c6a678;
+  --rdp-background-color: rgba(198, 166, 120, 0.18);
+  --rdp-outline: 2px solid #c6a678;
+  --rdp-outline-selected: 3px solid #c6a678;
+  --rdp-selected-color: #1a1a1a;
+}
+.dark .rdp-luxe .rdp-day_selected,
+.dark .rdp-luxe .rdp-day_selected:hover {
+  background-color: #c6a678;
+  color: #1a1a1a;
+}
+.dark .rdp-luxe .rdp-day_today:not(.rdp-day_selected) {
+  color: #c6a678;
+}
+.dark .rdp-luxe .rdp-button:hover:not([disabled]):not(.rdp-day_selected) {
+  background-color: rgba(198, 166, 120, 0.18);
 }

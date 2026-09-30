@@ -60,7 +60,7 @@ export default function TimeSlotPicker({ serviceId, date, selected, onSelect }: 
             key={slot.start}
             type="button"
             onClick={() => onSelect(slot)}
-            className={`rounded-xl border px-3 py-2.5 text-sm transition-colors duration-300 ${
+            className={`flex min-h-[44px] items-center justify-center rounded-xl border px-3 py-2.5 text-sm transition-colors duration-300 ${
               active
                 ? 'border-gold bg-gold/10 text-gold'
                 : 'border-charcoal/12 hover:border-gold/50 dark:border-cream/12'

@@ -1,5 +1,17 @@
 'use client';
 
+// SUPERSEDED: the default export below is no longer rendered anywhere as of
+// the booking-step-2 catalog rework — see
+// components/booking/BundleCatalog.tsx + BookingBundleCard.tsx, which reuse
+// the shop's per-product BundleCard pattern (grouped by bundle product,
+// scoped length/colour dropdowns) instead of this component's hardcoded,
+// product-agnostic INCH_OPTIONS/COLOUR_OPTIONS picker. Kept in place per
+// DELETIONS.md's deletion lock — not deleted.
+//
+// The `BundleLine` type export below remains load-bearing and is still
+// imported by components/CartProvider.tsx and
+// components/sections/BookingForm.tsx — do not remove it.
+
 import { useState } from 'react';
 import type { DbBundleVariant } from '@/lib/booking/types';
 import { formatPence } from '@/lib/booking/pricing';
@@ -93,7 +105,7 @@ export default function BundleUpsell({ variants, lines, onChange }: Props) {
         type="button"
         onClick={handleAdd}
         disabled={!selectedVariant}
-        className="w-full rounded-xl border border-gold/50 px-4 py-2.5 text-sm text-gold transition-colors duration-300 hover:bg-gold/10 disabled:opacity-40"
+        className="flex min-h-[44px] w-full items-center justify-center rounded-xl border border-gold/50 px-4 py-2.5 text-sm text-gold transition-colors duration-300 hover:bg-gold/10 disabled:opacity-40"
       >
         {selectedVariant ? `Add — ${formatPence(selectedVariant.price_pence)} each` : 'Unavailable'}
       </button>

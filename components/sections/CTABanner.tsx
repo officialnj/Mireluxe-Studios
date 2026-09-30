@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { IMG } from '@/lib/site';
+import { CTA_BANNER_IMAGE } from '@/lib/site';
 import Reveal from '@/components/Reveal';
 import { ButtonLink } from '@/components/ui/Button';
 
@@ -14,7 +14,7 @@ export default function CTABanner({
     <section className="container-luxe py-24 lg:py-32">
       <div className="relative overflow-hidden rounded-3xl">
         <Image
-          src={`${IMG}/hero-slide-2.jpg`}
+          src={CTA_BANNER_IMAGE}
           alt=""
           fill
           sizes="100vw"

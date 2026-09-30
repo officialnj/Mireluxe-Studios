@@ -115,9 +115,13 @@ export default function Nav() {
           <button aria-label="Search" className="hidden h-9 w-9 items-center justify-center rounded-full transition-colors hover:text-gold sm:flex">
             <Icon name="search" />
           </button>
-          <button aria-label="Account" className="hidden h-9 w-9 items-center justify-center rounded-full transition-colors hover:text-gold sm:flex">
+          <Link
+            href="/admin/login"
+            aria-label="Admin login"
+            className="hidden h-9 w-9 items-center justify-center rounded-full transition-colors hover:text-gold sm:flex"
+          >
             <Icon name="account" />
-          </button>
+          </Link>
           <button
             aria-label="Cart"
             onClick={cart.openCart}

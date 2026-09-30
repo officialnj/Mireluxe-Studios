@@ -1,8 +1,9 @@
 import HeroSlider from '@/components/sections/HeroSlider';
-import DealsSection from '@/components/sections/DealsSection';
+import DealsSection from '@/components/home/DealsSection';
 import ServicesCarousel from '@/components/sections/ServicesCarousel';
 import AboutMeSection from '@/components/sections/AboutMeSection';
 import ReviewsSection from '@/components/sections/ReviewsSection';
+import { SHOW_HAIR_INCLUDED_CAROUSEL } from '@/components/home/featureFlags';
 import { createServiceRoleClient } from '@/lib/supabase/server';
 import type { DbService } from '@/lib/booking/types';
 
@@ -30,7 +31,7 @@ export default async function HomePage() {
     <>
       <HeroSlider />
       <DealsSection deals={(deals as DbService[]) ?? []} />
-      <ServicesCarousel />
+      {SHOW_HAIR_INCLUDED_CAROUSEL && <ServicesCarousel />}
       <AboutMeSection />
       <ReviewsSection />
     </>

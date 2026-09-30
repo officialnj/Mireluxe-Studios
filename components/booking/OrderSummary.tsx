@@ -1,6 +1,8 @@
 import { formatPence, type BookingTotals } from '@/lib/booking/pricing';
 
 export type OrderSummaryBundleLine = {
+  variantId: string;
+  bundleName?: string | null;
   inches: number;
   colour: string;
   quantity: number;
@@ -25,9 +27,10 @@ export default function OrderSummary({ serviceName, hairIncluded, bundleLines, t
         <span>{formatPence(totals.servicePricePence)}</span>
       </div>
       {bundleLines.map((line) => (
-        <div key={`${line.inches}-${line.colour}`} className="flex items-center justify-between text-charcoal/70 dark:text-cream/70">
+        <div key={line.variantId} className="flex items-center justify-between text-charcoal/70 dark:text-cream/70">
           <span>
-            {line.quantity}× {line.inches}&quot; bundle ({line.colour})
+            {line.quantity}× {line.bundleName ? `${line.bundleName} — ` : ''}
+            {line.inches}&quot; bundle ({line.colour})
           </span>
           <span>{formatPence(line.pricePence * line.quantity)}</span>
         </div>

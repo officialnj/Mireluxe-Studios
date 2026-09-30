@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import Link from 'next/link';
 import { format } from 'date-fns';
 import Reveal from '@/components/Reveal';
 import { Button } from '@/components/ui/Button';
@@ -8,10 +9,43 @@ import DatePicker from '@/components/booking/DatePicker';
 import TimeSlotPicker from '@/components/booking/TimeSlotPicker';
 import OrderSummary from '@/components/booking/OrderSummary';
 import PaymentStep from '@/components/booking/PaymentStep';
-import BundleUpsell, { type BundleLine } from '@/components/booking/BundleUpsell';
+import { type BundleLine } from '@/components/booking/BundleUpsell';
+import BundleCatalog from '@/components/booking/BundleCatalog';
 import { computeTotals, formatPence } from '@/lib/booking/pricing';
 import { useCart } from '@/components/CartProvider';
-import type { DbBundleVariant, DbService, DbServiceCategory, TimeSlot } from '@/lib/booking/types';
+import type { DbBundle, DbBundleVariant, DbService, DbServiceCategory, TimeSlot } from '@/lib/booking/types';
+
+// Two synthetic tabs come before every real category: "Trending Deals" is
+// always first and selected by default, then "All Styles". These string ids
+// can never collide with a real category's uuid `id`.
+const TRENDING_TAB_ID = 'trending-deals' as const;
+const ALL_STYLES_TAB_ID = 'all-styles' as const;
+type TabId = typeof TRENDING_TAB_ID | typeof ALL_STYLES_TAB_ID | string;
+
+// Real category names in the DB (see supabase/migrations/0002/0003) don't
+// exactly match Acuity's category names (e.g. "Knotless Braids" /
+// "Fulani Braids" / "Lemonade Braids" vs Acuity's single "Braids"), so this
+// is a best-effort keyword match against Acuity's stated order — Braids,
+// FeedIns, Hair Included Styles, Miracle Knots, Ponytails, Sew-Ins,
+// Touch-Ups, Twists — rather than an exact slug list. Categories matching no
+// keyword (or with no active services) fall through to the end, ordered by
+// their own sort_order.
+const CATEGORY_ORDER_KEYWORDS = [
+  'braid',
+  'feed-in',
+  'hair-included',
+  'miracle-knot',
+  'ponytail',
+  'sew-in',
+  'touch-up',
+  'twist',
+];
+
+function categoryRank(cat: DbServiceCategory): number {
+  const haystack = `${cat.slug} ${cat.name}`.toLowerCase();
+  const idx = CATEGORY_ORDER_KEYWORDS.findIndex((kw) => haystack.includes(kw));
+  return idx === -1 ? CATEGORY_ORDER_KEYWORDS.length : idx;
+}
 
 const field =
   'w-full rounded-xl border border-charcoal/20 bg-transparent px-4 py-3 text-sm outline-none transition-colors placeholder:text-charcoal/40 focus:border-gold dark:border-cream/20 dark:placeholder:text-cream/40 dark:[color-scheme:dark]';
@@ -28,9 +62,9 @@ type BookingResult = {
 type Props = {
   categories: DbServiceCategory[];
   services: DbService[];
+  bundles: DbBundle[];
   bundleVariants: DbBundleVariant[];
   initialServiceSlug?: string;
-  advanceBookingDays: number;
 };
 
 function formatDuration(mins: number): string {
@@ -41,17 +75,34 @@ function formatDuration(mins: number): string {
 const PREP_NOTICE =
   'Please arrive with natural hair freshly washed and blow-dried, free of any oils or conditioners.';
 
-export default function BookingForm({ categories, services, bundleVariants, initialServiceSlug, advanceBookingDays }: Props) {
+export default function BookingForm({ categories, services, bundles, bundleVariants, initialServiceSlug }: Props) {
   const cart = useCart();
   const categoriesWithServices = categories.filter((c) => services.some((s) => s.category_id === c.id));
+
+  const trendingCategory = categories.find((c) => c.slug === 'trending-deals') ?? null;
+  const trendingHasServices = !!trendingCategory && services.some((s) => s.category_id === trendingCategory.id);
+
+  const orderedCategories = categoriesWithServices
+    .filter((c) => c.id !== trendingCategory?.id)
+    .sort((a, b) => {
+      const ra = categoryRank(a);
+      const rb = categoryRank(b);
+      return ra !== rb ? ra - rb : a.sort_order - b.sort_order;
+    });
+
+  const tabs: { id: TabId; label: string }[] = [
+    ...(trendingHasServices ? [{ id: TRENDING_TAB_ID, label: 'Trending Deals' }] : []),
+    { id: ALL_STYLES_TAB_ID, label: 'All Styles' },
+    ...orderedCategories.map((c) => ({ id: c.id, label: c.name })),
+  ];
 
   const matchedService = initialServiceSlug
     ? services.find((s) => s.slug === initialServiceSlug) ?? null
     : null;
 
   const [step, setStep] = useState<Step>(matchedService ? 'bundles' : 'service');
-  const [activeCategoryId, setActiveCategoryId] = useState<string | null>(
-    matchedService?.category_id ?? categoriesWithServices[0]?.id ?? null
+  const [activeCategoryId, setActiveCategoryId] = useState<TabId>(
+    matchedService?.category_id ?? (trendingHasServices ? TRENDING_TAB_ID : ALL_STYLES_TAB_ID)
   );
   const [serviceId, setServiceId] = useState<string | null>(matchedService?.id ?? null);
   const [hairIncluded, setHairIncluded] = useState(
@@ -74,13 +125,21 @@ export default function BookingForm({ categories, services, bundleVariants, init
   const [customerEmail, setCustomerEmail] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [notes, setNotes] = useState('');
+  const [hairPrepAgreed, setHairPrepAgreed] = useState(false);
 
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [bookingResult, setBookingResult] = useState<BookingResult | null>(null);
 
   const activeService = services.find((s) => s.id === serviceId) ?? null;
-  const visibleServices = services.filter((s) => s.category_id === activeCategoryId);
+  const visibleServices =
+    activeCategoryId === ALL_STYLES_TAB_ID
+      ? services
+      : activeCategoryId === TRENDING_TAB_ID
+        ? trendingCategory
+          ? services.filter((s) => s.category_id === trendingCategory.id)
+          : []
+        : services.filter((s) => s.category_id === activeCategoryId);
 
   const resolvedBundleLines = useMemo(
     () =>
@@ -99,6 +158,8 @@ export default function BookingForm({ categories, services, bundleVariants, init
   }, [activeService, hairIncluded, resolvedBundleLines]);
 
   const summaryBundleLines = resolvedBundleLines.map((l) => ({
+    variantId: l.variant.id,
+    bundleName: bundles.find((b) => b.id === l.variant.bundle_id)?.name ?? null,
     inches: l.variant.inches,
     colour: l.variant.colour,
     quantity: l.quantity,
@@ -118,7 +179,7 @@ export default function BookingForm({ categories, services, bundleVariants, init
   }
 
   async function handleSubmitDetails() {
-    if (!activeService || !selectedSlot || !dateStr) return;
+    if (!activeService || !selectedSlot || !dateStr || !hairPrepAgreed) return;
     setSubmitting(true);
     setErrorMessage(null);
 
@@ -136,6 +197,7 @@ export default function BookingForm({ categories, services, bundleVariants, init
           customerEmail,
           customerPhone,
           notes: notes || null,
+          hairPrepAgreed,
         }),
       });
       const data = await res.json();
@@ -185,6 +247,12 @@ export default function BookingForm({ categories, services, bundleVariants, init
             <p className="mt-3 text-xs text-charcoal/50 dark:text-cream/50">
               A confirmation email is on its way to {customerEmail}.
             </p>
+            <Link
+              href={`/book/manage/${bookingResult.bookingId}`}
+              className="mt-6 inline-block text-xs uppercase tracking-luxe text-gold underline underline-offset-4"
+            >
+              Manage or reschedule this booking
+            </Link>
           </div>
         </Reveal>
       </div>
@@ -205,20 +273,25 @@ export default function BookingForm({ categories, services, bundleVariants, init
           <p className="mt-2 text-xs text-charcoal/50 dark:text-cream/50">{PREP_NOTICE}</p>
 
           <div className="no-scrollbar mt-6 flex gap-2 overflow-x-auto">
-            {categoriesWithServices.map((cat) => (
+            {tabs.map((tab) => (
               <button
-                key={cat.id}
-                onClick={() => setActiveCategoryId(cat.id)}
-                className={`whitespace-nowrap rounded-full border px-4 py-2 text-xs uppercase tracking-luxe transition-colors duration-300 ${
-                  activeCategoryId === cat.id
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveCategoryId(tab.id)}
+                className={`flex min-h-[44px] shrink-0 items-center whitespace-nowrap rounded-full border px-4 py-2 text-xs uppercase tracking-luxe transition-colors duration-300 ${
+                  activeCategoryId === tab.id
                     ? 'border-gold bg-gold/10 text-gold'
                     : 'border-charcoal/15 text-charcoal/60 hover:border-gold/50 dark:border-cream/15 dark:text-cream/60'
                 }`}
               >
-                {cat.name}
+                {tab.label}
               </button>
             ))}
           </div>
+
+          {visibleServices.length === 0 && (
+            <p className="mt-6 text-sm text-charcoal/50 dark:text-cream/50">No styles in this category yet.</p>
+          )}
 
           <div className="mt-6 space-y-3">
             {visibleServices.map((service) => {
@@ -249,36 +322,67 @@ export default function BookingForm({ categories, services, bundleVariants, init
                   </div>
 
                   <div className="mt-4 flex flex-wrap gap-3">
-                    <button
-                      type="button"
-                      onClick={() => selectService(service, false)}
-                      className={`rounded-xl border px-4 py-2.5 text-sm transition-colors duration-300 ${
-                        active && !hairIncluded
-                          ? 'border-gold bg-gold text-charcoal'
-                          : 'border-charcoal/20 hover:border-gold/50 dark:border-cream/20'
-                      }`}
-                    >
-                      Without hair — {formatPence(service.base_price_pence)}
-                    </button>
-                    {service.hair_incl_price_pence != null && (
+                    {service.hair_incl_price_pence != null && service.hair_incl_price_pence === service.base_price_pence ? (
+                      // All-inclusive service (e.g. some Trending Deals) — hair is
+                      // always included, there's no genuine without-hair tier, so a
+                      // single button avoids showing two identical-priced options.
                       <button
                         type="button"
                         onClick={() => selectService(service, true)}
-                        className={`rounded-xl border px-4 py-2.5 text-sm transition-colors duration-300 ${
-                          active && hairIncluded
+                        className={`flex min-h-[44px] items-center rounded-xl border px-4 py-2.5 text-sm transition-colors duration-300 ${
+                          active
                             ? 'border-gold bg-gold text-charcoal'
                             : 'border-charcoal/20 hover:border-gold/50 dark:border-cream/20'
                         }`}
                       >
-                        With hair — {formatPence(service.hair_incl_price_pence)}
+                        Book — {formatPence(service.hair_incl_price_pence)} (hair included)
                         {service.included_bundle_count > 0 && ` (incl. ${service.included_bundle_count}× ${service.included_bundle_inches}" bundles)`}
                       </button>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => selectService(service, false)}
+                          className={`flex min-h-[44px] items-center rounded-xl border px-4 py-2.5 text-sm transition-colors duration-300 ${
+                            active && !hairIncluded
+                              ? 'border-gold bg-gold text-charcoal'
+                              : 'border-charcoal/20 hover:border-gold/50 dark:border-cream/20'
+                          }`}
+                        >
+                          Without hair — {formatPence(service.base_price_pence)}
+                        </button>
+                        {service.hair_incl_price_pence != null && (
+                          <button
+                            type="button"
+                            onClick={() => selectService(service, true)}
+                            className={`flex min-h-[44px] items-center rounded-xl border px-4 py-2.5 text-sm transition-colors duration-300 ${
+                              active && hairIncluded
+                                ? 'border-gold bg-gold text-charcoal'
+                                : 'border-charcoal/20 hover:border-gold/50 dark:border-cream/20'
+                            }`}
+                          >
+                            With hair — {formatPence(service.hair_incl_price_pence)}
+                            {service.included_bundle_count > 0 && ` (incl. ${service.included_bundle_count}× ${service.included_bundle_inches}" bundles)`}
+                          </button>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
               );
             })}
           </div>
+
+          {activeService && totals && (
+            <div className="mt-6">
+              <OrderSummary
+                serviceName={activeService.name}
+                hairIncluded={hairIncluded}
+                bundleLines={summaryBundleLines}
+                totals={totals}
+              />
+            </div>
+          )}
 
           <Button type="button" size="md" className="mt-8 w-full" disabled={!serviceId} onClick={() => setStep('bundles')}>
             Continue
@@ -296,13 +400,24 @@ export default function BookingForm({ categories, services, bundleVariants, init
             </p>
           ) : (
             <p className="mt-2 text-sm text-charcoal/65 dark:text-cream/65">
-              Add curl-texture bulk braiding hair to your appointment — choose length, colour and quantity below.
+              Add braiding hair bundles to your appointment — choose a style, length, and colour below.
             </p>
           )}
 
-          <div className="mt-6 rounded-2xl border border-charcoal/12 p-6 dark:border-cream/12">
-            <BundleUpsell variants={bundleVariants} lines={bundleLines} onChange={setBundleLines} />
+          <div className="mt-6">
+            <BundleCatalog bundles={bundles} variants={bundleVariants} lines={bundleLines} onChange={setBundleLines} />
           </div>
+
+          {totals && (
+            <div className="mt-6">
+              <OrderSummary
+                serviceName={activeService.name}
+                hairIncluded={hairIncluded}
+                bundleLines={summaryBundleLines}
+                totals={totals}
+              />
+            </div>
+          )}
 
           <div className="mt-8 flex gap-3">
             <Button type="button" variant="outline" size="md" className="flex-1" onClick={() => setStep('service')}>
@@ -337,6 +452,16 @@ export default function BookingForm({ categories, services, bundleVariants, init
             <div className="mt-6">
               <p className={label}>Available times</p>
               <TimeSlotPicker serviceId={activeService.id} date={dateStr} selected={selectedSlot} onSelect={setSelectedSlot} />
+            </div>
+          )}
+          {totals && (
+            <div className="mt-6">
+              <OrderSummary
+                serviceName={activeService.name}
+                hairIncluded={hairIncluded}
+                bundleLines={summaryBundleLines}
+                totals={totals}
+              />
             </div>
           )}
           <div className="mt-8 flex gap-3">
@@ -423,11 +548,24 @@ export default function BookingForm({ categories, services, bundleVariants, init
                 onChange={(e) => setNotes(e.target.value)}
               />
             </div>
+            <label className="flex min-h-[44px] items-start gap-3 rounded-xl border border-gold/30 bg-gold/5 px-4 py-3 text-sm text-charcoal/75 dark:text-cream/75">
+              <input
+                type="checkbox"
+                required
+                checked={hairPrepAgreed}
+                onChange={(e) => setHairPrepAgreed(e.target.checked)}
+                className="mt-0.5 h-5 w-5 shrink-0 rounded border-charcoal/30 text-gold focus:ring-gold dark:border-cream/30"
+              />
+              <span>
+                I confirm my natural hair will be freshly washed and blow-dried, free of any oils or conditioners,
+                before my appointment.
+              </span>
+            </label>
             <div className="flex gap-3">
               <Button type="button" variant="outline" size="md" className="flex-1" onClick={() => setStep('datetime')}>
                 Back
               </Button>
-              <Button type="submit" size="md" className="flex-1" disabled={submitting}>
+              <Button type="submit" size="md" className="flex-1" disabled={submitting || !hairPrepAgreed}>
                 {submitting ? 'Please wait…' : 'Continue to payment'}
               </Button>
             </div>
@@ -452,7 +590,7 @@ export default function BookingForm({ categories, services, bundleVariants, init
       )}
 
       <p className="mt-10 text-center text-[0.68rem] text-charcoal/45 dark:text-cream/45">
-        Book up to {advanceBookingDays} days ahead.
+        New dates for next month open on the 20th of this month.
       </p>
     </div>
   );

@@ -1,17 +1,10 @@
 'use client';
 
 import { useRef } from 'react';
-import { HAIR_INCLUDED } from '@/lib/site';
+import { HAIR_INCLUDED, SERVICES_CAROUSEL_IMAGES as IMAGES } from '@/lib/site';
 import SectionHeader from '@/components/ui/SectionHeader';
 import { Card, CardImage, Tag } from '@/components/ui/Card';
 import { ButtonLink } from '@/components/ui/Button';
-import { IMG } from '@/lib/site';
-
-const IMAGES = [
-  `${IMG}/hero-slide-2.jpg`,
-  `${IMG}/hero-slide-3.jpg`,
-  `${IMG}/hero-slide-1.jpg`,
-];
 
 function Arrow({ dir }: { dir: 'left' | 'right' }) {
   return (
