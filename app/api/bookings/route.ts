@@ -22,6 +22,10 @@ const payloadSchema = z.object({
   customerEmail: z.string().trim().email(),
   customerPhone: z.string().trim().min(1).max(50),
   notes: z.string().trim().max(2000).nullable(),
+  // Hair-prep agreement checkbox — must be checked to submit. Server-enforced
+  // here (not just a disabled submit button in the UI); a request without it
+  // simply fails payload validation.
+  hairPrepAgreed: z.literal(true),
 });
 
 export async function POST(request: NextRequest) {
@@ -55,7 +59,15 @@ export async function POST(request: NextRequest) {
   const bundleLines: BundleLine[] = [];
   if (payload.bundleLines.length > 0) {
     const variantIds = payload.bundleLines.map((line) => line.bundleVariantId);
-    const { data: variants } = await supabase.from('bundle_variants').select('*').in('id', variantIds).eq('in_stock', true);
+    // Effective purchasability is in_stock AND a real remaining quantity —
+    // re-checked here server-side regardless of what the client claims, so
+    // a direct API call can never add an out-of-stock variant to a booking.
+    const { data: variants } = await supabase
+      .from('bundle_variants')
+      .select('*')
+      .in('id', variantIds)
+      .eq('in_stock', true)
+      .gt('stock_quantity', 0);
     const variantsById = new Map((variants as DbBundleVariant[] | null ?? []).map((v) => [v.id, v]));
 
     for (const line of payload.bundleLines) {
@@ -74,10 +86,12 @@ export async function POST(request: NextRequest) {
   // this exact request before we attempt the insert. The DB exclusion
   // constraint checks status literally, not expires_at, so a hold that's
   // logically expired but not yet flipped would otherwise block a
-  // legitimate new booking for no reason.
+  // legitimate new booking for no reason. 'expired' (not 'cancelled') is the
+  // correct terminal status for a lapsed hold — same status the bulk
+  // app/api/cron/expire-bookings sweep now uses.
   await supabase
     .from('bookings')
-    .update({ status: 'cancelled' })
+    .update({ status: 'expired' })
     .eq('status', 'pending_payment')
     .lt('expires_at', nowIso)
     .lt('appointment_start', matchedSlot.end)
@@ -88,6 +102,7 @@ export async function POST(request: NextRequest) {
     .insert({
       service_id: service.id,
       hair_included: payload.hairIncluded,
+      hair_prep_agreed: payload.hairPrepAgreed,
       customer_name: payload.customerName,
       customer_email: payload.customerEmail,
       customer_phone: payload.customerPhone,

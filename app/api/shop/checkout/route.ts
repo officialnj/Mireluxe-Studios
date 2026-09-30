@@ -2,16 +2,29 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createServiceRoleClient } from '@/lib/supabase/server';
 import { getStripe } from '@/lib/stripe';
-import { PRODUCTS } from '@/lib/site';
+import { computeShippingPence } from '@/lib/shop/shipping';
+import { validateAndApplyDiscount } from '@/lib/shop/discounts';
+import type { DbBundleVariant } from '@/lib/booking/types';
+import type { DbShippingSettings } from '@/lib/shop/types';
 
-// Flat placeholder — real UK shipping rates aren't knowable from anything
-// in this codebase (PRODUCTS has no weight data). Confirm real cost with
-// Mirakle before launch.
-const SHOP_SHIPPING_PENCE = 0;
+// Explicitly-flagged placeholder — matches the admin Settings page's own
+// fallback (see components/admin/ShippingSettingsForm.tsx). Real UK shipping
+// rates need Mirakle's actual numbers via /admin/settings.
+const FALLBACK_SHIPPING_SETTINGS: DbShippingSettings = {
+  id: true,
+  flat_rate_pence: 399,
+  free_shipping_threshold_pence: null,
+  updated_at: '',
+};
 
 const payloadSchema = z.object({
   items: z.array(
     z.object({
+      // Historically a PRODUCTS[].slug; the /shop storefront now reads the
+      // unified bundles/bundle_variants tables (Agent E), so the cart's
+      // generic ProductLine.slug field is populated with the
+      // bundle_variants.id (uuid) instead. Field name kept as `slug` to
+      // avoid a frontend/cart-shape change — see components/shop/BundleCard.tsx.
       slug: z.string(),
       quantity: z.number().int().min(1).max(20),
     })
@@ -26,6 +39,9 @@ const payloadSchema = z.object({
     postcode: z.string().trim().min(1).max(20),
     country: z.string().trim().min(2).max(2).default('GB'),
   }),
+  /** Optional discount code — validated server-side, never trust a
+   *  client-sent discount amount. */
+  discountCode: z.string().trim().max(50).optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -35,23 +51,62 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'invalid_payload', details: parsed.error.flatten() }, { status: 400 });
   }
   const payload = parsed.data;
+  const supabase = createServiceRoleClient();
 
-  // Never trust client-submitted prices — re-derive every line from the
-  // server-side PRODUCTS catalogue by slug, same principle already used
-  // for booking pricing in app/api/bookings/route.ts.
+  // Never trust client-submitted prices or stock state — re-resolve every
+  // line from bundle_variants server-side. Effective purchasability is
+  // in_stock = true AND stock_quantity > 0, the same gate already enforced
+  // for booking add-ons in app/api/bookings/route.ts — a direct API call
+  // must never be able to buy an out-of-stock or delisted variant.
+  const variantIds = payload.items.map((item) => item.slug);
+  const [{ data: variants }, { data: bundles }] = await Promise.all([
+    supabase.from('bundle_variants').select('*').in('id', variantIds).eq('in_stock', true).gt('stock_quantity', 0),
+    supabase.from('bundles').select('*'),
+  ]);
+  const variantsById = new Map((variants as DbBundleVariant[] | null ?? []).map((v) => [v.id, v]));
+  const bundleNameById = new Map((bundles ?? []).map((b: { id: string; name: string }) => [b.id, b.name]));
+
   const resolvedItems: { slug: string; name: string; quantity: number; pricePence: number }[] = [];
   for (const item of payload.items) {
-    const product = PRODUCTS.find((p) => p.slug === item.slug);
-    if (!product) {
-      return NextResponse.json({ error: 'product_not_found', slug: item.slug }, { status: 400 });
+    const variant = variantsById.get(item.slug);
+    if (!variant) {
+      return NextResponse.json({ error: 'bundle_variant_unavailable', slug: item.slug }, { status: 400 });
     }
-    resolvedItems.push({ slug: product.slug, name: product.name, quantity: item.quantity, pricePence: product.pricePence });
+    if (item.quantity > variant.stock_quantity) {
+      return NextResponse.json({ error: 'insufficient_stock', slug: item.slug }, { status: 400 });
+    }
+    const bundleName = bundleNameById.get(variant.bundle_id) ?? 'Braiding Hair Bundle';
+    resolvedItems.push({
+      slug: variant.id,
+      name: `${bundleName} — ${variant.inches}" ${variant.colour}`,
+      quantity: item.quantity,
+      pricePence: variant.price_pence,
+    });
   }
 
-  const subtotalPence =
-    resolvedItems.reduce((sum, item) => sum + item.pricePence * item.quantity, 0) + SHOP_SHIPPING_PENCE;
+  const merchandisePence = resolvedItems.reduce((sum, item) => sum + item.pricePence * item.quantity, 0);
 
-  const supabase = createServiceRoleClient();
+  // Shipping is computed on the pre-discount merchandise total, so a coupon
+  // can never zero out or negate the shipping charge.
+  const { data: shippingSettingsRow } = await supabase.from('shipping_settings').select('*').eq('id', true).single();
+  const shippingPence = computeShippingPence(
+    merchandisePence,
+    (shippingSettingsRow as DbShippingSettings | null) ?? FALLBACK_SHIPPING_SETTINGS
+  );
+
+  let discountPence = 0;
+  let discountCodeId: string | null = null;
+  if (payload.discountCode) {
+    const result = await validateAndApplyDiscount(supabase, payload.discountCode, merchandisePence);
+    if (!result.valid) {
+      return NextResponse.json({ error: 'invalid_discount_code', reason: result.reason }, { status: 400 });
+    }
+    discountPence = result.discountPence;
+    discountCodeId = result.discountCodeId;
+  }
+
+  const subtotalPence = merchandisePence - discountPence + shippingPence;
+
   const { data: order, error: insertError } = await supabase
     .from('shop_orders')
     .insert({
@@ -65,6 +120,9 @@ export async function POST(request: NextRequest) {
       shipping_country: payload.shipping.country,
       items: resolvedItems,
       subtotal_pence: subtotalPence,
+      discount_code_id: discountCodeId,
+      discount_pence: discountPence,
+      shipping_pence: shippingPence,
     })
     .select()
     .single();

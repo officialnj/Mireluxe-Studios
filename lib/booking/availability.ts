@@ -1,8 +1,14 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { addDays, addMinutes, format, isAfter, parseISO } from 'date-fns';
+import { addMinutes, addMonths, endOfMonth, format, getDate } from 'date-fns';
 import { fromZonedTime, formatInTimeZone, toZonedTime } from 'date-fns-tz';
-import { SLOT_INTERVAL_MINUTES, STUDIO_TIMEZONE } from './constants';
-import type { AvailableDayMap, DbService, TimeSlot } from './types';
+import {
+  DEFAULT_SLOT_END_HOUR,
+  DEFAULT_SLOT_START_HOUR,
+  MIN_BOOKING_NOTICE_MINUTES,
+  RELEASE_DAY_OF_MONTH,
+  STUDIO_TIMEZONE,
+} from './constants';
+import type { AvailableDayMap, DbService, SlotOverrideAction, TimeSlot } from './types';
 
 type StudioHoursRow = {
   day_of_week: number;
@@ -17,6 +23,12 @@ type BlockedDateRow = {
   end_time: string | null;
 };
 
+type SlotOverrideRow = {
+  date: string;
+  start_time: string;
+  action: SlotOverrideAction;
+};
+
 type BookingRangeRow = {
   appointment_start: string;
   appointment_end: string;
@@ -24,6 +36,7 @@ type BookingRangeRow = {
 
 type BookingSettingsRow = {
   buffer_minutes: number;
+  // advance_booking_days intentionally unread — see getReleasedWindow.
   advance_booking_days: number;
 };
 
@@ -36,20 +49,34 @@ type BookingSettingsRow = {
  * server timezone.
  */
 
-export function getReleasedWindow(
-  advanceBookingDays: number,
-  now: Date = new Date()
-): { from: string; through: string } {
+/**
+ * Booking window: on the 20th of each month at 00:00 Europe/London, the
+ * entirety of the NEXT calendar month opens for booking. Before the 20th,
+ * customers can only book up to the end of the CURRENT calendar month. This
+ * is expressed as a single upper bound (`through`) because next month
+ * opening is additive on top of the remainder of the current month, not a
+ * replacement of it — `through` naturally covers both.
+ *
+ * Replaces the previous rolling `booking_settings.advance_booking_days`
+ * window. That column is intentionally left unread (not dropped, per the
+ * deletion lock) — see the deletion-candidates note in the PR description.
+ */
+export function getReleasedWindow(now: Date = new Date()): { from: string; through: string } {
   const londonNow = toZonedTime(now, STUDIO_TIMEZONE);
   const from = format(londonNow, 'yyyy-MM-dd');
-  const through = format(addDays(londonNow, advanceBookingDays), 'yyyy-MM-dd');
+  const throughAnchor = getDate(londonNow) >= RELEASE_DAY_OF_MONTH ? addMonths(londonNow, 1) : londonNow;
+  const through = format(endOfMonth(throughAnchor), 'yyyy-MM-dd');
   return { from, through };
 }
 
 function weekdayOf(dateStr: string): number {
-  // parseISO on a date-only string yields UTC midnight, so getUTCDay() gives
-  // the correct calendar weekday regardless of server timezone.
-  return parseISO(dateStr).getUTCDay();
+  // Construct a UTC midnight Date for the calendar date and read it back
+  // with getUTCDay() — correct regardless of server timezone.
+  return new Date(`${dateStr}T00:00:00Z`).getUTCDay();
+}
+
+function normalizeTime(t: string): string {
+  return t.slice(0, 5); // "HH:MM:SS" (or "HH:MM") -> "HH:MM"
 }
 
 async function fetchService(supabase: SupabaseClient, serviceId: string): Promise<DbService | null> {
@@ -89,6 +116,20 @@ async function fetchBlockedDates(
   return data as BlockedDateRow[];
 }
 
+async function fetchSlotOverrides(
+  supabase: SupabaseClient,
+  fromStr: string,
+  throughStr: string
+): Promise<SlotOverrideRow[]> {
+  const { data, error } = await supabase
+    .from('slot_overrides')
+    .select('date, start_time, action')
+    .gte('date', fromStr)
+    .lte('date', throughStr);
+  if (error || !data) return [];
+  return data as SlotOverrideRow[];
+}
+
 async function fetchActiveBookings(
   supabase: SupabaseClient,
   fromUtcIso: string,
@@ -109,34 +150,36 @@ function overlapsAny(start: Date, end: Date, ranges: Array<{ start: Date; end: D
   return ranges.some((r) => start < r.end && end > r.start);
 }
 
-function generateCandidateSlots(
-  dateStr: string,
-  openTime: string,
-  closeTime: string,
-  durationMins: number,
-  morningOnly: boolean
-): TimeSlot[] {
-  const closeUtc = fromZonedTime(`${dateStr}T${closeTime}`, STUDIO_TIMEZONE);
-  let cursorUtc = fromZonedTime(`${dateStr}T${openTime}`, STUDIO_TIMEZONE);
+function buildSlot(startUtc: Date, durationMins: number): TimeSlot {
+  const endUtc = addMinutes(startUtc, durationMins);
+  return {
+    start: startUtc.toISOString(),
+    end: endUtc.toISOString(),
+    label: formatInTimeZone(startUtc, STUDIO_TIMEZONE, 'h:mmaaa'),
+  };
+}
+
+/**
+ * Default hourly grid: 08:00, 09:00, ..., 16:00 (16:00 is the last valid
+ * start time). Independent of studio_hours open/close — those columns now
+ * only gate whether the day is open at all (is_closed), not the width of
+ * the bookable window.
+ */
+function generateDefaultCandidates(dateStr: string, durationMins: number, morningOnly: boolean): TimeSlot[] {
   const slots: TimeSlot[] = [];
-
-  while (true) {
-    const slotEndUtc = addMinutes(cursorUtc, durationMins);
-    if (isAfter(slotEndUtc, closeUtc)) break;
-
-    const localStartTime = formatInTimeZone(cursorUtc, STUDIO_TIMEZONE, 'HH:mm');
-    if (!morningOnly || localStartTime < '12:00') {
-      slots.push({
-        start: cursorUtc.toISOString(),
-        end: slotEndUtc.toISOString(),
-        label: formatInTimeZone(cursorUtc, STUDIO_TIMEZONE, 'h:mmaaa'),
-      });
-    }
-
-    cursorUtc = addMinutes(cursorUtc, SLOT_INTERVAL_MINUTES);
+  for (let hour = DEFAULT_SLOT_START_HOUR; hour <= DEFAULT_SLOT_END_HOUR; hour++) {
+    const hh = String(hour).padStart(2, '0');
+    if (morningOnly && `${hh}:00` >= '12:00') continue;
+    const startUtc = fromZonedTime(`${dateStr}T${hh}:00`, STUDIO_TIMEZONE);
+    slots.push(buildSlot(startUtc, durationMins));
   }
-
   return slots;
+}
+
+/** An admin-added `slot_overrides` (action='open') start time for this date. */
+function generateOverrideCandidate(dateStr: string, startTime: string, durationMins: number): TimeSlot {
+  const startUtc = fromZonedTime(`${dateStr}T${startTime}`, STUDIO_TIMEZONE);
+  return buildSlot(startUtc, durationMins);
 }
 
 function blockedRangesForDay(dateStr: string, blocked: BlockedDateRow[]): { wholeDay: boolean; ranges: Array<{ start: Date; end: Date }> } {
@@ -157,38 +200,76 @@ async function candidateSlotsForDay(
   dateStr: string,
   hoursByWeekday: Map<number, StudioHoursRow>,
   blocked: BlockedDateRow[],
+  overrides: SlotOverrideRow[],
   bufferMinutes: number
 ): Promise<TimeSlot[]> {
   if (service.service_time_mins == null) return [];
 
   const hours = hoursByWeekday.get(weekdayOf(dateStr));
-  if (!hours || hours.is_closed || !hours.open_time || !hours.close_time) return [];
+  const dayIsOpen = !!hours && !hours.is_closed && !!hours.open_time && !!hours.close_time;
 
-  const { wholeDay, ranges: blockedRanges } = blockedRangesForDay(dateStr, blocked);
-  if (wholeDay) return [];
+  const dayOverrides = overrides.filter((o) => o.date === dateStr);
+  const blockedStartTimes = new Set(dayOverrides.filter((o) => o.action === 'blocked').map((o) => normalizeTime(o.start_time)));
+  const openOverrideStartTimes = dayOverrides.filter((o) => o.action === 'open').map((o) => normalizeTime(o.start_time));
 
-  const candidates = generateCandidateSlots(
-    dateStr,
-    hours.open_time,
-    hours.close_time,
-    service.service_time_mins,
-    service.morning_only
-  );
+  const defaultCandidates = dayIsOpen
+    ? generateDefaultCandidates(dateStr, service.service_time_mins, service.morning_only).filter(
+        (slot) => !blockedStartTimes.has(formatInTimeZone(new Date(slot.start), STUDIO_TIMEZONE, 'HH:mm'))
+      )
+    : [];
+
+  // Admin-added `open` overrides bypass the default hourly grid, the
+  // morning_only restriction, and the studio_hours is_closed/blocked_dates
+  // whole-day checks below — they're an explicit, date-specific exception.
+  // They are NOT exempt from real booking conflicts (still filtered against
+  // fetchActiveBookings, and ultimately backstopped by the DB's
+  // no_overlapping_bookings exclusion constraint on insert) or the 2-hour
+  // minimum-notice rule, since both apply to the public-facing slot list
+  // this function produces.
+  const overrideCandidates = openOverrideStartTimes.map((t) => generateOverrideCandidate(dateStr, t, service.service_time_mins as number));
+
+  const seenStarts = new Set<string>();
+  const candidates = [...defaultCandidates, ...overrideCandidates].filter((slot) => {
+    if (seenStarts.has(slot.start)) return false;
+    seenStarts.add(slot.start);
+    return true;
+  });
   if (candidates.length === 0) return [];
 
-  const dayStartUtc = candidates[0].start;
-  const dayEndUtc = candidates[candidates.length - 1].end;
+  const dayStartUtc = candidates.reduce((min, c) => (c.start < min ? c.start : min), candidates[0].start);
+  const dayEndUtc = candidates.reduce((max, c) => (c.end > max ? c.end : max), candidates[0].end);
   const bookings = await fetchActiveBookings(supabase, dayStartUtc, dayEndUtc);
   const bookingRanges = bookings.map((b) => ({
     start: new Date(b.appointment_start),
     end: addMinutes(new Date(b.appointment_end), bufferMinutes),
   }));
 
-  return candidates.filter((slot) => {
-    const start = new Date(slot.start);
-    const end = new Date(slot.end);
-    return !overlapsAny(start, end, bookingRanges) && !overlapsAny(start, end, blockedRanges);
-  });
+  const { wholeDay, ranges: blockedRanges } = blockedRangesForDay(dateStr, blocked);
+  const overrideStartSet = new Set(overrideCandidates.map((c) => c.start));
+
+  const minStartUtc = addMinutes(new Date(), MIN_BOOKING_NOTICE_MINUTES);
+
+  return candidates
+    .filter((slot) => {
+      const start = new Date(slot.start);
+      const end = new Date(slot.end);
+
+      // Never past slots, and never inside the 2-hour minimum notice window.
+      if (start < minStartUtc) return false;
+
+      // Never a slot that overlaps an already-booked or currently-held
+      // (pending, non-expired) appointment, regardless of source.
+      if (overlapsAny(start, end, bookingRanges)) return false;
+
+      const isAdminOverride = overrideStartSet.has(slot.start);
+      if (!isAdminOverride) {
+        if (wholeDay) return false;
+        if (overlapsAny(start, end, blockedRanges)) return false;
+      }
+
+      return true;
+    })
+    .sort((a, b) => (a.start < b.start ? -1 : a.start > b.start ? 1 : 0));
 }
 
 export async function getMonthAvailability(
@@ -200,12 +281,15 @@ export async function getMonthAvailability(
   if (!service) return {};
 
   const settings = await fetchBookingSettings(supabase);
-  const window = getReleasedWindow(settings.advance_booking_days);
+  const window = getReleasedWindow();
   const [year, month] = monthStr.split('-').map(Number);
   const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
 
   const hoursByWeekday = await fetchStudioHours(supabase);
-  const blocked = await fetchBlockedDates(supabase, `${monthStr}-01`, `${monthStr}-${String(daysInMonth).padStart(2, '0')}`);
+  const monthStart = `${monthStr}-01`;
+  const monthEnd = `${monthStr}-${String(daysInMonth).padStart(2, '0')}`;
+  const blocked = await fetchBlockedDates(supabase, monthStart, monthEnd);
+  const overrides = await fetchSlotOverrides(supabase, monthStart, monthEnd);
 
   const result: AvailableDayMap = {};
   for (let day = 1; day <= daysInMonth; day++) {
@@ -214,7 +298,7 @@ export async function getMonthAvailability(
       result[dateStr] = false;
       continue;
     }
-    const slots = await candidateSlotsForDay(supabase, service, dateStr, hoursByWeekday, blocked, settings.buffer_minutes);
+    const slots = await candidateSlotsForDay(supabase, service, dateStr, hoursByWeekday, blocked, overrides, settings.buffer_minutes);
     result[dateStr] = slots.length > 0;
   }
 
@@ -230,17 +314,18 @@ export async function getDayAvailability(
   if (!service) return { slots: [], fullyBooked: false, service: null };
 
   const settings = await fetchBookingSettings(supabase);
-  const window = getReleasedWindow(settings.advance_booking_days);
+  const window = getReleasedWindow();
   if (dateStr < window.from || dateStr > window.through) {
     return { slots: [], fullyBooked: false, service };
   }
 
   const hoursByWeekday = await fetchStudioHours(supabase);
   const blocked = await fetchBlockedDates(supabase, dateStr, dateStr);
+  const overrides = await fetchSlotOverrides(supabase, dateStr, dateStr);
   const hours = hoursByWeekday.get(weekdayOf(dateStr));
 
   const wasOpenDay = !!hours && !hours.is_closed && !!hours.open_time && !!hours.close_time;
-  const slots = await candidateSlotsForDay(supabase, service, dateStr, hoursByWeekday, blocked, settings.buffer_minutes);
+  const slots = await candidateSlotsForDay(supabase, service, dateStr, hoursByWeekday, blocked, overrides, settings.buffer_minutes);
 
   return { slots, fullyBooked: wasOpenDay && slots.length === 0, service };
 }

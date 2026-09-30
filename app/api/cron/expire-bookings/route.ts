@@ -13,9 +13,11 @@ export async function GET(request: NextRequest) {
   }
 
   const supabase = createServiceRoleClient();
+  // 'expired' (not 'cancelled') — a lapsed hold is its own terminal status,
+  // distinct from an explicit customer/admin cancellation.
   const { data, error } = await supabase
     .from('bookings')
-    .update({ status: 'cancelled' })
+    .update({ status: 'expired' })
     .eq('status', 'pending_payment')
     .lt('expires_at', new Date().toISOString())
     .select('id');

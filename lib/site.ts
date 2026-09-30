@@ -1,5 +1,16 @@
 export const IMG = '/Mireluxe-Studios/Images';
 
+/** Dedicated photos for sections that previously just reused the 3 hero
+ *  shots. Drop real photos into public/Mireluxe-Studios/Images/ with these
+ *  exact filenames — no code changes needed once they're there. */
+export const SERVICES_CAROUSEL_IMAGES = [
+  `${IMG}/services-carousel-1.jpg`,
+  `${IMG}/services-carousel-2.jpg`,
+  `${IMG}/services-carousel-3.jpg`,
+];
+export const CTA_BANNER_IMAGE = `${IMG}/cta-banner.jpg`;
+export const ABOUT_PAGE_HERO_IMAGE = `${IMG}/about-page-hero.jpg`;
+
 export const NAV_LINKS = [
   { label: 'Home', href: '/' },
   { label: 'About Us', href: '/about' },
