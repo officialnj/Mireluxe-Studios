@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { getAdminUser } from '@/lib/supabase/admin-auth';
 import { createServiceRoleClient } from '@/lib/supabase/server';
 import { getStripe } from '@/lib/stripe';
+import { revalidatePublicPages } from '@/lib/revalidate';
 
 const bodySchema = z.object({ refund: z.boolean().optional() });
 
@@ -29,5 +30,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const { error: updateError } = await supabase.from('bookings').update({ status: 'cancelled' }).eq('id', params.id);
   if (updateError) return NextResponse.json({ error: 'cancel_failed' }, { status: 500 });
 
+  revalidatePublicPages();
   return NextResponse.json({ ok: true });
 }

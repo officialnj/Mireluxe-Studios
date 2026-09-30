@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getAdminUser } from '@/lib/supabase/admin-auth';
 import { createServiceRoleClient } from '@/lib/supabase/server';
+import { revalidatePublicPages } from '@/lib/revalidate';
 
 const rowSchema = z.object({
   day_of_week: z.number().int().min(0).max(6),
@@ -24,5 +25,6 @@ export async function PATCH(request: NextRequest) {
   const { error } = await supabase.from('studio_hours').upsert(parsed.data, { onConflict: 'day_of_week' });
   if (error) return NextResponse.json({ error: 'update_failed' }, { status: 500 });
 
+  revalidatePublicPages();
   return NextResponse.json({ ok: true });
 }

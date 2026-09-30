@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { addMinutes } from 'date-fns';
 import { getAdminUser } from '@/lib/supabase/admin-auth';
 import { createServiceRoleClient } from '@/lib/supabase/server';
+import { revalidatePublicPages } from '@/lib/revalidate';
 
 const bodySchema = z.object({ newStart: z.string().datetime() });
 
@@ -39,5 +40,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     return NextResponse.json({ error: 'reschedule_failed' }, { status: 500 });
   }
 
+  revalidatePublicPages();
   return NextResponse.json({ ok: true });
 }
