@@ -12,6 +12,7 @@ const LINKS = [
   { href: '/admin/blocked-dates', label: 'Blocked Dates' },
   { href: '/admin/service-categories', label: 'Service Categories' },
   { href: '/admin/services', label: 'Services' },
+  { href: '/admin/addons', label: 'Add-ons' },
   { href: '/admin/trending-deals', label: 'Trending Deals' },
   { href: '/admin/bundles', label: 'Products' },
   { href: '/admin/orders', label: 'Orders' },

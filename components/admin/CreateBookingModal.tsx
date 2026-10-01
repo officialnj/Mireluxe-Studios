@@ -84,7 +84,7 @@ export default function CreateBookingModal() {
     }
     let cancelled = false;
     setSlotsLoading(true);
-    fetch(`/api/admin/bookings/slots?serviceId=${form.serviceId}&date=${form.date}`)
+    fetch(`/api/admin/bookings/slots?serviceId=${form.serviceId}&date=${form.date}&hairIncluded=${form.hairIncluded}`)
       .then((res) => res.json())
       .then((data) => {
         if (!cancelled) setSlots(data.slots ?? []);
@@ -98,7 +98,7 @@ export default function CreateBookingModal() {
     return () => {
       cancelled = true;
     };
-  }, [open, form.serviceId, form.date]);
+  }, [open, form.serviceId, form.date, form.hairIncluded]);
 
   const totals = useMemo(() => {
     if (!service) return null;
