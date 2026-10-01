@@ -5,6 +5,20 @@ import { cookies } from 'next/headers';
 let serviceRoleClient: SupabaseClient | null = null;
 
 /**
+ * Next.js on Vercel patches the global `fetch` to cache requests by
+ * URL+params signature at the platform's Data Cache layer — a route's
+ * `dynamic = 'force-dynamic'`/`revalidate = 0` export is meant to disable
+ * this for every fetch in that render tree, but in practice a third-party
+ * client's internal fetch calls (like supabase-js's) can still get cached,
+ * silently serving a stale response that predates the data actually
+ * changing. Explicitly forcing `cache: 'no-store'` on every request this
+ * client makes closes that gap regardless of the route-level setting.
+ */
+function noStoreFetch(input: RequestInfo | URL, init?: RequestInit) {
+  return fetch(input, { ...init, cache: 'no-store' });
+}
+
+/**
  * Service-role client for Route Handlers, webhooks, and cron jobs.
  * Bypasses RLS entirely — never expose this client or its key to the browser.
  */
@@ -19,6 +33,7 @@ export function createServiceRoleClient(): SupabaseClient {
 
   serviceRoleClient = createClient(url, key, {
     auth: { autoRefreshToken: false, persistSession: false },
+    global: { fetch: noStoreFetch },
   });
   return serviceRoleClient;
 }
@@ -38,6 +53,7 @@ export function createSsrClient(): SupabaseClient {
   const cookieStore = cookies();
 
   return createServerClient(url, anonKey, {
+    global: { fetch: noStoreFetch },
     cookies: {
       getAll() {
         return cookieStore.getAll();

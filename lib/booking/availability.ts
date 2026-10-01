@@ -102,7 +102,7 @@ async function fetchBookingSettings(supabase: SupabaseClient): Promise<BookingSe
   return data as BookingSettingsRow;
 }
 
-export async function fetchBlockedDates(
+async function fetchBlockedDates(
   supabase: SupabaseClient,
   fromStr: string,
   throughStr: string
@@ -182,7 +182,7 @@ function generateOverrideCandidate(dateStr: string, startTime: string, durationM
   return buildSlot(startUtc, durationMins);
 }
 
-export function blockedRangesForDay(dateStr: string, blocked: BlockedDateRow[]): { wholeDay: boolean; ranges: Array<{ start: Date; end: Date }> } {
+function blockedRangesForDay(dateStr: string, blocked: BlockedDateRow[]): { wholeDay: boolean; ranges: Array<{ start: Date; end: Date }> } {
   const dayBlocks = blocked.filter((b) => b.blocked_date === dateStr);
   const wholeDay = dayBlocks.some((b) => !b.start_time || !b.end_time);
   if (wholeDay) return { wholeDay: true, ranges: [] };
