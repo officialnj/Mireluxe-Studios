@@ -99,7 +99,7 @@ async function sendRescheduleEmail(
     const resend = getResend();
     const email = rescheduleConfirmationEmail(booking, service as DbService, oldSlot, newSlot);
     await resend.emails.send({
-      from: 'MIRILUXE Studios <bookings@mireluxestudios.co.uk>',
+      from: 'MIRILUXE Studios <bookings@miriluxe.co.uk>',
       to: booking.customer_email,
       replyTo: email.replyTo,
       subject: email.subject,

@@ -64,7 +64,7 @@ While diagnosing it, a temporary debug endpoint was briefly added to a public, u
 
 - **Stripe live-mode connection** — a guided walkthrough was started earlier in the project (client entering her own keys, never the agent) but was paused mid-way needing the exact production domain, which has since resolved (`miriluxe.co.uk` is live). Whether live Stripe keys are actually in Vercel's production env vars was never confirmed in this session — check before assuming real payments work.
 - **`RESEND_API_KEY` / `CRON_SECRET` in production** — confirmed present in local `.env.local`, not independently confirmed in Vercel's production environment. If a customer reports not receiving a confirmation or reminder email, check this first.
-- **Resend sending-domain verification** (SPF/DKIM/DMARC for `mireluxestudios.co.uk`) — needed for Resend to actually deliver, separate from the API key being valid. See `docs/INTEGRATIONS.md`.
+- **Resend sending-domain verification** (SPF/DKIM/DMARC for `miriluxe.co.uk`) — needed for Resend to actually deliver, separate from the API key being valid. See `docs/INTEGRATIONS.md`.
 
 ## Known gaps / missing assets
 

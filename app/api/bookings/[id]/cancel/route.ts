@@ -75,7 +75,7 @@ async function sendCancellationEmail(supabase: ReturnType<typeof createServiceRo
     const resend = getResend();
     const email = cancellationConfirmationEmail(booking, service as DbService);
     await resend.emails.send({
-      from: 'MIRILUXE Studios <bookings@mireluxestudios.co.uk>',
+      from: 'MIRILUXE Studios <bookings@miriluxe.co.uk>',
       to: booking.customer_email,
       replyTo: email.replyTo,
       subject: email.subject,

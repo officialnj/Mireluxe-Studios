@@ -186,7 +186,7 @@ export function customerConfirmationEmail(
   bundleLines: BundleLineInfo[],
   addOnLines: AddOnLineInfo[] = []
 ): EmailContent {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mireluxestudios.co.uk';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://miriluxe.co.uk';
   const balancePence = booking.total_price_pence - booking.deposit_paid_pence;
   const priceTierLabel = booking.hair_included ? `${service.name} (hair included)` : service.name;
 
@@ -319,7 +319,7 @@ export function ownerNotificationEmail(
 // ── 4. Appointment reminder (48h / 24h) ──────────────────────────────────
 
 export function reminderEmail(booking: DbBooking, service: DbService, hoursBefore: 48 | 24): EmailContent {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mireluxestudios.co.uk';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://miriluxe.co.uk';
   const priceTierLabel = booking.hair_included ? `${service.name} (hair included)` : service.name;
   const whenLabel = hoursBefore === 48 ? 'in 2 days' : 'tomorrow';
 
@@ -376,7 +376,7 @@ export function rescheduleConfirmationEmail(
   oldSlot: SlotInfo,
   newSlot: SlotInfo
 ): EmailContent {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mireluxestudios.co.uk';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://miriluxe.co.uk';
   const priceTierLabel = booking.hair_included ? `${service.name} (hair included)` : service.name;
 
   const rows =

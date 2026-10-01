@@ -20,7 +20,7 @@ export const dynamic = 'force-dynamic';
 
 type Supabase = ReturnType<typeof createServiceRoleClient>;
 
-const FROM_ADDRESS = 'MIRILUXE Studios <bookings@mireluxestudios.co.uk>';
+const FROM_ADDRESS = 'MIRILUXE Studios <bookings@miriluxe.co.uk>';
 
 // Postgres exclusion-constraint violation (no_overlapping_bookings).
 const SLOT_CONFLICT_CODE = '23P01';

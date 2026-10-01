@@ -146,24 +146,24 @@ cannot do reliably at volume.
 3. Copy the key (starts `re_...`) — Resend only shows it once. Set it as
    `RESEND_API_KEY` locally and on both hosts (§2.4).
 
-### 2.2 Verify the sending domain (`mireluxestudios.co.uk`)
+### 2.2 Verify the sending domain (`miriluxe.co.uk`)
 
 Resend needs to send FROM this domain (the code hardcodes
-`bookings@mireluxestudios.co.uk` as the from-address today), which means the
+`bookings@miriluxe.co.uk` as the from-address today), which means the
 domain has to prove to email providers (Gmail, Outlook, etc.) that Resend is
 allowed to send on its behalf. Do this once:
 
-1. Resend dashboard → **Domains → Add Domain** → enter `mireluxestudios.co.uk`.
+1. Resend dashboard → **Domains → Add Domain** → enter `miriluxe.co.uk`.
 2. Resend shows a list of DNS records to add at whoever hosts the domain's
    DNS (registrar or a separate DNS provider — check where
-   `mireluxestudios.co.uk`'s nameservers currently point). You'll typically
+   `miriluxe.co.uk`'s nameservers currently point). You'll typically
    see:
    - **SPF (TXT record)** — a plain-language allowlist: it tells other mail
      servers "these are the only servers allowed to send email claiming to
      be from this domain." Resend gives you the exact TXT value to add
      (usually `v=spf1 include:resend... ~all`, or Resend adds itself to an
      existing SPF record if one already exists — a domain can only have
-     ONE SPF TXT record, so if `mireluxestudios.co.uk` already has one for
+     ONE SPF TXT record, so if `miriluxe.co.uk` already has one for
      something else, that record needs to be merged, not duplicated).
    - **DKIM (TXT/CNAME records)** — a cryptographic signature: Resend signs
      every outgoing email with a private key, and the DKIM DNS record
@@ -172,7 +172,7 @@ allowed to send on its behalf. Do this once:
      more CNAME or TXT records (usually under a `resend._domainkey`-style
      subdomain) — add exactly as shown.
    - **DMARC (TXT record)** — the policy layer: it tells receiving servers
-     what to do if a message claims to be from `mireluxestudios.co.uk` but
+     what to do if a message claims to be from `miriluxe.co.uk` but
      FAILS both SPF and DKIM (quarantine it, reject it, or just report it).
      A safe starting record is
      `v=DMARC1; p=none; rua=mailto:<an-inbox-you-monitor>` — `p=none` means
@@ -181,13 +181,13 @@ allowed to send on its behalf. Do this once:
      `p=reject` once you've confirmed legitimate mail isn't being flagged.
 3. Add all the records Resend lists, at your DNS provider's dashboard (this
    step happens outside this repo, in whatever registrar/DNS panel manages
-   `mireluxestudios.co.uk`).
+   `miriluxe.co.uk`).
 4. Back in Resend, click **Verify** (DNS propagation can take anywhere from a
    few minutes to ~48 hours; Resend will show each record as pending/verified
    individually).
 5. Until verification completes, Resend will only let you send from its
    default `onboarding@resend.dev` sender or to your own verified account
-   email — real customer sends from `bookings@mireluxestudios.co.uk` will
+   email — real customer sends from `bookings@miriluxe.co.uk` will
    fail until the domain shows fully verified.
 
 ### 2.3 Reply-to / admin-alert address
@@ -232,7 +232,7 @@ Same navigation as §1.3:
 | `STRIPE_WEBHOOK_SECRET` | Verifies incoming webhook signatures in `app/api/webhooks/stripe/route.ts` | Stripe dashboard → Developers → Webhooks → your endpoint → Reveal signing secret | Required | Required |
 | `RESEND_API_KEY` | Auth for all outgoing transactional email | Resend dashboard → API Keys | Required | Required |
 | `EMAIL_REPLY_TO` | Reply-to address stamped on every outgoing email (see §2.3 for the current wiring gap) | Pick the mailbox the studio actually checks | Required | Required |
-| `NEXT_PUBLIC_SITE_URL` | Base URL for absolute links built into emails (e.g. the "Read Studio Policies" link) and elsewhere | Your deployed domain, e.g. `https://mireluxestudios.co.uk` | Required | Required |
+| `NEXT_PUBLIC_SITE_URL` | Base URL for absolute links built into emails (e.g. the "Read Studio Policies" link) and elsewhere | Your deployed domain, e.g. `https://miriluxe.co.uk` | Required | Required |
 | `ADMIN_NOTIFICATION_EMAIL` | Recipient of new-booking owner-notification emails | Studio's admin inbox | Required | Required |
 | `CRON_SECRET` | Bearer-token auth shared by `/api/cron/expire-bookings` and `/api/bookings/cron/reminders` | Generate yourself: `openssl rand -hex 32` | Required (and required by whatever triggers the cron — see §4) | Required |
 
@@ -271,7 +271,7 @@ built here. Nothing below has been applied to those files.
    Resend. Add one field to each of the three `send()` calls:
    ```ts
    await resend.emails.send({
-     from: 'MIRILUXE Studios <bookings@mireluxestudios.co.uk>',
+     from: 'MIRILUXE Studios <bookings@miriluxe.co.uk>',
      to: booking.customer_email,
      subject: customerEmail.subject,
      html: customerEmail.html,
@@ -301,7 +301,7 @@ built here. Nothing below has been applied to those files.
    );
    try {
      await getResend().emails.send({
-       from: 'MIRILUXE Studios <bookings@mireluxestudios.co.uk>',
+       from: 'MIRILUXE Studios <bookings@miriluxe.co.uk>',
        to: booking.customer_email,
        subject: email.subject,
        html: email.html,

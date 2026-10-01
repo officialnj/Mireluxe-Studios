@@ -58,7 +58,7 @@ export function generateBookingIcs(booking: DbBooking, service: DbService): stri
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     'BEGIN:VEVENT',
-    `UID:${booking.id}@mireluxestudios.co.uk`,
+    `UID:${booking.id}@miriluxe.co.uk`,
     `DTSTAMP:${dtstamp}`,
     `DTSTART:${dtstart}`,
     `DTEND:${dtend}`,

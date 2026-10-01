@@ -19,7 +19,7 @@ export const dynamic = 'force-dynamic';
 const windowSchema = z.enum(['48h', '24h']);
 const markBodySchema = z.object({ bookingId: z.string().uuid(), window: windowSchema });
 
-const FROM_ADDRESS = 'MIRILUXE Studios <bookings@mireluxestudios.co.uk>';
+const FROM_ADDRESS = 'MIRILUXE Studios <bookings@miriluxe.co.uk>';
 
 function isAuthorized(request: NextRequest): boolean {
   const authHeader = request.headers.get('authorization');
