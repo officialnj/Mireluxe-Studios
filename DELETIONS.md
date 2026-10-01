@@ -29,3 +29,6 @@ Format: `- [ ] path/or/table.column — why it's obsolete — what replaced it`
 
 ### From booking step-2 bundle catalog rework (2026-09-30)
 - [ ] `components/booking/BundleUpsell.tsx` default export (`BundleUpsell` component) — hardcoded/product-agnostic `INCH_OPTIONS`/`COLOUR_OPTIONS` picker with no per-product grouping, superseded by `components/booking/BundleCatalog.tsx` + `BookingBundleCard.tsx` (reuses the shop's per-product `BundleCard` pattern). Not deleted — its `BundleLine` type export is still imported by `components/CartProvider.tsx` and `components/sections/BookingForm.tsx`.
+
+### From public admin-access removal (2026-10-01)
+- [ ] `components/Nav.tsx` — the public "Admin login" account-icon link (`href="/admin/login"`) removed from the nav bar, per client security request: the admin should not be publicly discoverable. The `/admin/login` route itself, `lib/supabase/admin-auth.ts`, and the `Icon` component's unused `'account'` SVG case are all untouched and still fully functional — Mirakle accesses the page via a direct link sent to her separately.
