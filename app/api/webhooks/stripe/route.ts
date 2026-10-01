@@ -148,16 +148,18 @@ async function confirmBooking(supabase: Supabase, intent: Stripe.PaymentIntent, 
     return;
   }
 
-  // status === 'cancelled': the customer paid after their 15-minute hold
-  // expired and the hold was swept. The money has been taken, so either
-  // reinstate the booking (slot still free) or refund it (slot now taken).
-  // Previously this case was silently ignored: the customer was charged and
-  // shown "Booking confirmed" with no booking in the system.
+  // status === 'cancelled' or 'expired': the customer paid after their
+  // 15-minute hold lapsed (swept by the cron job or opportunistically by a
+  // later booking attempt) or was explicitly cancelled. The money has been
+  // taken, so either reinstate the booking (slot still free) or refund it
+  // (slot now taken). Previously only 'cancelled' was handled here, so a
+  // late payment against an 'expired' hold fell through both branches
+  // below and was silently dropped: no booking, no refund, no email.
   const { data: reinstated, error: reinstateError } = await supabase
     .from('bookings')
     .update(paidFields)
     .eq('id', booking.id)
-    .eq('status', 'cancelled')
+    .in('status', ['cancelled', 'expired'])
     .select()
     .maybeSingle();
 
