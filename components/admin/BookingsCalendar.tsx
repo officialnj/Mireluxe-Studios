@@ -56,6 +56,7 @@ export default function BookingsCalendar() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [editingNotesId, setEditingNotesId] = useState<string | null>(null);
   const [notesDraft, setNotesDraft] = useState('');
+  const [resentId, setResentId] = useState<string | null>(null);
 
   async function load() {
     setLoading(true);
@@ -126,6 +127,18 @@ export default function BookingsCalendar() {
     load();
   }
 
+  async function handleResendConfirmation(id: string) {
+    setBusyId(id);
+    setResentId(null);
+    const res = await fetch(`/api/admin/bookings/${id}/resend-confirmation`, { method: 'POST' });
+    setBusyId(null);
+    if (!res.ok) {
+      setError('Failed to resend confirmation email.');
+      return;
+    }
+    setResentId(id);
+  }
+
   async function handleSaveNotes(id: string) {
     setBusyId(id);
     const res = await fetch(`/api/admin/bookings/${id}/notes`, {
@@ -173,9 +186,14 @@ export default function BookingsCalendar() {
           <div className="flex items-center gap-2">
             <StatusChip status={b.status} />
             {b.status === 'confirmed' && (
-              <button onClick={() => handleCancel(b.id)} disabled={busyId === b.id} className="text-red-300 hover:underline">
-                Cancel
-              </button>
+              <>
+                <button onClick={() => handleCancel(b.id)} disabled={busyId === b.id} className="text-red-300 hover:underline">
+                  Cancel
+                </button>
+                <button onClick={() => handleResendConfirmation(b.id)} disabled={busyId === b.id} className="text-cream/70 hover:text-gold">
+                  {resentId === b.id ? 'Sent' : 'Resend confirmation'}
+                </button>
+              </>
             )}
           </div>
         </div>
@@ -348,9 +366,14 @@ export default function BookingsCalendar() {
                         <div className="text-cream/60">{b.customer_name}</div>
                         <div className="mt-1 flex flex-wrap gap-2">
                           {b.status === 'confirmed' && (
-                            <button onClick={() => handleCancel(b.id)} disabled={busyId === b.id} className="text-red-300 hover:underline">
-                              Cancel
-                            </button>
+                            <>
+                              <button onClick={() => handleCancel(b.id)} disabled={busyId === b.id} className="text-red-300 hover:underline">
+                                Cancel
+                              </button>
+                              <button onClick={() => handleResendConfirmation(b.id)} disabled={busyId === b.id} className="text-cream/70 hover:text-gold">
+                                {resentId === b.id ? 'Sent' : 'Resend'}
+                              </button>
+                            </>
                           )}
                           {canTransition && (
                             <>
