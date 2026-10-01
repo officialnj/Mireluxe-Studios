@@ -4,7 +4,6 @@ import { getStripe } from '@/lib/stripe';
 import { createServiceRoleClient } from '@/lib/supabase/server';
 import { getResend } from '@/lib/resend';
 import {
-  customerConfirmationEmail,
   ownerNotificationEmail,
   shopOrderConfirmationEmail,
   type AddOnLineInfo,
@@ -14,13 +13,14 @@ import {
 import type { DbBooking, DbService } from '@/lib/booking/types';
 import type { DbShopOrder } from '@/lib/shop/types';
 import { incrementDiscountUsage } from '@/lib/shop/discounts';
+import { sendBookingConfirmation } from '@/lib/reminders/send';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 type Supabase = ReturnType<typeof createServiceRoleClient>;
 
-const FROM_ADDRESS = 'MIRILUXE Studios <bookings@mireluxestudios.co.uk>';
+const FROM_ADDRESS = 'MIRILUXE Studios <bookings@miriluxe.co.uk>';
 
 // Postgres exclusion-constraint violation (no_overlapping_bookings).
 const SLOT_CONFLICT_CODE = '23P01';
@@ -235,18 +235,10 @@ async function sendConfirmationEmails(supabase: Supabase, booking: DbBooking) {
   try {
     const resend = getResend();
     const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL;
-    const customerEmail = customerConfirmationEmail(booking, service as DbService, bundleLines, addOnLines);
     const ownerEmail = ownerNotificationEmail(booking, service as DbService, bundleLines, addOnLines);
 
     await Promise.allSettled([
-      resend.emails.send({
-        from: FROM_ADDRESS,
-        to: booking.customer_email,
-        replyTo: customerEmail.replyTo,
-        subject: customerEmail.subject,
-        html: customerEmail.html,
-        attachments: customerEmail.attachments,
-      }),
+      sendBookingConfirmation(booking.id),
       adminEmail
         ? resend.emails.send({
             from: FROM_ADDRESS,
