@@ -8,9 +8,20 @@ type Props = {
   date: string; // YYYY-MM-DD
   selected: TimeSlot | null;
   onSelect: (slot: TimeSlot) => void;
+  hairIncluded?: boolean;
+  extraDurationMins?: number;
+  premiumSlotsUnlocked?: boolean;
 };
 
-export default function TimeSlotPicker({ serviceId, date, selected, onSelect }: Props) {
+export default function TimeSlotPicker({
+  serviceId,
+  date,
+  selected,
+  onSelect,
+  hairIncluded = false,
+  extraDurationMins = 0,
+  premiumSlotsUnlocked = false,
+}: Props) {
   const [slots, setSlots] = useState<TimeSlot[]>([]);
   const [fullyBooked, setFullyBooked] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -18,7 +29,14 @@ export default function TimeSlotPicker({ serviceId, date, selected, onSelect }: 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    fetch(`/api/availability/slots?serviceId=${serviceId}&date=${date}`)
+    const params = new URLSearchParams({
+      serviceId,
+      date,
+      hairIncluded: String(hairIncluded),
+      extraDurationMins: String(extraDurationMins),
+      premiumSlotsUnlocked: String(premiumSlotsUnlocked),
+    });
+    fetch(`/api/availability/slots?${params.toString()}`)
       .then((res) => res.json())
       .then((data) => {
         if (cancelled) return;
@@ -37,7 +55,7 @@ export default function TimeSlotPicker({ serviceId, date, selected, onSelect }: 
     return () => {
       cancelled = true;
     };
-  }, [serviceId, date]);
+  }, [serviceId, date, hairIncluded, extraDurationMins, premiumSlotsUnlocked]);
 
   if (loading) {
     return <p className="text-sm text-charcoal/50 dark:text-cream/50">Loading times…</p>;

@@ -10,13 +10,23 @@ type Props = {
   serviceId: string;
   selected: Date | undefined;
   onSelect: (date: Date) => void;
+  hairIncluded?: boolean;
+  extraDurationMins?: number;
+  premiumSlotsUnlocked?: boolean;
 };
 
 // Calendar days are compared as plain YYYY-MM-DD strings using the browser's
 // local calendar, matching how the server keys its Europe/London-calendar
 // availability map — this is the standard approach for date-only booking
 // widgets and avoids conflating "which day" with "what instant".
-export default function DatePicker({ serviceId, selected, onSelect }: Props) {
+export default function DatePicker({
+  serviceId,
+  selected,
+  onSelect,
+  hairIncluded = false,
+  extraDurationMins = 0,
+  premiumSlotsUnlocked = false,
+}: Props) {
   const [month, setMonth] = useState(() => startOfDay(new Date()));
   const [availableDays, setAvailableDays] = useState<AvailableDayMap>({});
   const [loading, setLoading] = useState(true);
@@ -25,7 +35,14 @@ export default function DatePicker({ serviceId, selected, onSelect }: Props) {
     let cancelled = false;
     setLoading(true);
     const monthStr = format(month, 'yyyy-MM');
-    fetch(`/api/availability/days?serviceId=${serviceId}&month=${monthStr}`)
+    const params = new URLSearchParams({
+      serviceId,
+      month: monthStr,
+      hairIncluded: String(hairIncluded),
+      extraDurationMins: String(extraDurationMins),
+      premiumSlotsUnlocked: String(premiumSlotsUnlocked),
+    });
+    fetch(`/api/availability/days?${params.toString()}`)
       .then((res) => res.json())
       .then((data) => {
         if (!cancelled) setAvailableDays(data.days ?? {});
@@ -39,7 +56,7 @@ export default function DatePicker({ serviceId, selected, onSelect }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [serviceId, month]);
+  }, [serviceId, month, hairIncluded, extraDurationMins, premiumSlotsUnlocked]);
 
   return (
     <div className="relative">
