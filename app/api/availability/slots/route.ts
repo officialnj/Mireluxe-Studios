@@ -34,6 +34,11 @@ export async function GET(request: NextRequest) {
       .eq('blocked_date', parsed.data.date);
     const viaHelper = await fetchBlockedDates(supabase, parsed.data.date, parsed.data.date);
     const rangesResult = blockedRangesForDay(parsed.data.date, viaHelper);
+    const rawHelperShape = await supabase
+      .from('blocked_dates')
+      .select('blocked_date, start_time, end_time')
+      .gte('blocked_date', parsed.data.date)
+      .lte('blocked_date', parsed.data.date);
     return NextResponse.json({
       slots,
       fullyBooked,
@@ -44,6 +49,10 @@ export async function GET(request: NextRequest) {
         rawBlocked,
         viaHelper,
         rangesResult: { wholeDay: rangesResult.wholeDay, rangeCount: rangesResult.ranges.length },
+        rawHelperShapeError: rawHelperShape.error,
+        rawHelperShapeData: rawHelperShape.data,
+        rawHelperShapeStatus: rawHelperShape.status,
+        rawHelperShapeStatusText: rawHelperShape.statusText,
       },
     });
   }
