@@ -27,5 +27,22 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Service not found' }, { status: 404 });
   }
 
+  if (request.nextUrl.searchParams.get('debug') === '1') {
+    const { data: rawBlocked } = await supabase
+      .from('blocked_dates')
+      .select('*')
+      .eq('blocked_date', parsed.data.date);
+    return NextResponse.json({
+      slots,
+      fullyBooked,
+      debug: {
+        serverNow: new Date().toISOString(),
+        commitSha: process.env.VERCEL_GIT_COMMIT_SHA ?? null,
+        vercelEnv: process.env.VERCEL_ENV ?? null,
+        rawBlocked,
+      },
+    });
+  }
+
   return NextResponse.json({ slots, fullyBooked });
 }
