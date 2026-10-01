@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createServiceRoleClient } from '@/lib/supabase/server';
-import { getDayAvailability } from '@/lib/booking/availability';
+import { getDayAvailability, fetchBlockedDates, blockedRangesForDay } from '@/lib/booking/availability';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,6 +32,8 @@ export async function GET(request: NextRequest) {
       .from('blocked_dates')
       .select('*')
       .eq('blocked_date', parsed.data.date);
+    const viaHelper = await fetchBlockedDates(supabase, parsed.data.date, parsed.data.date);
+    const rangesResult = blockedRangesForDay(parsed.data.date, viaHelper);
     return NextResponse.json({
       slots,
       fullyBooked,
@@ -40,6 +42,8 @@ export async function GET(request: NextRequest) {
         commitSha: process.env.VERCEL_GIT_COMMIT_SHA ?? null,
         vercelEnv: process.env.VERCEL_ENV ?? null,
         rawBlocked,
+        viaHelper,
+        rangesResult: { wholeDay: rangesResult.wholeDay, rangeCount: rangesResult.ranges.length },
       },
     });
   }
