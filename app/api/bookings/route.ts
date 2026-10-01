@@ -2,14 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createServiceRoleClient } from '@/lib/supabase/server';
 import { getDayAvailability } from '@/lib/booking/availability';
-import { computeTotals, type BundleLine } from '@/lib/booking/pricing';
+import { computeTotals, type AddOnLine, type BundleLine } from '@/lib/booking/pricing';
 import { BOOKING_HOLD_MINUTES } from '@/lib/booking/constants';
 import { getStripe } from '@/lib/stripe';
-import type { DbBundleVariant } from '@/lib/booking/types';
+import type { DbBundleVariant, DbServiceAddon } from '@/lib/booking/types';
 
 const payloadSchema = z.object({
   serviceId: z.string().uuid(),
   hairIncluded: z.boolean(),
+  addOnIds: z.array(z.string().uuid()).default([]),
   bundleLines: z.array(
     z.object({
       bundleVariantId: z.string().uuid(),
@@ -38,17 +39,60 @@ export async function POST(request: NextRequest) {
 
   const supabase = createServiceRoleClient();
 
+  // Re-fetch the service first (availability needs its category to resolve
+  // which service is being booked, but add-on validation needs the
+  // service's category_id before we can call getDayAvailability with the
+  // correct duration/premium-slot inputs — so fetch it directly here rather
+  // than only through getDayAvailability).
+  const { data: serviceRow } = await supabase.from('services').select('*').eq('id', payload.serviceId).eq('active', true).single();
+  if (!serviceRow) {
+    return NextResponse.json({ error: 'service_not_found' }, { status: 404 });
+  }
+
+  if (payload.hairIncluded && serviceRow.hair_incl_price_pence == null) {
+    return NextResponse.json({ error: 'hair_included_unavailable' }, { status: 400 });
+  }
+
+  // Add-ons are never trusted from the client beyond their IDs — re-fetch
+  // and re-validate each against the resolved service's category (or the
+  // null "Hair Included Styles" bucket when hairIncluded is true), exactly
+  // the same trust-nothing pattern already used for bundle variants below.
+  const addOnLines: AddOnLine[] = [];
+  if (payload.addOnIds.length > 0) {
+    const { data: addons } = await supabase
+      .from('service_addons')
+      .select('*')
+      .in('id', payload.addOnIds)
+      .eq('active', true);
+    const addonsById = new Map((addons as DbServiceAddon[] | null ?? []).map((a) => [a.id, a]));
+
+    for (const addonId of payload.addOnIds) {
+      const addon = addonsById.get(addonId);
+      const belongsToResolvedBucket = addon && (payload.hairIncluded ? addon.category_id === null : addon.category_id === serviceRow.category_id);
+      if (!belongsToResolvedBucket) {
+        return NextResponse.json({ error: 'addon_unavailable' }, { status: 400 });
+      }
+      addOnLines.push({ addon: addon as DbServiceAddon });
+    }
+  }
+
+  const extraDurationMins = addOnLines.reduce((sum, line) => sum + line.addon.duration_delta_mins, 0);
+  const premiumSlotsUnlocked = addOnLines.some((line) => line.addon.unlocks_premium_slots);
+
   // Re-derive availability server-side rather than trusting the client's
   // requested slot outright — this is also what enforces hours/window/
   // blocked-date/morning-only rules and appointment_end, since the client
   // can't be trusted to compute any of that correctly.
-  const { slots, service } = await getDayAvailability(supabase, payload.serviceId, payload.date);
+  const { slots, service } = await getDayAvailability(
+    supabase,
+    payload.serviceId,
+    payload.date,
+    payload.hairIncluded,
+    extraDurationMins,
+    premiumSlotsUnlocked
+  );
   if (!service) {
     return NextResponse.json({ error: 'service_not_found' }, { status: 404 });
-  }
-
-  if (payload.hairIncluded && service.hair_incl_price_pence == null) {
-    return NextResponse.json({ error: 'hair_included_unavailable' }, { status: 400 });
   }
 
   const matchedSlot = slots.find((s) => s.start === payload.slotStart);
@@ -79,7 +123,7 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  const totals = computeTotals(service, payload.hairIncluded, bundleLines);
+  const totals = computeTotals(service, payload.hairIncluded, bundleLines, addOnLines);
   const nowIso = new Date().toISOString();
 
   // Opportunistic cleanup: free any stale pending_payment hold that overlaps
@@ -145,6 +189,18 @@ export async function POST(request: NextRequest) {
           bundle_variant_id: line.variant.id,
           quantity: line.quantity,
           price_pence_at_booking: line.variant.price_pence,
+        }))
+      );
+    }
+
+    if (addOnLines.length > 0) {
+      await supabase.from('booking_addons').insert(
+        addOnLines.map((line) => ({
+          booking_id: booking.id,
+          service_addon_id: line.addon.id,
+          name_at_booking: line.addon.name,
+          price_delta_pence_at_booking: line.addon.price_delta_pence,
+          duration_delta_mins_at_booking: line.addon.duration_delta_mins,
         }))
       );
     }

@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
 
   const supabase = createServiceRoleClient();
 
-  const { slots, service } = await getAdminDayAvailability(supabase, payload.serviceId, payload.date);
+  const { slots, service } = await getAdminDayAvailability(supabase, payload.serviceId, payload.date, payload.hairIncluded);
   if (!service) return NextResponse.json({ error: 'service_not_found' }, { status: 404 });
 
   if (payload.hairIncluded && service.hair_incl_price_pence == null) {

@@ -155,10 +155,18 @@ function blockedRangesForDay(
 export async function getAdminDayAvailability(
   supabase: SupabaseClient,
   serviceId: string,
-  dateStr: string // YYYY-MM-DD, Europe/London calendar date
+  dateStr: string, // YYYY-MM-DD, Europe/London calendar date
+  hairIncluded = false
 ): Promise<{ slots: TimeSlot[]; service: DbService | null }> {
   const service = await fetchService(supabase, serviceId);
-  if (!service || service.service_time_mins == null) return { slots: [], service };
+  if (!service) return { slots: [], service };
+
+  // Same fallback convention as lib/booking/pricing.ts's computeTotals() /
+  // lib/booking/availability.ts's resolveDurationMins() — a hair-included
+  // booking genuinely takes longer and must be slotted/blocked using that
+  // duration, not the without-hair one.
+  const durationMins = (hairIncluded ? service.hair_incl_service_time_mins ?? service.service_time_mins : service.service_time_mins) ?? 0;
+  if (durationMins <= 0) return { slots: [], service };
 
   const hoursByWeekday = await fetchStudioHours(supabase);
   const blocked = await fetchBlockedDates(supabase, dateStr);
@@ -173,14 +181,12 @@ export async function getAdminDayAvailability(
   const openOverrideStartTimes = dayOverrides.filter((o) => o.action === 'open').map((o) => normalizeTime(o.start_time));
 
   const defaultCandidates = dayIsOpen
-    ? generateDefaultCandidates(dateStr, service.service_time_mins, service.morning_only).filter(
+    ? generateDefaultCandidates(dateStr, durationMins, service.morning_only).filter(
         (slot) => !blockedStartTimes.has(formatInTimeZone(new Date(slot.start), STUDIO_TIMEZONE, 'HH:mm'))
       )
     : [];
 
-  const overrideCandidates = openOverrideStartTimes.map((t) =>
-    generateOverrideCandidate(dateStr, t, service.service_time_mins as number)
-  );
+  const overrideCandidates = openOverrideStartTimes.map((t) => generateOverrideCandidate(dateStr, t, durationMins));
 
   const seenStarts = new Set<string>();
   const candidates = [...defaultCandidates, ...overrideCandidates].filter((slot) => {

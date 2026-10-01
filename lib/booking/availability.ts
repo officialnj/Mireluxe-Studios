@@ -182,6 +182,20 @@ function generateOverrideCandidate(dateStr: string, startTime: string, durationM
   return buildSlot(startUtc, durationMins);
 }
 
+/** Customer-selected "Premium Slots" add-on start times — 06:00 (early) and
+ *  20:00/21:00 (late), outside the normal 08:00–16:00 grid. Unlike admin
+ *  `slot_overrides`, these stay subject to blocked_dates and real booking
+ *  conflicts — see candidateSlotsForDay, where these are deliberately kept
+ *  out of `overrideStartSet`. */
+const PREMIUM_SLOT_START_TIMES = ['06:00', '20:00', '21:00'];
+
+function generatePremiumCandidates(dateStr: string, durationMins: number): TimeSlot[] {
+  return PREMIUM_SLOT_START_TIMES.map((t) => {
+    const startUtc = fromZonedTime(`${dateStr}T${t}`, STUDIO_TIMEZONE);
+    return buildSlot(startUtc, durationMins);
+  });
+}
+
 function blockedRangesForDay(dateStr: string, blocked: BlockedDateRow[]): { wholeDay: boolean; ranges: Array<{ start: Date; end: Date }> } {
   const dayBlocks = blocked.filter((b) => b.blocked_date === dateStr);
   const wholeDay = dayBlocks.some((b) => !b.start_time || !b.end_time);
@@ -201,9 +215,11 @@ async function candidateSlotsForDay(
   hoursByWeekday: Map<number, StudioHoursRow>,
   blocked: BlockedDateRow[],
   overrides: SlotOverrideRow[],
-  bufferMinutes: number
+  bufferMinutes: number,
+  durationMins: number,
+  premiumSlotsUnlocked: boolean
 ): Promise<TimeSlot[]> {
-  if (service.service_time_mins == null) return [];
+  if (!durationMins || durationMins <= 0) return [];
 
   const hours = hoursByWeekday.get(weekdayOf(dateStr));
   const dayIsOpen = !!hours && !hours.is_closed && !!hours.open_time && !!hours.close_time;
@@ -213,7 +229,7 @@ async function candidateSlotsForDay(
   const openOverrideStartTimes = dayOverrides.filter((o) => o.action === 'open').map((o) => normalizeTime(o.start_time));
 
   const defaultCandidates = dayIsOpen
-    ? generateDefaultCandidates(dateStr, service.service_time_mins, service.morning_only).filter(
+    ? generateDefaultCandidates(dateStr, durationMins, service.morning_only).filter(
         (slot) => !blockedStartTimes.has(formatInTimeZone(new Date(slot.start), STUDIO_TIMEZONE, 'HH:mm'))
       )
     : [];
@@ -226,10 +242,15 @@ async function candidateSlotsForDay(
   // no_overlapping_bookings exclusion constraint on insert) or the 2-hour
   // minimum-notice rule, since both apply to the public-facing slot list
   // this function produces.
-  const overrideCandidates = openOverrideStartTimes.map((t) => generateOverrideCandidate(dateStr, t, service.service_time_mins as number));
+  const overrideCandidates = openOverrideStartTimes.map((t) => generateOverrideCandidate(dateStr, t, durationMins));
+
+  // Customer-selected "Premium Slots" add-on — unlike admin overrides, these
+  // stay subject to blocked_dates/booking-conflict checks below (not added
+  // to overrideStartSet), and only generated on days the studio is open.
+  const premiumCandidates = premiumSlotsUnlocked && dayIsOpen ? generatePremiumCandidates(dateStr, durationMins) : [];
 
   const seenStarts = new Set<string>();
-  const candidates = [...defaultCandidates, ...overrideCandidates].filter((slot) => {
+  const candidates = [...defaultCandidates, ...overrideCandidates, ...premiumCandidates].filter((slot) => {
     if (seenStarts.has(slot.start)) return false;
     seenStarts.add(slot.start);
     return true;
@@ -272,14 +293,29 @@ async function candidateSlotsForDay(
     .sort((a, b) => (a.start < b.start ? -1 : a.start > b.start ? 1 : 0));
 }
 
+/** Resolves the actual slot duration: hair-included duration (falling back
+ *  to the base duration) when hairIncluded is true, base duration
+ *  otherwise, plus any extra minutes from selected add-ons (can be
+ *  negative — e.g. "Short Bob"). Mirrors the same fallback convention
+ *  lib/booking/pricing.ts's computeTotals() uses for price. */
+function resolveDurationMins(service: DbService, hairIncluded: boolean, extraDurationMins: number): number {
+  const baseDurationMins =
+    (hairIncluded ? service.hair_incl_service_time_mins ?? service.service_time_mins : service.service_time_mins) ?? 0;
+  return baseDurationMins + extraDurationMins;
+}
+
 export async function getMonthAvailability(
   supabase: SupabaseClient,
   serviceId: string,
-  monthStr: string // YYYY-MM
+  monthStr: string, // YYYY-MM
+  hairIncluded = false,
+  extraDurationMins = 0,
+  premiumSlotsUnlocked = false
 ): Promise<AvailableDayMap> {
   const service = await fetchService(supabase, serviceId);
   if (!service) return {};
 
+  const durationMins = resolveDurationMins(service, hairIncluded, extraDurationMins);
   const settings = await fetchBookingSettings(supabase);
   const window = getReleasedWindow();
   const [year, month] = monthStr.split('-').map(Number);
@@ -298,7 +334,17 @@ export async function getMonthAvailability(
       result[dateStr] = false;
       continue;
     }
-    const slots = await candidateSlotsForDay(supabase, service, dateStr, hoursByWeekday, blocked, overrides, settings.buffer_minutes);
+    const slots = await candidateSlotsForDay(
+      supabase,
+      service,
+      dateStr,
+      hoursByWeekday,
+      blocked,
+      overrides,
+      settings.buffer_minutes,
+      durationMins,
+      premiumSlotsUnlocked
+    );
     result[dateStr] = slots.length > 0;
   }
 
@@ -308,7 +354,10 @@ export async function getMonthAvailability(
 export async function getDayAvailability(
   supabase: SupabaseClient,
   serviceId: string,
-  dateStr: string // YYYY-MM-DD
+  dateStr: string, // YYYY-MM-DD
+  hairIncluded = false,
+  extraDurationMins = 0,
+  premiumSlotsUnlocked = false
 ): Promise<{ slots: TimeSlot[]; fullyBooked: boolean; service: DbService | null }> {
   const service = await fetchService(supabase, serviceId);
   if (!service) return { slots: [], fullyBooked: false, service: null };
@@ -319,13 +368,24 @@ export async function getDayAvailability(
     return { slots: [], fullyBooked: false, service };
   }
 
+  const durationMins = resolveDurationMins(service, hairIncluded, extraDurationMins);
   const hoursByWeekday = await fetchStudioHours(supabase);
   const blocked = await fetchBlockedDates(supabase, dateStr, dateStr);
   const overrides = await fetchSlotOverrides(supabase, dateStr, dateStr);
   const hours = hoursByWeekday.get(weekdayOf(dateStr));
 
   const wasOpenDay = !!hours && !hours.is_closed && !!hours.open_time && !!hours.close_time;
-  const slots = await candidateSlotsForDay(supabase, service, dateStr, hoursByWeekday, blocked, overrides, settings.buffer_minutes);
+  const slots = await candidateSlotsForDay(
+    supabase,
+    service,
+    dateStr,
+    hoursByWeekday,
+    blocked,
+    overrides,
+    settings.buffer_minutes,
+    durationMins,
+    premiumSlotsUnlocked
+  );
 
   return { slots, fullyBooked: wasOpenDay && slots.length === 0, service };
 }

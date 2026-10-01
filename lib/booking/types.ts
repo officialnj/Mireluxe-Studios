@@ -35,6 +35,23 @@ export type DbService = {
   sort_order: number;
 };
 
+/** A category-scoped add-on (e.g. "Luxe Freestyle", "Premium Slots").
+ *  category_id is null for the virtual "Hair Included Styles" bucket —
+ *  these apply whenever hairIncluded=true, regardless of the service's
+ *  real base category, instead of that category's own (larger) list. */
+export type DbServiceAddon = {
+  id: string;
+  category_id: string | null;
+  name: string;
+  price_delta_pence: number;
+  duration_delta_mins: number;
+  /** True only for "Premium Slots" — selecting it unlocks 06:00/20:00/21:00
+   *  candidate start times in the availability engine. */
+  unlocks_premium_slots: boolean;
+  active: boolean;
+  sort_order: number;
+};
+
 export type DbBundle = {
   id: string;
   name: string;
@@ -139,6 +156,15 @@ export type DbBookingBundle = {
   price_pence_at_booking: number;
 };
 
+export type DbBookingAddon = {
+  id: string;
+  booking_id: string;
+  service_addon_id: string | null;
+  name_at_booking: string;
+  price_delta_pence_at_booking: number;
+  duration_delta_mins_at_booking: number;
+};
+
 export type TimeSlot = {
   /** ISO 8601 UTC start time */
   start: string;
@@ -158,6 +184,7 @@ export type BundleLinePayload = {
 export type CreateBookingPayload = {
   serviceId: string;
   hairIncluded: boolean;
+  addOnIds: string[];
   bundleLines: BundleLinePayload[];
   date: string; // YYYY-MM-DD (Europe/London local date)
   slotStart: string; // ISO 8601 UTC, must match a slot returned by /api/availability/slots

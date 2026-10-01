@@ -7,6 +7,7 @@ import {
   customerConfirmationEmail,
   ownerNotificationEmail,
   shopOrderConfirmationEmail,
+  type AddOnLineInfo,
   type BundleLineInfo,
   type ShopOrder,
 } from '@/lib/email/templates';
@@ -219,11 +220,21 @@ async function sendConfirmationEmails(supabase: Supabase, booking: DbBooking) {
       pricePence: line.price_pence_at_booking,
     }));
 
+  const { data: bookingAddons } = await supabase
+    .from('booking_addons')
+    .select('name_at_booking, price_delta_pence_at_booking')
+    .eq('booking_id', booking.id);
+
+  const addOnLines: AddOnLineInfo[] = (bookingAddons ?? []).map((line) => ({
+    name: line.name_at_booking,
+    priceDeltaPence: line.price_delta_pence_at_booking,
+  }));
+
   try {
     const resend = getResend();
     const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL;
-    const customerEmail = customerConfirmationEmail(booking, service as DbService, bundleLines);
-    const ownerEmail = ownerNotificationEmail(booking, service as DbService, bundleLines);
+    const customerEmail = customerConfirmationEmail(booking, service as DbService, bundleLines, addOnLines);
+    const ownerEmail = ownerNotificationEmail(booking, service as DbService, bundleLines, addOnLines);
 
     await Promise.allSettled([
       resend.emails.send({

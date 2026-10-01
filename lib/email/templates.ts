@@ -51,6 +51,11 @@ export type BundleLineInfo = {
   pricePence: number;
 };
 
+export type AddOnLineInfo = {
+  name: string;
+  priceDeltaPence: number;
+};
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, '&amp;')
@@ -88,6 +93,16 @@ function bundleLinesText(bundleLines: BundleLineInfo[]): string {
       (line) =>
         `${line.quantity}&times; ${line.inches}&Prime; bundle (${escapeHtml(line.colour)}) &mdash; ${formatPence(line.pricePence * line.quantity)}`
     )
+    .join('<br/>');
+}
+
+function addOnLinesText(addOnLines: AddOnLineInfo[]): string {
+  if (addOnLines.length === 0) return '';
+  return addOnLines
+    .map((line) => {
+      const sign = line.priceDeltaPence < 0 ? '&minus;' : '';
+      return `${escapeHtml(line.name)} &mdash; ${sign}${formatPence(Math.abs(line.priceDeltaPence))}`;
+    })
     .join('<br/>');
 }
 
@@ -168,7 +183,8 @@ function noteBox(html: string): string {
 export function customerConfirmationEmail(
   booking: DbBooking,
   service: DbService,
-  bundleLines: BundleLineInfo[]
+  bundleLines: BundleLineInfo[],
+  addOnLines: AddOnLineInfo[] = []
 ): EmailContent {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mireluxestudios.co.uk';
   const balancePence = booking.total_price_pence - booking.deposit_paid_pence;
@@ -178,6 +194,7 @@ export function customerConfirmationEmail(
     row('Reference', `<strong>${escapeHtml(booking.booking_ref)}</strong>`) +
     row('Service', escapeHtml(priceTierLabel)) +
     row('Date &amp; time', formatAppointment(booking.appointment_start)) +
+    (addOnLines.length > 0 ? row('Extras', addOnLinesText(addOnLines)) : '') +
     (bundleLines.length > 0 ? row('Bundles', bundleLinesText(bundleLines)) : '') +
     row('Deposit paid', formatPence(booking.deposit_paid_pence)) +
     row('Balance at appointment', formatPence(balancePence));
@@ -269,7 +286,8 @@ export function shopOrderConfirmationEmail(order: ShopOrder): EmailContent {
 export function ownerNotificationEmail(
   booking: DbBooking,
   service: DbService,
-  bundleLines: BundleLineInfo[]
+  bundleLines: BundleLineInfo[],
+  addOnLines: AddOnLineInfo[] = []
 ): EmailContent {
   const priceTierLabel = booking.hair_included ? `${service.name} (hair included)` : service.name;
 
@@ -281,6 +299,7 @@ export function ownerNotificationEmail(
     row('Service', escapeHtml(priceTierLabel)) +
     row('Date &amp; time', formatAppointment(booking.appointment_start)) +
     (service.xpression_packs ? row('Xpression packs needed', escapeHtml(service.xpression_packs)) : '') +
+    (addOnLines.length > 0 ? row('Extras', addOnLinesText(addOnLines)) : '') +
     (bundleLines.length > 0 ? row('Bundles', bundleLinesText(bundleLines)) : '') +
     row('Deposit paid', formatPence(booking.deposit_paid_pence)) +
     (booking.notes ? row('Notes', escapeHtml(booking.notes)) : '');
