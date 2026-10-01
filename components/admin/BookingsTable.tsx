@@ -25,6 +25,7 @@ export default function BookingsTable({ initialBookings }: { initialBookings: Bo
   const [notesDraft, setNotesDraft] = useState('');
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [resent, setResent] = useState<string | null>(null);
 
   async function handleCancel(id: string) {
     if (!confirm('Cancel this booking?')) return;
@@ -73,6 +74,19 @@ export default function BookingsTable({ initialBookings }: { initialBookings: Bo
       return;
     }
     router.refresh();
+  }
+
+  async function handleResendConfirmation(id: string) {
+    setBusy(id);
+    setError(null);
+    setResent(null);
+    const res = await fetch(`/api/admin/bookings/${id}/resend-confirmation`, { method: 'POST' });
+    setBusy(null);
+    if (!res.ok) {
+      setError('Failed to resend confirmation email.');
+      return;
+    }
+    setResent(id);
   }
 
   async function handleSaveNotes(id: string) {
@@ -211,6 +225,13 @@ export default function BookingsTable({ initialBookings }: { initialBookings: Bo
                             className="text-xs text-red-300 hover:underline"
                           >
                             Cancel
+                          </button>
+                          <button
+                            onClick={() => handleResendConfirmation(booking.id)}
+                            disabled={busy === booking.id}
+                            className="text-xs text-cream/70 hover:text-gold"
+                          >
+                            {resent === booking.id ? 'Sent' : 'Resend confirmation'}
                           </button>
                         </>
                       )}
