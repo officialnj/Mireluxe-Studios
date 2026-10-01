@@ -28,6 +28,12 @@ yarn-error.log*
 # deployed copies live in /public/Mireluxe-Studios/ and are tracked normally
 /New Folder With Items/
 
+# raw bundle video source files (client-provided, not deployed assets)
+/Media for bundles/
+
+# local-only working notes, never part of the deployed site or repo history
+/Project Retrospective/
+
 # claude code local settings
 .claude/settings.local.json
 
