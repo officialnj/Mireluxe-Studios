@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createServiceRoleClient } from '@/lib/supabase/server';
 import { getBookingsNeedingReminder, markReminderSent, type ReminderWindow } from '@/lib/booking/reminders';
-import { getResend } from '@/lib/resend';
+import { getResend, logEmailResult } from '@/lib/resend';
 import { reminderEmail } from '@/lib/email/templates';
 import type { DbBooking, DbService } from '@/lib/booking/types';
 
@@ -42,15 +42,20 @@ async function sendRemindersForWindow(supabase: ReturnType<typeof createServiceR
     }
     try {
       const email = reminderEmail(booking as DbBooking, service as DbService, window === '48h' ? 48 : 24);
-      await resend.emails.send({
+      const result = await resend.emails.send({
         from: FROM_ADDRESS,
         to: (booking as DbBooking).customer_email,
         replyTo: email.replyTo,
         subject: email.subject,
         html: email.html,
       });
-      await markReminderSent(supabase, row.id, window);
-      results.push({ bookingId: row.id, sent: true });
+      // Only mark sent on an actual success — Resend resolves (doesn't
+      // throw) on API-level failures, so this used to mark every attempt as
+      // sent regardless of whether the email went out, permanently
+      // suppressing any retry for that booking's reminder.
+      const ok = logEmailResult(`${window} reminder for booking ${row.id}`, result);
+      if (ok) await markReminderSent(supabase, row.id, window);
+      results.push({ bookingId: row.id, sent: ok });
     } catch {
       results.push({ bookingId: row.id, sent: false });
     }

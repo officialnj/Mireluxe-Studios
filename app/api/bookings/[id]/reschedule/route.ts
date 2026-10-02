@@ -4,7 +4,7 @@ import { differenceInMinutes } from 'date-fns';
 import { createServiceRoleClient } from '@/lib/supabase/server';
 import { getDayAvailability } from '@/lib/booking/availability';
 import { SELF_SERVICE_CUTOFF_MINUTES } from '@/lib/booking/constants';
-import { getResend } from '@/lib/resend';
+import { getResend, logEmailResult } from '@/lib/resend';
 import { rescheduleConfirmationEmail } from '@/lib/email/templates';
 import { revalidatePublicPages } from '@/lib/revalidate';
 import type { DbService } from '@/lib/booking/types';
@@ -98,13 +98,14 @@ async function sendRescheduleEmail(
     if (!service) return;
     const resend = getResend();
     const email = rescheduleConfirmationEmail(booking, service as DbService, oldSlot, newSlot);
-    await resend.emails.send({
+    const result = await resend.emails.send({
       from: 'MIRILUXE Studios <bookings@miriluxe.co.uk>',
       to: booking.customer_email,
       replyTo: email.replyTo,
       subject: email.subject,
       html: email.html,
     });
+    logEmailResult(`reschedule confirmation for booking ${booking.id}`, result);
   } catch {
     // Best-effort — the reschedule itself already succeeded in the DB
     // regardless of email delivery.

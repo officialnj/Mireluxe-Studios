@@ -4,7 +4,7 @@ import { differenceInMinutes } from 'date-fns';
 import { createServiceRoleClient } from '@/lib/supabase/server';
 import { getStripe } from '@/lib/stripe';
 import { SELF_SERVICE_CUTOFF_MINUTES } from '@/lib/booking/constants';
-import { getResend } from '@/lib/resend';
+import { getResend, logEmailResult } from '@/lib/resend';
 import { cancellationConfirmationEmail } from '@/lib/email/templates';
 import { revalidatePublicPages } from '@/lib/revalidate';
 import type { DbBooking, DbService } from '@/lib/booking/types';
@@ -74,13 +74,14 @@ async function sendCancellationEmail(supabase: ReturnType<typeof createServiceRo
     if (!service) return;
     const resend = getResend();
     const email = cancellationConfirmationEmail(booking, service as DbService);
-    await resend.emails.send({
+    const result = await resend.emails.send({
       from: 'MIRILUXE Studios <bookings@miriluxe.co.uk>',
       to: booking.customer_email,
       replyTo: email.replyTo,
       subject: email.subject,
       html: email.html,
     });
+    logEmailResult(`cancellation confirmation for booking ${booking.id}`, result);
   } catch {
     // Best-effort — the cancellation itself already succeeded in the DB
     // (and the refund, if applicable) regardless of email delivery.

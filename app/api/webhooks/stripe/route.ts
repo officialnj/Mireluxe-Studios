@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import type Stripe from 'stripe';
 import { getStripe } from '@/lib/stripe';
 import { createServiceRoleClient } from '@/lib/supabase/server';
-import { getResend } from '@/lib/resend';
+import { getResend, logEmailResult } from '@/lib/resend';
 import { shopOrderConfirmationEmail, type ShopOrder } from '@/lib/email/templates';
 import { sendConfirmationEmails } from '@/lib/email/sendBookingConfirmation';
 import type { DbBooking } from '@/lib/booking/types';
@@ -206,7 +206,7 @@ async function sendLatePaymentRefundEmails(booking: DbBooking, amountPence: numb
     const resend = getResend();
     const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL;
 
-    await Promise.allSettled([
+    const [customerResult, adminResult] = await Promise.allSettled([
       resend.emails.send({
         from: FROM_ADDRESS,
         to: booking.customer_email,
@@ -228,6 +228,12 @@ async function sendLatePaymentRefundEmails(booking: DbBooking, amountPence: numb
           })
         : Promise.resolve(null),
     ]);
+    if (customerResult.status === 'fulfilled' && customerResult.value) {
+      logEmailResult(`late-payment refund notice for booking ${booking.id}`, customerResult.value);
+    }
+    if (adminResult.status === 'fulfilled' && adminResult.value) {
+      logEmailResult(`late-payment admin notice for booking ${booking.id}`, adminResult.value);
+    }
   } catch (err) {
     console.error('[stripe-webhook] refund email failed', err);
   }
@@ -237,13 +243,14 @@ async function sendShopOrderConfirmationEmail(order: ShopOrder) {
   try {
     const resend = getResend();
     const email = shopOrderConfirmationEmail(order);
-    await resend.emails.send({
+    const result = await resend.emails.send({
       from: FROM_ADDRESS,
       to: order.customer_email,
       replyTo: email.replyTo,
       subject: email.subject,
       html: email.html,
     });
+    logEmailResult(`shop order confirmation for order ${order.id}`, result);
   } catch (err) {
     // Same best-effort semantics as sendConfirmationEmails — the order is
     // already marked paid in the DB regardless of email delivery.

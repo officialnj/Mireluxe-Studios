@@ -1,5 +1,5 @@
 import { createServiceRoleClient } from '@/lib/supabase/server';
-import { getResend } from '@/lib/resend';
+import { getResend, logEmailResult } from '@/lib/resend';
 import { customerConfirmationEmail, ownerNotificationEmail, type AddOnLineInfo, type BundleLineInfo } from '@/lib/email/templates';
 import type { DbBooking, DbService } from '@/lib/booking/types';
 
@@ -45,7 +45,7 @@ export async function sendConfirmationEmails(supabase: Supabase, booking: DbBook
     const customerEmail = customerConfirmationEmail(booking, service as DbService, bundleLines, addOnLines);
     const ownerEmail = ownerNotificationEmail(booking, service as DbService, bundleLines, addOnLines);
 
-    await Promise.allSettled([
+    const [customerResult, ownerResult] = await Promise.allSettled([
       resend.emails.send({
         from: CONFIRMATION_FROM_ADDRESS,
         to: booking.customer_email,
@@ -64,6 +64,12 @@ export async function sendConfirmationEmails(supabase: Supabase, booking: DbBook
           })
         : Promise.resolve(null),
     ]);
+    if (customerResult.status === 'fulfilled' && customerResult.value) {
+      logEmailResult(`confirmation to customer for booking ${booking.id}`, customerResult.value);
+    }
+    if (ownerResult.status === 'fulfilled' && ownerResult.value) {
+      logEmailResult(`owner notification for booking ${booking.id}`, ownerResult.value);
+    }
   } catch (err) {
     console.error('[sendConfirmationEmails] failed', err);
   }
