@@ -1,4 +1,4 @@
-import { CONTACT } from '@/lib/site';
+import { PRIVATE_STUDIO_DETAILS } from '@/lib/site';
 import type { DbBooking, DbService } from './types';
 
 // Owned here (the booking engine knows appointment_start/end + service
@@ -49,7 +49,7 @@ export function generateBookingIcs(booking: DbBooking, service: DbService): stri
     `Booking reference: ${booking.booking_ref}\nService: ${service.name}\n` +
       `Please arrive with clean, product-free hair as discussed at booking.`
   );
-  const location = escapeIcsText(CONTACT.address);
+  const location = escapeIcsText(PRIVATE_STUDIO_DETAILS.address);
 
   const lines = [
     'BEGIN:VCALENDAR',

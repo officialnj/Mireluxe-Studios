@@ -2,7 +2,7 @@ import { formatInTimeZone } from 'date-fns-tz';
 import { CANCELLATION_POLICY_PLACEHOLDER, STUDIO_TIMEZONE } from '@/lib/booking/constants';
 import { formatPence } from '@/lib/booking/pricing';
 import { generateBookingIcs } from '@/lib/booking/ics';
-import { CONTACT } from '@/lib/site';
+import { CONTACT, PRIVATE_STUDIO_DETAILS } from '@/lib/site';
 import type { DbBooking, DbService } from '@/lib/booking/types';
 
 // ── Dark theme tokens ──────────────────────────────────────────────────────
@@ -157,10 +157,10 @@ function emailShell(opts: { eyebrow: string; heading: string; bodyHtml: string; 
               <tr>
                 <td bgcolor="${COLOR.surfaceMuted}" style="background-color:${COLOR.surfaceMuted};padding:24px 32px;text-align:center;border-top:1px solid ${COLOR.border};">
                   <div style="font-family:Helvetica,Arial,sans-serif;font-size:12px;color:${COLOR.textMuted};line-height:1.7;">
-                    ${escapeHtml(CONTACT.address)}<br/>
+                    ${escapeHtml(PRIVATE_STUDIO_DETAILS.address)}<br/>
                     <a href="mailto:${CONTACT.email}" style="color:${COLOR.goldLight};text-decoration:none;">${CONTACT.email}</a>
                     &nbsp;&middot;&nbsp;
-                    <a href="tel:${CONTACT.phone.replace(/\s+/g, '')}" style="color:${COLOR.goldLight};text-decoration:none;">${CONTACT.phone}</a>
+                    <a href="tel:${PRIVATE_STUDIO_DETAILS.phone.replace(/\s+/g, '')}" style="color:${COLOR.goldLight};text-decoration:none;">${PRIVATE_STUDIO_DETAILS.phone}</a>
                   </div>
                 </td>
               </tr>

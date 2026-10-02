@@ -22,6 +22,10 @@ export const NAV_LINKS = [
 
 export const CONTACT = {
   area: 'Wembley · NW London',
+  // Deliberately vague — shown on the public website (contact page, footer)
+  // to anyone, not just confirmed/paid customers. The exact unit address and
+  // Mirakle's personal mobile only go out in post-booking emails, see
+  // PRIVATE_STUDIO_DETAILS below.
   address: 'Wembley, North West London, HA9',
   openingHours: '9am – 6pm · Mon–Sat',
   phoneHours: '11am – 5pm',
@@ -29,6 +33,14 @@ export const CONTACT = {
   instagram: '@miriluxe.studios',
   instagramUrl: 'https://instagram.com/miriluxe.studios',
   email: 'hello@miriluxestudios.com',
+};
+
+/** Only used in emails sent to a customer who has already booked and paid
+ *  (confirmation/reminder bodies, calendar invite) — never rendered on the
+ *  public website. See CONTACT above for the public-facing equivalents. */
+export const PRIVATE_STUDIO_DETAILS = {
+  address: 'UNIT 1, Liberty Centre, Mount Pleasant, Wembley, HA0 1TX',
+  phone: '+44 7944 971069',
 };
 
 export type Service = {
