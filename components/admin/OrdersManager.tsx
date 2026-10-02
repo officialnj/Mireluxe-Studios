@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { format } from 'date-fns';
 import { formatPence } from '@/lib/booking/pricing';
 import type { DbShopOrder, ShopOrderFulfillmentStatus, ShopOrderPaymentStatus } from '@/lib/shop/types';
@@ -118,8 +118,8 @@ export default function OrdersManager({ initialOrders }: { initialOrders: DbShop
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`rounded-full px-3 py-1 text-xs ${
-              filter === f ? 'bg-gold text-charcoal' : 'bg-cream/5 text-cream/60 hover:text-cream'
+            className={`rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
+              filter === f ? 'bg-gold text-charcoal' : 'bg-cream/10 text-cream/70 hover:bg-cream/20'
             }`}
           >
             {f === 'all' ? 'All' : f === 'pending_payment' ? 'Pending' : f[0].toUpperCase() + f.slice(1)}
@@ -127,53 +127,37 @@ export default function OrdersManager({ initialOrders }: { initialOrders: DbShop
         ))}
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-cream/10">
-        <table className="w-full text-left text-sm">
-          <thead className="border-b border-cream/10 text-xs uppercase tracking-wide text-cream/50">
-            <tr>
-              <th className="px-4 py-3">Date</th>
-              <th className="px-4 py-3">Customer</th>
-              <th className="px-4 py-3">Items</th>
-              <th className="px-4 py-3">Subtotal</th>
-              <th className="px-4 py-3">Payment</th>
-              <th className="px-4 py-3">Fulfillment</th>
-              <th className="px-4 py-3"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((order) => {
-              const isOpen = expanded === order.id;
-              const isBusy = busy === order.id;
-              const draft = trackingFor(order);
-              const canFulfill = order.status === 'paid';
-              return (
-                <Fragment key={order.id}>
-                  <tr
-                    onClick={() => setExpanded(isOpen ? null : order.id)}
-                    className="cursor-pointer border-b border-cream/5 last:border-0 hover:bg-cream/[0.03]"
-                  >
-                    <td className="px-4 py-3 whitespace-nowrap">{format(new Date(order.created_at), 'd MMM yyyy, h:mmaaa')}</td>
-                    <td className="px-4 py-3">
-                      <div>{order.customer_name}</div>
-                      <div className="text-xs text-cream/50">{order.customer_email}</div>
-                    </td>
-                    <td className="px-4 py-3 text-xs text-cream/70">
-                      {order.items.reduce((n, i) => n + i.quantity, 0)} item
-                      {order.items.reduce((n, i) => n + i.quantity, 0) === 1 ? '' : 's'}
-                    </td>
-                    <td className="px-4 py-3">{formatPence(order.subtotal_pence)}</td>
-                    <td className="px-4 py-3">
-                      <Badge className={PAYMENT_BADGE[order.status]}>{order.status.replace('_', ' ')}</Badge>
-                    </td>
-                    <td className="px-4 py-3">
-                      <Badge className={FULFILLMENT_BADGE[order.fulfillment_status]}>{order.fulfillment_status}</Badge>
-                    </td>
-                    <td className="px-4 py-3 text-xs text-gold">{isOpen ? 'Hide' : 'Details'}</td>
-                  </tr>
-                  {isOpen && (
-                    <tr className="border-b border-cream/5 bg-cream/[0.02] last:border-0">
-                      <td colSpan={7} className="px-4 py-5">
-                        <div className="grid gap-6 md:grid-cols-2">
+      <div className="space-y-2">
+        {filtered.map((order) => {
+          const isOpen = expanded === order.id;
+          const isBusy = busy === order.id;
+          const draft = trackingFor(order);
+          const canFulfill = order.status === 'paid';
+          return (
+            <div key={order.id} className="rounded-xl border border-cream/10 bg-cream/[0.02]">
+              <button
+                onClick={() => setExpanded(isOpen ? null : order.id)}
+                className="flex w-full flex-wrap items-center justify-between gap-3 px-4 py-3 text-left"
+              >
+                <div>
+                  <div className="text-sm font-medium">{order.customer_name}</div>
+                  <div className="text-xs text-cream/50">
+                    {order.customer_email} · {format(new Date(order.created_at), 'd MMM yyyy, h:mmaaa')}
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 text-xs">
+                  <span className="text-cream/60">
+                    {order.items.reduce((n, i) => n + i.quantity, 0)} item
+                    {order.items.reduce((n, i) => n + i.quantity, 0) === 1 ? '' : 's'}
+                  </span>
+                  <span className="font-medium text-cream">{formatPence(order.subtotal_pence)}</span>
+                  <Badge className={PAYMENT_BADGE[order.status]}>{order.status.replace('_', ' ')}</Badge>
+                  <Badge className={FULFILLMENT_BADGE[order.fulfillment_status]}>{order.fulfillment_status}</Badge>
+                </div>
+              </button>
+              {isOpen && (
+                <div className="border-t border-cream/5 px-4 py-5">
+                  <div className="grid gap-6 md:grid-cols-2">
                           <div>
                             <h3 className="mb-2 text-xs uppercase tracking-wide text-cream/50">Items</h3>
                             <ul className="mb-4 space-y-1 text-sm">
@@ -211,7 +195,7 @@ export default function OrdersManager({ initialOrders }: { initialOrders: DbShop
                             <button
                               onClick={() => saveNotes(order)}
                               disabled={isBusy}
-                              className="mt-2 text-xs text-gold hover:underline disabled:opacity-50"
+                              className="mt-2 inline-flex items-center rounded-full bg-gold/15 px-2.5 py-1 text-xs font-medium text-gold transition-colors hover:bg-gold/25 disabled:opacity-50"
                             >
                               Save notes
                             </button>
@@ -254,7 +238,7 @@ export default function OrdersManager({ initialOrders }: { initialOrders: DbShop
                                       <button
                                         onClick={() => saveTracking(order)}
                                         disabled={isBusy}
-                                        className="text-xs text-gold hover:underline disabled:opacity-50"
+                                        className="inline-flex items-center rounded-full bg-gold/15 px-2.5 py-1 text-xs font-medium text-gold transition-colors hover:bg-gold/25 disabled:opacity-50"
                                       >
                                         Save tracking
                                       </button>
@@ -262,12 +246,12 @@ export default function OrdersManager({ initialOrders }: { initialOrders: DbShop
                                   </div>
                                 )}
 
-                                <div className="flex flex-wrap gap-3">
+                                <div className="flex flex-wrap gap-2">
                                   {order.fulfillment_status === 'unfulfilled' && (
                                     <button
                                       onClick={() => markFulfilled(order)}
                                       disabled={isBusy}
-                                      className="rounded-full bg-gold px-4 py-1.5 text-xs font-medium text-charcoal disabled:opacity-50"
+                                      className="rounded-full bg-gold px-3 py-1 text-xs font-medium text-charcoal disabled:opacity-50"
                                     >
                                       Mark fulfilled
                                     </button>
@@ -276,7 +260,7 @@ export default function OrdersManager({ initialOrders }: { initialOrders: DbShop
                                     <button
                                       onClick={() => advanceFulfillment(order, 'shipped')}
                                       disabled={isBusy}
-                                      className="rounded-full bg-gold px-4 py-1.5 text-xs font-medium text-charcoal disabled:opacity-50"
+                                      className="rounded-full bg-gold px-3 py-1 text-xs font-medium text-charcoal disabled:opacity-50"
                                     >
                                       Mark shipped
                                     </button>
@@ -285,7 +269,7 @@ export default function OrdersManager({ initialOrders }: { initialOrders: DbShop
                                     <button
                                       onClick={() => advanceFulfillment(order, 'delivered')}
                                       disabled={isBusy}
-                                      className="rounded-full bg-gold px-4 py-1.5 text-xs font-medium text-charcoal disabled:opacity-50"
+                                      className="rounded-full bg-gold px-3 py-1 text-xs font-medium text-charcoal disabled:opacity-50"
                                     >
                                       Mark delivered
                                     </button>
@@ -304,7 +288,7 @@ export default function OrdersManager({ initialOrders }: { initialOrders: DbShop
                                   <button
                                     onClick={() => refund(order)}
                                     disabled={isBusy}
-                                    className="text-xs text-red-300 hover:underline disabled:opacity-50"
+                                    className="inline-flex items-center rounded-full bg-red-500/15 px-2.5 py-1 text-xs font-medium text-red-300 transition-colors hover:bg-red-500/25 disabled:opacity-50"
                                   >
                                     Issue refund &amp; cancel order
                                   </button>
@@ -313,14 +297,11 @@ export default function OrdersManager({ initialOrders }: { initialOrders: DbShop
                             )}
                           </div>
                         </div>
-                      </td>
-                    </tr>
-                  )}
-                </Fragment>
-              );
-            })}
-          </tbody>
-        </table>
+                      </div>
+                    )}
+                  </div>
+          );
+        })}
       </div>
     </div>
   );

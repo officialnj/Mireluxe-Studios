@@ -135,7 +135,7 @@ export default function DiscountCodesManager({ initialCodes }: { initialCodes: D
 
       <button
         onClick={() => setShowNewForm((v) => !v)}
-        className="rounded-full bg-gold px-5 py-2 text-sm font-medium text-charcoal"
+        className="rounded-full bg-gold px-4 py-2 text-xs font-medium text-charcoal"
       >
         {showNewForm ? 'Cancel' : '+ New discount code'}
       </button>
@@ -147,7 +147,7 @@ export default function DiscountCodesManager({ initialCodes }: { initialCodes: D
             <button
               type="submit"
               disabled={busy === 'create'}
-              className="rounded-full bg-gold px-5 py-2 text-sm font-medium text-charcoal disabled:opacity-50"
+              className="rounded-full bg-gold px-4 py-2 text-xs font-medium text-charcoal disabled:opacity-50"
             >
               {busy === 'create' ? 'Creating…' : 'Create code'}
             </button>
@@ -188,7 +188,7 @@ export default function DiscountCodesManager({ initialCodes }: { initialCodes: D
                 <button
                   onClick={() => saveCode(c.id)}
                   disabled={busy === `save-${c.id}`}
-                  className="mt-3 text-xs text-gold hover:underline"
+                  className="mt-3 inline-flex items-center rounded-full bg-gold/15 px-2.5 py-1 text-xs font-medium text-gold transition-colors hover:bg-gold/25 disabled:opacity-50"
                 >
                   {busy === `save-${c.id}` ? 'Saving…' : 'Save changes'}
                 </button>

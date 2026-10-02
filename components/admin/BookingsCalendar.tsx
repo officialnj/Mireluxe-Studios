@@ -46,6 +46,15 @@ const STATUS_CHIP_CLASS: Record<string, string> = {
   expired: 'bg-cream/10 text-cream/50',
 };
 
+// Shared small-pill button look — same convention as BookingsTable.tsx — so
+// every admin action button reads as a distinct tappable control instead of
+// a bare underlined text link.
+const PILL = 'inline-flex items-center justify-center whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-medium transition-colors disabled:opacity-50';
+const PILL_GOLD = `${PILL} bg-gold/15 text-gold hover:bg-gold/25`;
+const PILL_NEUTRAL = `${PILL} bg-cream/10 text-cream/70 hover:bg-cream/20`;
+const PILL_RED = `${PILL} bg-red-500/15 text-red-300 hover:bg-red-500/25`;
+const PILL_SKY = `${PILL} bg-sky-500/15 text-sky-300 hover:bg-sky-500/25`;
+
 export default function BookingsCalendar() {
   const [view, setView] = useState<ViewMode>('month');
   const [anchor, setAnchor] = useState(new Date());
@@ -168,7 +177,7 @@ export default function BookingsCalendar() {
     const canTransition = b.status === 'confirmed' && isPast;
     return (
       <div className="flex flex-col gap-2 rounded-lg border border-cream/10 px-3 py-2 text-xs">
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
             <div className="font-medium">
               {formatInTimeZone(new Date(b.appointment_start), STUDIO_TIMEZONE, 'HH:mm')} — {b.customer_name}
@@ -183,29 +192,31 @@ export default function BookingsCalendar() {
               )}
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <StatusChip status={b.status} />
+          <StatusChip status={b.status} />
+        </div>
+
+        {(b.status === 'confirmed' || (detailed && canTransition)) && (
+          <div className="flex flex-wrap gap-2">
             {b.status === 'confirmed' && (
               <>
-                <button onClick={() => handleCancel(b.id)} disabled={busyId === b.id} className="text-red-300 hover:underline">
+                <button onClick={() => handleCancel(b.id)} disabled={busyId === b.id} className={PILL_RED}>
                   Cancel
                 </button>
-                <button onClick={() => handleResendConfirmation(b.id)} disabled={busyId === b.id} className="text-cream/70 hover:text-gold">
+                <button onClick={() => handleResendConfirmation(b.id)} disabled={busyId === b.id} className={PILL_NEUTRAL}>
                   {resentId === b.id ? 'Sent' : 'Resend confirmation'}
                 </button>
               </>
             )}
-          </div>
-        </div>
-
-        {detailed && canTransition && (
-          <div className="flex gap-3 text-cream/70">
-            <button onClick={() => handleStatus(b.id, 'completed')} disabled={busyId === b.id} className="text-sky-300 hover:underline">
-              Mark completed
-            </button>
-            <button onClick={() => handleStatus(b.id, 'no_show')} disabled={busyId === b.id} className="text-red-300 hover:underline">
-              No-show
-            </button>
+            {detailed && canTransition && (
+              <>
+                <button onClick={() => handleStatus(b.id, 'completed')} disabled={busyId === b.id} className={PILL_SKY}>
+                  Mark completed
+                </button>
+                <button onClick={() => handleStatus(b.id, 'no_show')} disabled={busyId === b.id} className={PILL_RED}>
+                  No-show
+                </button>
+              </>
+            )}
           </div>
         )}
 
@@ -216,13 +227,13 @@ export default function BookingsCalendar() {
                 value={notesDraft}
                 onChange={(e) => setNotesDraft(e.target.value)}
                 rows={2}
-                className="w-full rounded border border-cream/20 bg-transparent px-2 py-1 text-xs"
+                className="w-full rounded-lg border border-cream/20 bg-transparent px-2 py-1 text-xs"
               />
               <div className="flex gap-2">
-                <button onClick={() => handleSaveNotes(b.id)} disabled={busyId === b.id} className="text-gold hover:underline">
+                <button onClick={() => handleSaveNotes(b.id)} disabled={busyId === b.id} className={PILL_GOLD}>
                   Save
                 </button>
-                <button onClick={() => setEditingNotesId(null)} className="text-cream/50 hover:underline">
+                <button onClick={() => setEditingNotesId(null)} className={PILL_NEUTRAL}>
                   Cancel
                 </button>
               </div>
@@ -281,18 +292,18 @@ export default function BookingsCalendar() {
             </button>
           ))}
         </div>
-        <div className="flex items-center gap-3 text-sm">
-          <button onClick={goPrev} className="text-cream/60 hover:text-gold">← Prev</button>
+        <div className="flex flex-wrap items-center gap-2 text-sm">
+          <button onClick={goPrev} className={PILL_NEUTRAL}>← Prev</button>
           <span className="font-medium">
             {view === 'month' ? format(anchor, 'MMMM yyyy') : view === 'week'
               ? `${format(weekDays[0], 'd MMM')} – ${format(weekDays[6], 'd MMM yyyy')}`
               : format(anchor, 'EEEE d MMMM yyyy')}
           </span>
-          <button onClick={goNext} className="text-cream/60 hover:text-gold">Next →</button>
+          <button onClick={goNext} className={PILL_NEUTRAL}>Next →</button>
         </div>
       </div>
 
-      {error && <p className="rounded bg-red-500/10 px-3 py-2 text-sm text-red-300">{error}</p>}
+      {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-300">{error}</p>}
       {loading && <p className="text-xs text-cream/40">Loading…</p>}
 
       {view === 'month' && (
@@ -364,23 +375,23 @@ export default function BookingsCalendar() {
                           <StatusChip status={b.status} />
                         </div>
                         <div className="text-cream/60">{b.customer_name}</div>
-                        <div className="mt-1 flex flex-wrap gap-2">
+                        <div className="mt-1 flex flex-wrap gap-1.5">
                           {b.status === 'confirmed' && (
                             <>
-                              <button onClick={() => handleCancel(b.id)} disabled={busyId === b.id} className="text-red-300 hover:underline">
+                              <button onClick={() => handleCancel(b.id)} disabled={busyId === b.id} className={PILL_RED}>
                                 Cancel
                               </button>
-                              <button onClick={() => handleResendConfirmation(b.id)} disabled={busyId === b.id} className="text-cream/70 hover:text-gold">
+                              <button onClick={() => handleResendConfirmation(b.id)} disabled={busyId === b.id} className={PILL_NEUTRAL}>
                                 {resentId === b.id ? 'Sent' : 'Resend'}
                               </button>
                             </>
                           )}
                           {canTransition && (
                             <>
-                              <button onClick={() => handleStatus(b.id, 'completed')} disabled={busyId === b.id} className="text-sky-300 hover:underline">
+                              <button onClick={() => handleStatus(b.id, 'completed')} disabled={busyId === b.id} className={PILL_SKY}>
                                 Completed
                               </button>
-                              <button onClick={() => handleStatus(b.id, 'no_show')} disabled={busyId === b.id} className="text-red-300 hover:underline">
+                              <button onClick={() => handleStatus(b.id, 'no_show')} disabled={busyId === b.id} className={PILL_RED}>
                                 No-show
                               </button>
                             </>

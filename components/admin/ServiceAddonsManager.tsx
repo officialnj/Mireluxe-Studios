@@ -173,151 +173,134 @@ export default function ServiceAddonsManager({
           <div key={group.key} className="rounded-xl border border-cream/10 p-4">
             <h2 className="mb-3 font-serif text-lg font-light">{group.label}</h2>
 
-            <div className="overflow-x-auto rounded-lg border border-cream/10">
-              <table className="w-full text-left text-sm">
-                <thead className="border-b border-cream/10 text-xs uppercase tracking-wide text-cream/50">
-                  <tr>
-                    <th className="px-3 py-2"></th>
-                    <th className="px-3 py-2">Name</th>
-                    <th className="px-3 py-2">Price Δ (£)</th>
-                    <th className="px-3 py-2">Duration Δ (min)</th>
-                    <th className="px-3 py-2">Premium</th>
-                    <th className="px-3 py-2">Active</th>
-                    <th className="px-3 py-2"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {groupAddons.length === 0 && (
-                    <tr>
-                      <td colSpan={7} className="px-3 py-3 text-sm text-cream/50">
-                        No add-ons yet.
-                      </td>
-                    </tr>
-                  )}
-                  {groupAddons.map((a, index) => {
-                    const d = drafts[a.id] ?? draftFromAddon(a);
-                    return (
-                      <tr key={a.id} className="border-b border-cream/5 last:border-0">
-                        <td className="px-3 py-2">
-                          <div className="flex items-center gap-1">
-                            <button
-                              onClick={() => move(group.categoryId, groupAddons, index, -1)}
-                              disabled={index === 0 || busy === 'reorder'}
-                              className="text-cream/50 hover:text-gold disabled:opacity-30"
-                              aria-label="Move earlier"
-                            >
-                              ↑
-                            </button>
-                            <button
-                              onClick={() => move(group.categoryId, groupAddons, index, 1)}
-                              disabled={index === groupAddons.length - 1 || busy === 'reorder'}
-                              className="text-cream/50 hover:text-gold disabled:opacity-30"
-                              aria-label="Move later"
-                            >
-                              ↓
-                            </button>
-                          </div>
-                        </td>
-                        <td className="px-3 py-2">
-                          <input
-                            value={d.name}
-                            onChange={(e) => setDrafts((prev) => ({ ...prev, [a.id]: { ...d, name: e.target.value } }))}
-                            className="w-full min-w-[220px] rounded border border-cream/20 bg-transparent px-2 py-1 text-sm"
-                          />
-                        </td>
-                        <td className="px-3 py-2">
-                          <input
-                            value={d.price_pounds}
-                            onChange={(e) => setDrafts((prev) => ({ ...prev, [a.id]: { ...d, price_pounds: e.target.value } }))}
-                            placeholder="0.00"
-                            className="w-24 rounded border border-cream/20 bg-transparent px-2 py-1 text-sm"
-                          />
-                        </td>
-                        <td className="px-3 py-2">
-                          <input
-                            value={d.duration_mins}
-                            onChange={(e) => setDrafts((prev) => ({ ...prev, [a.id]: { ...d, duration_mins: e.target.value } }))}
-                            placeholder="0"
-                            className="w-20 rounded border border-cream/20 bg-transparent px-2 py-1 text-sm"
-                          />
-                        </td>
-                        <td className="px-3 py-2">
-                          <input
-                            type="checkbox"
-                            checked={d.unlocks_premium_slots}
-                            onChange={(e) =>
-                              setDrafts((prev) => ({ ...prev, [a.id]: { ...d, unlocks_premium_slots: e.target.checked } }))
-                            }
-                          />
-                        </td>
-                        <td className="px-3 py-2">
-                          <input
-                            type="checkbox"
-                            checked={a.active}
-                            disabled={busy === `active-${a.id}`}
-                            onChange={(e) => toggleActive(a.id, e.target.checked)}
-                          />
-                        </td>
-                        <td className="px-3 py-2">
-                          <button
-                            onClick={() => saveAddon(a.id)}
-                            disabled={busy === `save-${a.id}`}
-                            className="text-xs text-gold hover:underline"
-                          >
-                            {busy === `save-${a.id}` ? 'Saving…' : 'Save'}
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                  <tr>
-                    <td className="px-3 py-2"></td>
-                    <td className="px-3 py-2">
+            <div className="space-y-2">
+              {groupAddons.length === 0 && <p className="text-sm text-cream/50">No add-ons yet.</p>}
+              {groupAddons.map((a, index) => {
+                const d = drafts[a.id] ?? draftFromAddon(a);
+                return (
+                  <div key={a.id} className="rounded-lg border border-cream/10 bg-cream/[0.02] p-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => move(group.categoryId, groupAddons, index, -1)}
+                          disabled={index === 0 || busy === 'reorder'}
+                          className="flex h-6 w-6 items-center justify-center rounded-full bg-cream/10 text-cream/60 hover:bg-cream/20 disabled:opacity-30"
+                          aria-label="Move earlier"
+                        >
+                          ↑
+                        </button>
+                        <button
+                          onClick={() => move(group.categoryId, groupAddons, index, 1)}
+                          disabled={index === groupAddons.length - 1 || busy === 'reorder'}
+                          className="flex h-6 w-6 items-center justify-center rounded-full bg-cream/10 text-cream/60 hover:bg-cream/20 disabled:opacity-30"
+                          aria-label="Move later"
+                        >
+                          ↓
+                        </button>
+                      </div>
                       <input
-                        value={draft.name}
-                        onChange={(e) => setNewDrafts((prev) => ({ ...prev, [newKey]: { ...draft, name: e.target.value } }))}
-                        placeholder="New add-on name"
-                        className="w-full min-w-[220px] rounded border border-cream/20 bg-transparent px-2 py-1 text-sm"
+                        value={d.name}
+                        onChange={(e) => setDrafts((prev) => ({ ...prev, [a.id]: { ...d, name: e.target.value } }))}
+                        className="min-w-[160px] flex-1 rounded-lg border border-cream/20 bg-transparent px-2.5 py-1.5 text-sm"
                       />
-                    </td>
-                    <td className="px-3 py-2">
-                      <input
-                        value={draft.price_pounds}
-                        onChange={(e) => setNewDrafts((prev) => ({ ...prev, [newKey]: { ...draft, price_pounds: e.target.value } }))}
-                        placeholder="0.00"
-                        className="w-24 rounded border border-cream/20 bg-transparent px-2 py-1 text-sm"
-                      />
-                    </td>
-                    <td className="px-3 py-2">
-                      <input
-                        value={draft.duration_mins}
-                        onChange={(e) => setNewDrafts((prev) => ({ ...prev, [newKey]: { ...draft, duration_mins: e.target.value } }))}
-                        placeholder="0"
-                        className="w-20 rounded border border-cream/20 bg-transparent px-2 py-1 text-sm"
-                      />
-                    </td>
-                    <td className="px-3 py-2">
-                      <input
-                        type="checkbox"
-                        checked={draft.unlocks_premium_slots}
-                        onChange={(e) =>
-                          setNewDrafts((prev) => ({ ...prev, [newKey]: { ...draft, unlocks_premium_slots: e.target.checked } }))
-                        }
-                      />
-                    </td>
-                    <td className="px-3 py-2"></td>
-                    <td className="px-3 py-2">
+                      <label className="flex items-center gap-1.5 text-xs text-cream/60">
+                        <input
+                          type="checkbox"
+                          checked={a.active}
+                          disabled={busy === `active-${a.id}`}
+                          onChange={(e) => toggleActive(a.id, e.target.checked)}
+                        />
+                        Active
+                      </label>
                       <button
-                        onClick={() => createAddon(group.categoryId)}
-                        disabled={busy === `new-${newKey}`}
-                        className="rounded-full bg-gold px-4 py-1.5 text-xs font-medium text-charcoal disabled:opacity-50"
+                        onClick={() => saveAddon(a.id)}
+                        disabled={busy === `save-${a.id}`}
+                        className="inline-flex items-center rounded-full bg-gold/15 px-2.5 py-1 text-xs font-medium text-gold transition-colors hover:bg-gold/25 disabled:opacity-50"
                       >
-                        {busy === `new-${newKey}` ? 'Adding…' : 'Add'}
+                        {busy === `save-${a.id}` ? 'Saving…' : 'Save'}
                       </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+                    </div>
+                    <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 pl-16 text-xs">
+                      <label className="flex items-center gap-1.5 text-cream/50">
+                        Price Δ (£)
+                        <input
+                          value={d.price_pounds}
+                          onChange={(e) => setDrafts((prev) => ({ ...prev, [a.id]: { ...d, price_pounds: e.target.value } }))}
+                          placeholder="0.00"
+                          className="w-20 rounded-lg border border-cream/20 bg-transparent px-2 py-1 text-sm text-cream"
+                        />
+                      </label>
+                      <label className="flex items-center gap-1.5 text-cream/50">
+                        Duration Δ (min)
+                        <input
+                          value={d.duration_mins}
+                          onChange={(e) => setDrafts((prev) => ({ ...prev, [a.id]: { ...d, duration_mins: e.target.value } }))}
+                          placeholder="0"
+                          className="w-16 rounded-lg border border-cream/20 bg-transparent px-2 py-1 text-sm text-cream"
+                        />
+                      </label>
+                      <label className="flex items-center gap-1.5 text-cream/50">
+                        <input
+                          type="checkbox"
+                          checked={d.unlocks_premium_slots}
+                          onChange={(e) =>
+                            setDrafts((prev) => ({ ...prev, [a.id]: { ...d, unlocks_premium_slots: e.target.checked } }))
+                          }
+                        />
+                        Premium slots
+                      </label>
+                    </div>
+                  </div>
+                );
+              })}
+
+              <div className="rounded-lg border border-dashed border-cream/15 p-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <input
+                    value={draft.name}
+                    onChange={(e) => setNewDrafts((prev) => ({ ...prev, [newKey]: { ...draft, name: e.target.value } }))}
+                    placeholder="New add-on name"
+                    className="min-w-[160px] flex-1 rounded-lg border border-cream/20 bg-transparent px-2.5 py-1.5 text-sm"
+                  />
+                  <button
+                    onClick={() => createAddon(group.categoryId)}
+                    disabled={busy === `new-${newKey}`}
+                    className="rounded-full bg-gold px-3 py-1 text-xs font-medium text-charcoal disabled:opacity-50"
+                  >
+                    {busy === `new-${newKey}` ? 'Adding…' : 'Add'}
+                  </button>
+                </div>
+                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
+                  <label className="flex items-center gap-1.5 text-cream/50">
+                    Price Δ (£)
+                    <input
+                      value={draft.price_pounds}
+                      onChange={(e) => setNewDrafts((prev) => ({ ...prev, [newKey]: { ...draft, price_pounds: e.target.value } }))}
+                      placeholder="0.00"
+                      className="w-20 rounded-lg border border-cream/20 bg-transparent px-2 py-1 text-sm text-cream"
+                    />
+                  </label>
+                  <label className="flex items-center gap-1.5 text-cream/50">
+                    Duration Δ (min)
+                    <input
+                      value={draft.duration_mins}
+                      onChange={(e) => setNewDrafts((prev) => ({ ...prev, [newKey]: { ...draft, duration_mins: e.target.value } }))}
+                      placeholder="0"
+                      className="w-16 rounded-lg border border-cream/20 bg-transparent px-2 py-1 text-sm text-cream"
+                    />
+                  </label>
+                  <label className="flex items-center gap-1.5 text-cream/50">
+                    <input
+                      type="checkbox"
+                      checked={draft.unlocks_premium_slots}
+                      onChange={(e) =>
+                        setNewDrafts((prev) => ({ ...prev, [newKey]: { ...draft, unlocks_premium_slots: e.target.checked } }))
+                      }
+                    />
+                    Premium slots
+                  </label>
+                </div>
+              </div>
             </div>
           </div>
         );

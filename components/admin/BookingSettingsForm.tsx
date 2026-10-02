@@ -71,7 +71,7 @@ export default function BookingSettingsForm({ initialSettings }: { initialSettin
       <button
         onClick={handleSave}
         disabled={saving}
-        className="rounded-full bg-gold px-5 py-2 text-sm font-medium text-charcoal disabled:opacity-50"
+        className="rounded-full bg-gold px-4 py-2 text-xs font-medium text-charcoal disabled:opacity-50"
       >
         {saving ? 'Saving…' : saved ? 'Saved ✓' : 'Save settings'}
       </button>

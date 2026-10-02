@@ -116,82 +116,63 @@ export default function ServiceCategoriesManager({ initialCategories }: { initia
         <button
           type="submit"
           disabled={busy === 'new'}
-          className="rounded-full bg-gold px-5 py-2 text-sm font-medium text-charcoal disabled:opacity-50"
+          className="rounded-full bg-gold px-4 py-2 text-xs font-medium text-charcoal disabled:opacity-50"
         >
           Add category
         </button>
       </form>
 
-      <div className="overflow-x-auto rounded-xl border border-cream/10">
-        <table className="w-full text-left text-sm">
-          <thead className="border-b border-cream/10 text-xs uppercase tracking-wide text-cream/50">
-            <tr>
-              <th className="px-4 py-3"></th>
-              <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3">Slug</th>
-              <th className="px-4 py-3">Active</th>
-              <th className="px-4 py-3"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {categories.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="px-4 py-4 text-sm text-cream/50">
-                  No service categories yet.
-                </td>
-              </tr>
-            ) : (
-              categories.map((c, index) => (
-                <tr key={c.id} className="border-b border-cream/5 last:border-0">
-                  <td className="px-4 py-2">
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => move(index, -1)}
-                        disabled={index === 0 || busy === 'reorder'}
-                        className="text-cream/50 hover:text-gold disabled:opacity-30"
-                      >
-                        ↑
-                      </button>
-                      <button
-                        onClick={() => move(index, 1)}
-                        disabled={index === categories.length - 1 || busy === 'reorder'}
-                        className="text-cream/50 hover:text-gold disabled:opacity-30"
-                      >
-                        ↓
-                      </button>
-                    </div>
-                  </td>
-                  <td className="px-4 py-2">
-                    <input
-                      value={nameEdits[c.id] ?? ''}
-                      onChange={(e) => setNameEdits((prev) => ({ ...prev, [c.id]: e.target.value }))}
-                      className="w-full rounded border border-cream/20 bg-transparent px-2 py-1 text-sm"
-                    />
-                  </td>
-                  <td className="px-4 py-2 text-xs text-cream/50">{c.slug}</td>
-                  <td className="px-4 py-2">
-                    <input
-                      type="checkbox"
-                      checked={c.active}
-                      disabled={busy === `active-${c.id}`}
-                      onChange={(e) => toggleActive(c.id, e.target.checked)}
-                    />
-                  </td>
-                  <td className="px-4 py-2">
-                    <button
-                      onClick={() => saveName(c.id)}
-                      disabled={busy === `name-${c.id}`}
-                      className="text-xs text-gold hover:underline"
-                    >
-                      {busy === `name-${c.id}` ? 'Saving…' : 'Save name'}
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      {categories.length === 0 ? (
+        <p className="text-sm text-cream/50">No service categories yet.</p>
+      ) : (
+        <div className="space-y-2">
+          {categories.map((c, index) => (
+            <div
+              key={c.id}
+              className="flex flex-wrap items-center gap-3 rounded-xl border border-cream/10 bg-cream/[0.02] px-4 py-3"
+            >
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => move(index, -1)}
+                  disabled={index === 0 || busy === 'reorder'}
+                  className="flex h-7 w-7 items-center justify-center rounded-full bg-cream/10 text-cream/60 hover:bg-cream/20 disabled:opacity-30"
+                >
+                  ↑
+                </button>
+                <button
+                  onClick={() => move(index, 1)}
+                  disabled={index === categories.length - 1 || busy === 'reorder'}
+                  className="flex h-7 w-7 items-center justify-center rounded-full bg-cream/10 text-cream/60 hover:bg-cream/20 disabled:opacity-30"
+                >
+                  ↓
+                </button>
+              </div>
+              <input
+                value={nameEdits[c.id] ?? ''}
+                onChange={(e) => setNameEdits((prev) => ({ ...prev, [c.id]: e.target.value }))}
+                className="min-w-[10rem] flex-1 rounded-lg border border-cream/20 bg-transparent px-2.5 py-1.5 text-sm"
+              />
+              <span className="text-xs text-cream/50">{c.slug}</span>
+              <label className="flex items-center gap-1.5 text-xs text-cream/60">
+                <input
+                  type="checkbox"
+                  checked={c.active}
+                  disabled={busy === `active-${c.id}`}
+                  onChange={(e) => toggleActive(c.id, e.target.checked)}
+                />
+                Active
+              </label>
+              <button
+                onClick={() => saveName(c.id)}
+                disabled={busy === `name-${c.id}`}
+                className="inline-flex items-center rounded-full bg-gold/15 px-2.5 py-1 text-xs font-medium text-gold transition-colors hover:bg-gold/25 disabled:opacity-50"
+              >
+                {busy === `name-${c.id}` ? 'Saving…' : 'Save'}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

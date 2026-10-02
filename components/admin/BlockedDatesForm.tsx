@@ -119,7 +119,7 @@ export default function BlockedDatesForm({ initialBlockedDates }: { initialBlock
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-full bg-gold px-5 py-2 text-sm font-medium text-charcoal disabled:opacity-50"
+          className="rounded-full bg-gold px-4 py-2 text-xs font-medium text-charcoal disabled:opacity-50"
         >
           {submitting ? 'Adding…' : 'Add block'}
         </button>
@@ -134,14 +134,17 @@ export default function BlockedDatesForm({ initialBlockedDates }: { initialBlock
             {initialBlockedDates.map((b) => (
               <li
                 key={b.id}
-                className="flex items-center justify-between rounded-lg border border-cream/10 px-4 py-2 text-sm"
+                className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-cream/10 px-4 py-2 text-sm"
               >
                 <span>
                   {b.blocked_date}
                   {b.start_time && b.end_time ? ` · ${b.start_time.slice(0, 5)}–${b.end_time.slice(0, 5)}` : ' · whole day'}
                   {b.reason ? ` · ${b.reason}` : ''}
                 </span>
-                <button onClick={() => handleRemove(b.id)} className="text-xs text-red-300 hover:underline">
+                <button
+                  onClick={() => handleRemove(b.id)}
+                  className="inline-flex items-center rounded-full bg-red-500/15 px-2.5 py-1 text-xs font-medium text-red-300 transition-colors hover:bg-red-500/25"
+                >
                   Remove
                 </button>
               </li>

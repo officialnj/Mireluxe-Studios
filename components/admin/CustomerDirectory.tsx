@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { formatInTimeZone } from 'date-fns-tz';
 import { STUDIO_TIMEZONE } from '@/lib/booking/constants';
 import { formatPence } from '@/lib/booking/pricing';
@@ -156,7 +156,9 @@ export default function CustomerDirectory({
             <button
               key={key}
               onClick={() => setSortKey(key)}
-              className={`rounded-full px-2 py-1 ${sortKey === key ? 'bg-gold/15 text-gold' : 'hover:text-cream'}`}
+              className={`rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
+                sortKey === key ? 'bg-gold/15 text-gold' : 'bg-cream/10 text-cream/70 hover:bg-cream/20'
+              }`}
             >
               {label}
             </button>
@@ -167,109 +169,88 @@ export default function CustomerDirectory({
         </span>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-cream/10">
-        <table className="w-full text-left text-sm">
-          <thead className="border-b border-cream/10 text-xs uppercase tracking-wide text-cream/50">
-            <tr>
-              <th className="px-4 py-3">Customer</th>
-              <th className="px-4 py-3">Bookings</th>
-              <th className="px-4 py-3">Orders</th>
-              <th className="px-4 py-3">Lifetime spend</th>
-              <th className="px-4 py-3">Last activity</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((customer) => {
-              const isOpen = expanded === customer.email;
-              const customerBookings = bookingsByEmail.get(customer.email) ?? [];
-              const customerOrders = ordersByEmail.get(customer.email) ?? [];
-              return (
-                <Fragment key={customer.email}>
-                  <tr
-                    onClick={() => setExpanded(isOpen ? null : customer.email)}
-                    className="cursor-pointer border-b border-cream/5 last:border-0 hover:bg-cream/5"
-                  >
-                    <td className="px-4 py-3">
-                      <div>{customer.name}</div>
-                      <div className="text-xs text-cream/50">
-                        {customer.email}
-                        {customer.phone ? ` · ${customer.phone}` : ''}
-                      </div>
-                      {customer.nameVariants.length > 1 && (
-                        <div className="mt-0.5 text-xs text-cream/30">
-                          Also seen as: {customer.nameVariants.filter((n) => n !== customer.name).join(', ')}
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-4 py-3">{customer.bookingsCount}</td>
-                    <td className="px-4 py-3">{customer.ordersCount}</td>
-                    <td className="px-4 py-3">{formatPence(customer.lifetimeSpendPence)}</td>
-                    <td className="px-4 py-3 whitespace-nowrap">{formatDate(customer.lastActivityAt)}</td>
-                  </tr>
-                  {isOpen && (
-                    <tr key={`${customer.email}-detail`} className="border-b border-cream/5 last:border-0 bg-cream/[0.03]">
-                      <td colSpan={5} className="px-4 py-4">
-                        <div className="grid gap-6 md:grid-cols-2">
-                          <div>
-                            <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-cream/50">
-                              Booking history
-                            </h3>
-                            {customerBookings.length === 0 ? (
-                              <p className="text-xs text-cream/40">No bookings.</p>
-                            ) : (
-                              <ul className="space-y-2">
-                                {customerBookings.map((b) => (
-                                  <li key={b.id} className="flex items-center justify-between gap-3 text-xs">
-                                    <span className="text-cream/70">
-                                      {formatDate(b.appointmentStart)} · {b.serviceName}
-                                    </span>
-                                    <span className="flex items-center gap-2">
-                                      <span className={`rounded-full px-2 py-0.5 ${BOOKING_STATUS_STYLE[b.status]}`}>
-                                        {b.status}
-                                      </span>
-                                      <span className="text-cream/50">{formatPence(b.amountPence)}</span>
-                                    </span>
-                                  </li>
-                                ))}
-                              </ul>
-                            )}
-                          </div>
-                          <div>
-                            <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-cream/50">
-                              Order history
-                            </h3>
-                            {customerOrders.length === 0 ? (
-                              <p className="text-xs text-cream/40">No shop orders.</p>
-                            ) : (
-                              <ul className="space-y-2">
-                                {customerOrders.map((o) => (
-                                  <li key={o.id} className="text-xs">
-                                    <div className="flex items-center justify-between gap-3">
-                                      <span className="text-cream/70">{formatDate(o.createdAt)}</span>
-                                      <span className="flex items-center gap-2">
-                                        <span className={`rounded-full px-2 py-0.5 ${ORDER_STATUS_STYLE[o.status]}`}>
-                                          {o.status}
-                                        </span>
-                                        <span className="text-cream/50">{formatPence(o.subtotalPence)}</span>
-                                      </span>
-                                    </div>
-                                    <div className="mt-0.5 text-cream/40">
-                                      {o.items.map((item) => `${item.name} ×${item.quantity}`).join(', ')}
-                                    </div>
-                                  </li>
-                                ))}
-                              </ul>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
+      <div className="space-y-2">
+        {filtered.map((customer) => {
+          const isOpen = expanded === customer.email;
+          const customerBookings = bookingsByEmail.get(customer.email) ?? [];
+          const customerOrders = ordersByEmail.get(customer.email) ?? [];
+          return (
+            <div key={customer.email} className="rounded-xl border border-cream/10 bg-cream/[0.02]">
+              <button
+                onClick={() => setExpanded(isOpen ? null : customer.email)}
+                className="flex w-full flex-wrap items-center justify-between gap-3 px-4 py-3 text-left"
+              >
+                <div>
+                  <div className="text-sm font-medium">{customer.name}</div>
+                  <div className="text-xs text-cream/50">
+                    {customer.email}
+                    {customer.phone ? ` · ${customer.phone}` : ''}
+                  </div>
+                  {customer.nameVariants.length > 1 && (
+                    <div className="mt-0.5 text-xs text-cream/30">
+                      Also seen as: {customer.nameVariants.filter((n) => n !== customer.name).join(', ')}
+                    </div>
                   )}
-                </Fragment>
-              );
-            })}
-          </tbody>
-        </table>
+                </div>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-cream/60">
+                  <span>{customer.bookingsCount} bookings</span>
+                  <span>{customer.ordersCount} orders</span>
+                  <span className="font-medium text-cream">{formatPence(customer.lifetimeSpendPence)}</span>
+                  <span className="whitespace-nowrap">{formatDate(customer.lastActivityAt)}</span>
+                </div>
+              </button>
+              {isOpen && (
+                <div className="border-t border-cream/5 bg-cream/[0.02] px-4 py-4">
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <div>
+                      <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-cream/50">Booking history</h3>
+                      {customerBookings.length === 0 ? (
+                        <p className="text-xs text-cream/40">No bookings.</p>
+                      ) : (
+                        <ul className="space-y-2">
+                          {customerBookings.map((b) => (
+                            <li key={b.id} className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                              <span className="text-cream/70">
+                                {formatDate(b.appointmentStart)} · {b.serviceName}
+                              </span>
+                              <span className="flex items-center gap-2">
+                                <span className={`rounded-full px-2 py-0.5 ${BOOKING_STATUS_STYLE[b.status]}`}>{b.status}</span>
+                                <span className="text-cream/50">{formatPence(b.amountPence)}</span>
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                    <div>
+                      <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-cream/50">Order history</h3>
+                      {customerOrders.length === 0 ? (
+                        <p className="text-xs text-cream/40">No shop orders.</p>
+                      ) : (
+                        <ul className="space-y-2">
+                          {customerOrders.map((o) => (
+                            <li key={o.id} className="text-xs">
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <span className="text-cream/70">{formatDate(o.createdAt)}</span>
+                                <span className="flex items-center gap-2">
+                                  <span className={`rounded-full px-2 py-0.5 ${ORDER_STATUS_STYLE[o.status]}`}>{o.status}</span>
+                                  <span className="text-cream/50">{formatPence(o.subtotalPence)}</span>
+                                </span>
+                              </div>
+                              <div className="mt-0.5 text-cream/40">
+                                {o.items.map((item) => `${item.name} ×${item.quantity}`).join(', ')}
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

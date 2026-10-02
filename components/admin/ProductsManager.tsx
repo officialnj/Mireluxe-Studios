@@ -473,7 +473,7 @@ export default function ProductsManager({
                 <button
                   onClick={() => saveBundleName(bundle.id)}
                   disabled={busy === `bundle-${bundle.id}`}
-                  className="text-xs text-gold hover:underline"
+                  className="inline-flex items-center rounded-full bg-gold/15 px-2.5 py-1 text-xs font-medium text-gold transition-colors hover:bg-gold/25 disabled:opacity-50"
                 >
                   Save name
                 </button>
@@ -488,159 +488,144 @@ export default function ProductsManager({
                 </label>
               </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[720px] text-left text-xs">
-                  <thead className="border-b border-cream/10 uppercase tracking-wide text-cream/50">
-                    <tr>
-                      <th className="px-2 py-2">Length (in)</th>
-                      <th className="px-2 py-2">Colour</th>
-                      <th className="px-2 py-2">Price £</th>
-                      <th className="px-2 py-2">Stock qty</th>
-                      <th className="px-2 py-2">Image URL</th>
-                      <th className="px-2 py-2">Description</th>
-                      <th className="px-2 py-2">In stock</th>
-                      <th className="px-2 py-2"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {bundleVariants.map((v) => {
-                      const vd = variantEdits[v.id];
-                      if (!vd) return null;
-                      return (
-                        <tr key={v.id} className="border-b border-cream/5 last:border-0">
-                          <td className="px-2 py-2">
-                            <input
-                              type="number"
-                              value={vd.inches}
-                              onChange={(e) => updateVariantDraft(v.id, { inches: e.target.value })}
-                              className="w-16 rounded border border-cream/20 bg-transparent px-2 py-1"
-                            />
-                          </td>
-                          <td className="px-2 py-2">
-                            <input
-                              value={vd.colour}
-                              onChange={(e) => updateVariantDraft(v.id, { colour: e.target.value })}
-                              className="w-16 rounded border border-cream/20 bg-transparent px-2 py-1"
-                            />
-                          </td>
-                          <td className="px-2 py-2">
-                            <input
-                              type="number"
-                              step="0.01"
-                              value={vd.price_pounds}
-                              onChange={(e) => updateVariantDraft(v.id, { price_pounds: e.target.value })}
-                              className="w-20 rounded border border-cream/20 bg-transparent px-2 py-1"
-                            />
-                          </td>
-                          <td className="px-2 py-2">
-                            <input
-                              type="number"
-                              value={vd.stock_quantity}
-                              onChange={(e) => updateVariantDraft(v.id, { stock_quantity: e.target.value })}
-                              className="w-20 rounded border border-cream/20 bg-transparent px-2 py-1"
-                            />
-                          </td>
-                          <td className="px-2 py-2">
-                            <input
-                              value={vd.image_url}
-                              placeholder="https://…"
-                              onChange={(e) => updateVariantDraft(v.id, { image_url: e.target.value })}
-                              className="w-40 rounded border border-cream/20 bg-transparent px-2 py-1"
-                            />
-                          </td>
-                          <td className="px-2 py-2">
-                            <input
-                              value={vd.description}
-                              onChange={(e) => updateVariantDraft(v.id, { description: e.target.value })}
-                              className="w-40 rounded border border-cream/20 bg-transparent px-2 py-1"
-                            />
-                          </td>
-                          <td className="px-2 py-2">
-                            <input
-                              type="checkbox"
-                              checked={v.in_stock}
-                              disabled={busy === `variant-stock-${v.id}`}
-                              onChange={(e) => toggleVariantStock(v.id, e.target.checked)}
-                            />
-                          </td>
-                          <td className="px-2 py-2">
-                            <button
-                              onClick={() => saveVariant(v.id)}
-                              disabled={busy === `variant-${v.id}`}
-                              className="text-gold hover:underline"
-                            >
-                              Save
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                    <tr className="bg-cream/[0.02]">
-                      <td className="px-2 py-2">
-                        <input
-                          type="number"
-                          placeholder="18"
-                          value={draft.inches}
-                          onChange={(e) => setNewVariantDrafts((prev) => ({ ...prev, [bundle.id]: { ...draft, inches: e.target.value } }))}
-                          className="w-16 rounded border border-cream/20 bg-transparent px-2 py-1"
-                        />
-                      </td>
-                      <td className="px-2 py-2">
-                        <input
-                          placeholder="1B"
-                          value={draft.colour}
-                          onChange={(e) => setNewVariantDrafts((prev) => ({ ...prev, [bundle.id]: { ...draft, colour: e.target.value } }))}
-                          className="w-16 rounded border border-cream/20 bg-transparent px-2 py-1"
-                        />
-                      </td>
-                      <td className="px-2 py-2">
-                        <input
-                          type="number"
-                          step="0.01"
-                          placeholder="50.00"
-                          value={draft.price_pounds}
-                          onChange={(e) => setNewVariantDrafts((prev) => ({ ...prev, [bundle.id]: { ...draft, price_pounds: e.target.value } }))}
-                          className="w-20 rounded border border-cream/20 bg-transparent px-2 py-1"
-                        />
-                      </td>
-                      <td className="px-2 py-2">
-                        <input
-                          type="number"
-                          placeholder="0"
-                          value={draft.stock_quantity}
-                          onChange={(e) => setNewVariantDrafts((prev) => ({ ...prev, [bundle.id]: { ...draft, stock_quantity: e.target.value } }))}
-                          className="w-20 rounded border border-cream/20 bg-transparent px-2 py-1"
-                        />
-                      </td>
-                      <td className="px-2 py-2">
-                        <input
-                          placeholder="https://…"
-                          value={draft.image_url}
-                          onChange={(e) => setNewVariantDrafts((prev) => ({ ...prev, [bundle.id]: { ...draft, image_url: e.target.value } }))}
-                          className="w-40 rounded border border-cream/20 bg-transparent px-2 py-1"
-                        />
-                      </td>
-                      <td className="px-2 py-2">
-                        <input
-                          placeholder="Description"
-                          value={draft.description}
-                          onChange={(e) => setNewVariantDrafts((prev) => ({ ...prev, [bundle.id]: { ...draft, description: e.target.value } }))}
-                          className="w-40 rounded border border-cream/20 bg-transparent px-2 py-1"
-                        />
-                      </td>
-                      <td className="px-2 py-2 text-cream/30">new</td>
-                      <td className="px-2 py-2">
+              <div className="space-y-2">
+                {bundleVariants.map((v) => {
+                  const vd = variantEdits[v.id];
+                  if (!vd) return null;
+                  return (
+                    <div key={v.id} className="rounded-lg border border-cream/10 bg-cream/[0.02] p-3">
+                      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                        <label className="flex flex-col gap-1 text-[10px] uppercase tracking-wide text-cream/40">
+                          Length (in)
+                          <input
+                            type="number"
+                            value={vd.inches}
+                            onChange={(e) => updateVariantDraft(v.id, { inches: e.target.value })}
+                            className="rounded-lg border border-cream/20 bg-transparent px-2 py-1.5 text-sm normal-case text-cream"
+                          />
+                        </label>
+                        <label className="flex flex-col gap-1 text-[10px] uppercase tracking-wide text-cream/40">
+                          Colour
+                          <input
+                            value={vd.colour}
+                            onChange={(e) => updateVariantDraft(v.id, { colour: e.target.value })}
+                            className="rounded-lg border border-cream/20 bg-transparent px-2 py-1.5 text-sm normal-case text-cream"
+                          />
+                        </label>
+                        <label className="flex flex-col gap-1 text-[10px] uppercase tracking-wide text-cream/40">
+                          Price £
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={vd.price_pounds}
+                            onChange={(e) => updateVariantDraft(v.id, { price_pounds: e.target.value })}
+                            className="rounded-lg border border-cream/20 bg-transparent px-2 py-1.5 text-sm normal-case text-cream"
+                          />
+                        </label>
+                        <label className="flex flex-col gap-1 text-[10px] uppercase tracking-wide text-cream/40">
+                          Stock qty
+                          <input
+                            type="number"
+                            value={vd.stock_quantity}
+                            onChange={(e) => updateVariantDraft(v.id, { stock_quantity: e.target.value })}
+                            className="rounded-lg border border-cream/20 bg-transparent px-2 py-1.5 text-sm normal-case text-cream"
+                          />
+                        </label>
+                      </div>
+                      <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                        <label className="flex flex-col gap-1 text-[10px] uppercase tracking-wide text-cream/40">
+                          Image URL
+                          <input
+                            value={vd.image_url}
+                            placeholder="https://…"
+                            onChange={(e) => updateVariantDraft(v.id, { image_url: e.target.value })}
+                            className="rounded-lg border border-cream/20 bg-transparent px-2 py-1.5 text-sm normal-case text-cream"
+                          />
+                        </label>
+                        <label className="flex flex-col gap-1 text-[10px] uppercase tracking-wide text-cream/40">
+                          Description
+                          <input
+                            value={vd.description}
+                            onChange={(e) => updateVariantDraft(v.id, { description: e.target.value })}
+                            className="rounded-lg border border-cream/20 bg-transparent px-2 py-1.5 text-sm normal-case text-cream"
+                          />
+                        </label>
+                      </div>
+                      <div className="mt-2 flex flex-wrap items-center gap-3">
+                        <label className="flex items-center gap-1.5 text-xs text-cream/60">
+                          <input
+                            type="checkbox"
+                            checked={v.in_stock}
+                            disabled={busy === `variant-stock-${v.id}`}
+                            onChange={(e) => toggleVariantStock(v.id, e.target.checked)}
+                          />
+                          In stock
+                        </label>
                         <button
-                          onClick={() => createVariant(bundle.id)}
-                          disabled={busy === `new-variant-${bundle.id}`}
-                          className="text-gold hover:underline"
+                          onClick={() => saveVariant(v.id)}
+                          disabled={busy === `variant-${v.id}`}
+                          className="inline-flex items-center rounded-full bg-gold/15 px-2.5 py-1 text-xs font-medium text-gold transition-colors hover:bg-gold/25 disabled:opacity-50"
                         >
-                          Add
+                          Save
                         </button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                <div className="rounded-lg border border-dashed border-cream/15 p-3">
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    <input
+                      type="number"
+                      placeholder="Length (in)"
+                      value={draft.inches}
+                      onChange={(e) => setNewVariantDrafts((prev) => ({ ...prev, [bundle.id]: { ...draft, inches: e.target.value } }))}
+                      className="rounded-lg border border-cream/20 bg-transparent px-2 py-1.5 text-sm"
+                    />
+                    <input
+                      placeholder="Colour"
+                      value={draft.colour}
+                      onChange={(e) => setNewVariantDrafts((prev) => ({ ...prev, [bundle.id]: { ...draft, colour: e.target.value } }))}
+                      className="rounded-lg border border-cream/20 bg-transparent px-2 py-1.5 text-sm"
+                    />
+                    <input
+                      type="number"
+                      step="0.01"
+                      placeholder="Price £"
+                      value={draft.price_pounds}
+                      onChange={(e) => setNewVariantDrafts((prev) => ({ ...prev, [bundle.id]: { ...draft, price_pounds: e.target.value } }))}
+                      className="rounded-lg border border-cream/20 bg-transparent px-2 py-1.5 text-sm"
+                    />
+                    <input
+                      type="number"
+                      placeholder="Stock qty"
+                      value={draft.stock_quantity}
+                      onChange={(e) => setNewVariantDrafts((prev) => ({ ...prev, [bundle.id]: { ...draft, stock_quantity: e.target.value } }))}
+                      className="rounded-lg border border-cream/20 bg-transparent px-2 py-1.5 text-sm"
+                    />
+                  </div>
+                  <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                    <input
+                      placeholder="Image URL"
+                      value={draft.image_url}
+                      onChange={(e) => setNewVariantDrafts((prev) => ({ ...prev, [bundle.id]: { ...draft, image_url: e.target.value } }))}
+                      className="rounded-lg border border-cream/20 bg-transparent px-2 py-1.5 text-sm"
+                    />
+                    <input
+                      placeholder="Description"
+                      value={draft.description}
+                      onChange={(e) => setNewVariantDrafts((prev) => ({ ...prev, [bundle.id]: { ...draft, description: e.target.value } }))}
+                      className="rounded-lg border border-cream/20 bg-transparent px-2 py-1.5 text-sm"
+                    />
+                  </div>
+                  <button
+                    onClick={() => createVariant(bundle.id)}
+                    disabled={busy === `new-variant-${bundle.id}`}
+                    className="mt-2 rounded-full bg-gold px-3 py-1 text-xs font-medium text-charcoal disabled:opacity-50"
+                  >
+                    Add variant
+                  </button>
+                </div>
               </div>
 
               <div className="mt-4 space-y-3 border-t border-cream/10 pt-4">
@@ -764,7 +749,7 @@ function VariantMediaManager({
                 <button
                   onClick={() => onDelete(m.id)}
                   disabled={busy === `deleting-${m.id}`}
-                  className="text-red-300 hover:underline disabled:opacity-30"
+                  className="rounded-full bg-red-500/15 px-1.5 text-red-300 transition-colors hover:bg-red-500/25 disabled:opacity-30"
                 >
                   {busy === `deleting-${m.id}` ? '…' : 'Del'}
                 </button>

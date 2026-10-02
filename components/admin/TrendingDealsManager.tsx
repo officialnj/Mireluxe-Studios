@@ -160,7 +160,7 @@ export default function TrendingDealsManager({ initialDeals }: { initialDeals: D
 
       <button
         onClick={() => setShowNewForm((v) => !v)}
-        className="rounded-full bg-gold px-5 py-2 text-sm font-medium text-charcoal"
+        className="rounded-full bg-gold px-4 py-2 text-xs font-medium text-charcoal"
       >
         {showNewForm ? 'Cancel' : '+ New deal'}
       </button>
@@ -169,7 +169,7 @@ export default function TrendingDealsManager({ initialDeals }: { initialDeals: D
         <form onSubmit={createDeal} className="grid gap-3 rounded-xl border border-cream/10 p-4 md:grid-cols-2">
           <DealFields draft={newDraft} onChange={(patch) => setNewDraft((prev) => ({ ...prev, ...patch }))} />
           <div className="md:col-span-2">
-            <button type="submit" disabled={busy === 'create'} className="rounded-full bg-gold px-5 py-2 text-sm font-medium text-charcoal disabled:opacity-50">
+            <button type="submit" disabled={busy === 'create'} className="rounded-full bg-gold px-4 py-2 text-xs font-medium text-charcoal disabled:opacity-50">
               {busy === 'create' ? 'Creating…' : 'Create deal'}
             </button>
           </div>
@@ -187,10 +187,10 @@ export default function TrendingDealsManager({ initialDeals }: { initialDeals: D
               <div key={deal.id} className={`rounded-xl border p-4 ${deal.active ? 'border-cream/10' : 'border-red-500/20 opacity-70'}`}>
                 <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
-                    <button onClick={() => move(index, -1)} disabled={index === 0 || busy === 'reorder'} className="text-cream/50 hover:text-gold disabled:opacity-30">
+                    <button onClick={() => move(index, -1)} disabled={index === 0 || busy === 'reorder'} className="flex h-6 w-6 items-center justify-center rounded-full bg-cream/10 text-cream/60 hover:bg-cream/20 disabled:opacity-30">
                       ↑
                     </button>
-                    <button onClick={() => move(index, 1)} disabled={index === deals.length - 1 || busy === 'reorder'} className="text-cream/50 hover:text-gold disabled:opacity-30">
+                    <button onClick={() => move(index, 1)} disabled={index === deals.length - 1 || busy === 'reorder'} className="flex h-6 w-6 items-center justify-center rounded-full bg-cream/10 text-cream/60 hover:bg-cream/20 disabled:opacity-30">
                       ↓
                     </button>
                     <span className="text-sm font-medium">{deal.name}</span>
@@ -211,7 +211,7 @@ export default function TrendingDealsManager({ initialDeals }: { initialDeals: D
                 <button
                   onClick={() => saveDeal(deal.id)}
                   disabled={busy === `save-${deal.id}`}
-                  className="mt-3 text-xs text-gold hover:underline"
+                  className="mt-3 inline-flex items-center rounded-full bg-gold/15 px-2.5 py-1 text-xs font-medium text-gold transition-colors hover:bg-gold/25 disabled:opacity-50"
                 >
                   {busy === `save-${deal.id}` ? 'Saving…' : 'Save changes'}
                 </button>

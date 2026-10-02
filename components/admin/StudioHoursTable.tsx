@@ -62,52 +62,43 @@ export default function StudioHoursTable({ initialHours }: { initialHours: Studi
   return (
     <div className="max-w-xl space-y-4">
       {error && <p className="rounded bg-red-500/10 px-3 py-2 text-sm text-red-300">{error}</p>}
-      <table className="w-full text-left text-sm">
-        <thead className="border-b border-cream/10 text-xs uppercase tracking-wide text-cream/50">
-          <tr>
-            <th className="py-2 pr-4">Day</th>
-            <th className="py-2 pr-4">Open</th>
-            <th className="py-2 pr-4">Close</th>
-            <th className="py-2">Closed</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r) => (
-            <tr key={r.day_of_week} className="border-b border-cream/5 last:border-0">
-              <td className="py-2 pr-4">{DAY_LABELS[r.day_of_week]}</td>
-              <td className="py-2 pr-4">
-                <input
-                  type="time"
-                  disabled={r.is_closed}
-                  value={r.open_time ?? ''}
-                  onChange={(e) => update(r.day_of_week, { open_time: e.target.value })}
-                  className="rounded border border-cream/20 bg-transparent px-2 py-1 text-xs disabled:opacity-40"
-                />
-              </td>
-              <td className="py-2 pr-4">
-                <input
-                  type="time"
-                  disabled={r.is_closed}
-                  value={r.close_time ?? ''}
-                  onChange={(e) => update(r.day_of_week, { close_time: e.target.value })}
-                  className="rounded border border-cream/20 bg-transparent px-2 py-1 text-xs disabled:opacity-40"
-                />
-              </td>
-              <td className="py-2">
-                <input
-                  type="checkbox"
-                  checked={r.is_closed}
-                  onChange={(e) => update(r.day_of_week, { is_closed: e.target.checked })}
-                />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="space-y-1.5">
+        {rows.map((r) => (
+          <div
+            key={r.day_of_week}
+            className="flex flex-wrap items-center gap-3 rounded-lg border border-cream/10 bg-cream/[0.02] px-3 py-2"
+          >
+            <span className="w-24 text-sm">{DAY_LABELS[r.day_of_week]}</span>
+            <input
+              type="time"
+              disabled={r.is_closed}
+              value={r.open_time ?? ''}
+              onChange={(e) => update(r.day_of_week, { open_time: e.target.value })}
+              className="rounded-lg border border-cream/20 bg-transparent px-2 py-1 text-xs disabled:opacity-40"
+            />
+            <span className="text-xs text-cream/40">to</span>
+            <input
+              type="time"
+              disabled={r.is_closed}
+              value={r.close_time ?? ''}
+              onChange={(e) => update(r.day_of_week, { close_time: e.target.value })}
+              className="rounded-lg border border-cream/20 bg-transparent px-2 py-1 text-xs disabled:opacity-40"
+            />
+            <label className="flex items-center gap-1.5 text-xs text-cream/60">
+              <input
+                type="checkbox"
+                checked={r.is_closed}
+                onChange={(e) => update(r.day_of_week, { is_closed: e.target.checked })}
+              />
+              Closed
+            </label>
+          </div>
+        ))}
+      </div>
       <button
         onClick={handleSave}
         disabled={saving}
-        className="rounded-full bg-gold px-5 py-2 text-sm font-medium text-charcoal disabled:opacity-50"
+        className="rounded-full bg-gold px-4 py-2 text-xs font-medium text-charcoal disabled:opacity-50"
       >
         {saving ? 'Saving…' : saved ? 'Saved ✓' : 'Save working hours'}
       </button>

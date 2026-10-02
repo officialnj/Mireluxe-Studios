@@ -220,7 +220,7 @@ export default function ServicesTable({
 
       <button
         onClick={() => setShowNewForm((v) => !v)}
-        className="rounded-full bg-gold px-5 py-2 text-sm font-medium text-charcoal"
+        className="rounded-full bg-gold px-4 py-2 text-xs font-medium text-charcoal"
       >
         {showNewForm ? 'Cancel' : '+ New service'}
       </button>
@@ -233,7 +233,7 @@ export default function ServicesTable({
           <button
             type="submit"
             disabled={busy === 'create'}
-            className="mt-3 rounded-full bg-gold px-5 py-2 text-sm font-medium text-charcoal disabled:opacity-50"
+            className="mt-3 rounded-full bg-gold px-4 py-2 text-xs font-medium text-charcoal disabled:opacity-50"
           >
             {busy === 'create' ? 'Creating…' : 'Create service'}
           </button>
@@ -262,14 +262,14 @@ export default function ServicesTable({
                           <button
                             onClick={() => move(category.id, groupServices, index, -1)}
                             disabled={index === 0 || busy === 'reorder'}
-                            className="text-cream/50 hover:text-gold disabled:opacity-30"
+                            className="flex h-6 w-6 items-center justify-center rounded-full bg-cream/10 text-cream/60 hover:bg-cream/20 disabled:opacity-30"
                           >
                             ↑
                           </button>
                           <button
                             onClick={() => move(category.id, groupServices, index, 1)}
                             disabled={index === groupServices.length - 1 || busy === 'reorder'}
-                            className="text-cream/50 hover:text-gold disabled:opacity-30"
+                            className="flex h-6 w-6 items-center justify-center rounded-full bg-cream/10 text-cream/60 hover:bg-cream/20 disabled:opacity-30"
                           >
                             ↓
                           </button>
@@ -291,7 +291,7 @@ export default function ServicesTable({
                           </label>
                           <button
                             onClick={() => setExpandedId(isExpanded ? null : s.id)}
-                            className="text-xs text-gold hover:underline"
+                            className="inline-flex items-center rounded-full bg-cream/10 px-2.5 py-1 text-xs font-medium text-cream/70 transition-colors hover:bg-cream/20"
                           >
                             {isExpanded ? 'Collapse' : 'Edit'}
                           </button>
@@ -306,7 +306,7 @@ export default function ServicesTable({
                           <button
                             onClick={() => saveService(s.id)}
                             disabled={busy === `save-${s.id}`}
-                            className="mt-3 text-xs text-gold hover:underline"
+                            className="mt-3 inline-flex items-center rounded-full bg-gold/15 px-2.5 py-1 text-xs font-medium text-gold transition-colors hover:bg-gold/25 disabled:opacity-50"
                           >
                             {busy === `save-${s.id}` ? 'Saving…' : 'Save changes'}
                           </button>
@@ -345,7 +345,7 @@ export default function ServicesTable({
                   <div className="grid gap-3 md:grid-cols-2">
                     <ServiceFields draft={draft} categories={categories} onChange={(patch) => update(s.id, patch)} />
                   </div>
-                  <button onClick={() => saveService(s.id)} disabled={busy === `save-${s.id}`} className="mt-3 text-xs text-gold hover:underline">
+                  <button onClick={() => saveService(s.id)} disabled={busy === `save-${s.id}`} className="mt-3 inline-flex items-center rounded-full bg-gold/15 px-2.5 py-1 text-xs font-medium text-gold transition-colors hover:bg-gold/25 disabled:opacity-50">
                     {busy === `save-${s.id}` ? 'Saving…' : 'Save changes'}
                   </button>
                 </div>
