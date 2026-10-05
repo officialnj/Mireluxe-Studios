@@ -1,6 +1,7 @@
 import { createServiceRoleClient } from '@/lib/supabase/server';
 import { getResend, logEmailResult } from '@/lib/resend';
 import { customerConfirmationEmail, ownerNotificationEmail, type AddOnLineInfo, type BundleLineInfo } from '@/lib/email/templates';
+import { ADMIN_NOTIFICATION_EMAILS } from '@/lib/site';
 import type { DbBooking, DbService } from '@/lib/booking/types';
 
 export const CONFIRMATION_FROM_ADDRESS = 'MIRILUXE Studios <bookings@miriluxe.co.uk>';
@@ -41,7 +42,6 @@ export async function sendConfirmationEmails(supabase: Supabase, booking: DbBook
 
   try {
     const resend = getResend();
-    const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL;
     const customerEmail = customerConfirmationEmail(booking, service as DbService, bundleLines, addOnLines);
     const ownerEmail = ownerNotificationEmail(booking, service as DbService, bundleLines, addOnLines);
 
@@ -54,15 +54,13 @@ export async function sendConfirmationEmails(supabase: Supabase, booking: DbBook
         html: customerEmail.html,
         attachments: customerEmail.attachments,
       }),
-      adminEmail
-        ? resend.emails.send({
-            from: CONFIRMATION_FROM_ADDRESS,
-            to: adminEmail,
-            replyTo: ownerEmail.replyTo,
-            subject: ownerEmail.subject,
-            html: ownerEmail.html,
-          })
-        : Promise.resolve(null),
+      resend.emails.send({
+        from: CONFIRMATION_FROM_ADDRESS,
+        to: ADMIN_NOTIFICATION_EMAILS,
+        replyTo: ownerEmail.replyTo,
+        subject: ownerEmail.subject,
+        html: ownerEmail.html,
+      }),
     ]);
     if (customerResult.status === 'fulfilled' && customerResult.value) {
       logEmailResult(`confirmation to customer for booking ${booking.id}`, customerResult.value);

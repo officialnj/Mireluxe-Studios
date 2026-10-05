@@ -43,6 +43,14 @@ export const PRIVATE_STUDIO_DETAILS = {
   phone: '+44 7944 971069',
 };
 
+/** Where new-booking / new-order owner notifications go. A plain constant
+ *  rather than an env var on purpose — ADMIN_NOTIFICATION_EMAIL in Vercel
+ *  pointed at hello@miriluxestudios.com, a domain with no MX/A records at
+ *  all, so every notification silently failed to deliver. Keeping this in
+ *  git-tracked code avoids that class of bug recurring from an unnoticed
+ *  dashboard setting. */
+export const ADMIN_NOTIFICATION_EMAILS = ['njtvproductionss@gmail.com', 'miriluxestudios@outlook.com'];
+
 export type Service = {
   name: string;
   price: string;

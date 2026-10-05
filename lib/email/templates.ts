@@ -25,7 +25,7 @@ const COLOR = {
 // checks. Resend remains the sending relay; this is never used for SMTP.
 // Overridable via EMAIL_REPLY_TO (see .env.example / docs/INTEGRATIONS.md);
 // falls back to the studio's known admin mailbox if unset.
-const REPLY_TO_EMAIL = process.env.EMAIL_REPLY_TO ?? 'Mireluxestudios@outlook.com';
+const REPLY_TO_EMAIL = process.env.EMAIL_REPLY_TO ?? 'miriluxestudios@outlook.com';
 
 export type EmailAttachment = {
   filename: string;
@@ -247,6 +247,7 @@ export type ShopOrder = {
   id: string;
   customer_name: string;
   customer_email: string;
+  customer_phone?: string | null;
   shipping_line1: string;
   shipping_line2: string | null;
   shipping_city: string;
@@ -312,6 +313,37 @@ export function ownerNotificationEmail(
   return {
     subject: `New booking — ${booking.booking_ref}`,
     html: emailShell({ eyebrow: 'New Booking', heading: 'New booking received', bodyHtml }),
+    replyTo: REPLY_TO_EMAIL,
+  };
+}
+
+// ── 3b. Owner/admin new-order notification ────────────────────────────────
+
+export function ownerOrderNotificationEmail(order: ShopOrder): EmailContent {
+  const itemsHtml = order.items
+    .map((item) => `${item.quantity}&times; ${escapeHtml(item.name)} &mdash; ${formatPence(item.pricePence * item.quantity)}`)
+    .join('<br/>');
+  const address = [order.shipping_line1, order.shipping_line2, order.shipping_city, order.shipping_postcode, order.shipping_country]
+    .filter(Boolean)
+    .map((part) => escapeHtml(part as string))
+    .join(', ');
+
+  const rows =
+    row('Customer', escapeHtml(order.customer_name)) +
+    row('Email', escapeHtml(order.customer_email)) +
+    (order.customer_phone ? row('Phone', escapeHtml(order.customer_phone)) : '') +
+    row('Items', itemsHtml) +
+    row('Total', formatPence(order.subtotal_pence)) +
+    row('Shipping to', address);
+
+  const bodyHtml = `
+    <p style="margin:0 0 8px;">A new order has just been paid.</p>
+    ${detailsTable(rows)}
+  `;
+
+  return {
+    subject: `New order — ${order.id}`,
+    html: emailShell({ eyebrow: 'New Order', heading: 'New order received', bodyHtml }),
     replyTo: REPLY_TO_EMAIL,
   };
 }

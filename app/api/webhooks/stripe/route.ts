@@ -3,8 +3,9 @@ import type Stripe from 'stripe';
 import { getStripe } from '@/lib/stripe';
 import { createServiceRoleClient } from '@/lib/supabase/server';
 import { getResend, logEmailResult } from '@/lib/resend';
-import { shopOrderConfirmationEmail, type ShopOrder } from '@/lib/email/templates';
+import { shopOrderConfirmationEmail, ownerOrderNotificationEmail, type ShopOrder } from '@/lib/email/templates';
 import { sendConfirmationEmails } from '@/lib/email/sendBookingConfirmation';
+import { ADMIN_NOTIFICATION_EMAILS } from '@/lib/site';
 import type { DbBooking } from '@/lib/booking/types';
 import type { DbShopOrder } from '@/lib/shop/types';
 import { incrementDiscountUsage } from '@/lib/shop/discounts';
@@ -191,6 +192,7 @@ async function markShopOrderPaid(supabase: Supabase, intent: Stripe.PaymentInten
   const paidOrder = data as ShopOrder & DbShopOrder;
   await decrementBundleStock(supabase, paidOrder);
   await sendShopOrderConfirmationEmail(paidOrder);
+  await sendOwnerOrderNotificationEmail(paidOrder);
   // Only counted once payment is actually confirmed — a created-but-
   // abandoned PaymentIntent must never consume a limited-use code.
   if (paidOrder.discount_code_id) {
@@ -204,7 +206,6 @@ async function sendLatePaymentRefundEmails(booking: DbBooking, amountPence: numb
 
   try {
     const resend = getResend();
-    const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL;
 
     const [customerResult, adminResult] = await Promise.allSettled([
       resend.emails.send({
@@ -217,16 +218,14 @@ async function sendLatePaymentRefundEmails(booking: DbBooking, amountPence: numb
           `We have refunded your ${amount} deposit in full. It should reach your account within 5 to 10 working days.</p>` +
           `<p>Please book another time on our website, or reply to this email and we will help.</p>`,
       }),
-      adminEmail
-        ? resend.emails.send({
-            from: FROM_ADDRESS,
-            to: adminEmail,
-            subject: `Late payment auto-refunded (${ref})`,
-            html:
-              `<p>A deposit of ${amount} from ${escapeHtml(booking.customer_name)} (${escapeHtml(booking.customer_email)}) ` +
-              `arrived after the booking hold expired and the slot was already taken. It has been refunded automatically.</p>`,
-          })
-        : Promise.resolve(null),
+      resend.emails.send({
+        from: FROM_ADDRESS,
+        to: ADMIN_NOTIFICATION_EMAILS,
+        subject: `Late payment auto-refunded (${ref})`,
+        html:
+          `<p>A deposit of ${amount} from ${escapeHtml(booking.customer_name)} (${escapeHtml(booking.customer_email)}) ` +
+          `arrived after the booking hold expired and the slot was already taken. It has been refunded automatically.</p>`,
+      }),
     ]);
     if (customerResult.status === 'fulfilled' && customerResult.value) {
       logEmailResult(`late-payment refund notice for booking ${booking.id}`, customerResult.value);
@@ -255,6 +254,23 @@ async function sendShopOrderConfirmationEmail(order: ShopOrder) {
     // Same best-effort semantics as sendConfirmationEmails — the order is
     // already marked paid in the DB regardless of email delivery.
     console.error('[stripe-webhook] shop order email failed', err);
+  }
+}
+
+async function sendOwnerOrderNotificationEmail(order: ShopOrder) {
+  try {
+    const resend = getResend();
+    const email = ownerOrderNotificationEmail(order);
+    const result = await resend.emails.send({
+      from: FROM_ADDRESS,
+      to: ADMIN_NOTIFICATION_EMAILS,
+      replyTo: email.replyTo,
+      subject: email.subject,
+      html: email.html,
+    });
+    logEmailResult(`owner notification for order ${order.id}`, result);
+  } catch (err) {
+    console.error('[stripe-webhook] owner order notification failed', err);
   }
 }
 
