@@ -22,7 +22,11 @@ import { STUDIO_TIMEZONE } from '@/lib/booking/constants';
 import { formatPence } from '@/lib/booking/pricing';
 import type { DbBooking } from '@/lib/booking/types';
 
-type BookingRow = DbBooking & { services: { name: string; service_time_mins: number } | null };
+type BookingRow = DbBooking & {
+  services: { name: string; service_time_mins: number } | null;
+  booking_bundles: { quantity: number; price_pence_at_booking: number; bundle_variants: { inches: number; colour: string } | null }[];
+  booking_addons: { name_at_booking: string; price_delta_pence_at_booking: number; duration_delta_mins_at_booking: number }[];
+};
 type ViewMode = 'month' | 'week' | 'day';
 
 function rangeFor(view: ViewMode, anchor: Date): { from: string; through: string } {
@@ -184,13 +188,33 @@ export default function BookingsCalendar() {
             </div>
             <div className="text-cream/50">
               {b.services?.name ?? '—'}
+              {b.hair_included ? ' (hair included)' : ''}
               {detailed && (
                 <>
                   {' · '}
-                  {b.customer_email} · {b.customer_phone} · {formatPence(b.deposit_paid_pence || b.deposit_due_pence)}
+                  {b.customer_email} · {b.customer_phone} · {formatPence(b.total_price_pence)} total ·{' '}
+                  {formatPence(b.deposit_paid_pence || b.deposit_due_pence)} deposit
                 </>
               )}
             </div>
+            {detailed && (b.booking_addons.length > 0 || b.booking_bundles.length > 0) && (
+              <div className="mt-0.5 text-cream/60">
+                {b.booking_addons.length > 0 && (
+                  <div>
+                    <span className="text-cream/40">Extras: </span>
+                    {b.booking_addons.map((a) => a.name_at_booking).join(', ')}
+                  </div>
+                )}
+                {b.booking_bundles.length > 0 && (
+                  <div>
+                    <span className="text-cream/40">Bundles: </span>
+                    {b.booking_bundles
+                      .map((bu) => `${bu.quantity}× ${bu.bundle_variants?.inches ?? '?'}" (${bu.bundle_variants?.colour ?? '?'})`)
+                      .join(', ')}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
           <StatusChip status={b.status} />
         </div>

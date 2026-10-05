@@ -1,11 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import BookingsTable from '@/components/admin/BookingsTable';
+import BookingsTable, { type BookingRow } from '@/components/admin/BookingsTable';
 import BookingsCalendar from '@/components/admin/BookingsCalendar';
-import type { DbBooking } from '@/lib/booking/types';
-
-type BookingRow = DbBooking & { services: { name: string; service_time_mins: number } | null };
 
 /**
  * Toggles between the original flat-list BookingsTable and the new

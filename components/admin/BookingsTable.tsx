@@ -7,7 +7,11 @@ import { STUDIO_TIMEZONE } from '@/lib/booking/constants';
 import { formatPence } from '@/lib/booking/pricing';
 import type { DbBooking } from '@/lib/booking/types';
 
-type BookingRow = DbBooking & { services: { name: string; service_time_mins: number } | null };
+export type BookingRow = DbBooking & {
+  services: { name: string; service_time_mins: number } | null;
+  booking_bundles: { quantity: number; price_pence_at_booking: number; bundle_variants: { inches: number; colour: string } | null }[];
+  booking_addons: { name_at_booking: string; price_delta_pence_at_booking: number; duration_delta_mins_at_booking: number }[];
+};
 
 const STATUS_CHIP_CLASS: Record<string, string> = {
   confirmed: 'bg-emerald-500/15 text-emerald-300',
@@ -148,10 +152,35 @@ export default function BookingsTable({ initialBookings }: { initialBookings: Bo
                 </div>
               </div>
               <div className="text-right text-sm">
-                <div className="text-cream/50">{booking.services?.name ?? '—'}</div>
-                <div className="font-medium">{formatPence(booking.deposit_paid_pence || booking.deposit_due_pence)}</div>
+                <div className="text-cream/50">
+                  {booking.services?.name ?? '—'}
+                  {booking.hair_included ? ' (hair included)' : ''}
+                </div>
+                <div className="font-medium">{formatPence(booking.total_price_pence)}</div>
+                <div className="text-xs text-cream/40">
+                  {formatPence(booking.deposit_paid_pence || booking.deposit_due_pence)} deposit
+                </div>
               </div>
             </div>
+
+            {(booking.booking_addons.length > 0 || booking.booking_bundles.length > 0) && (
+              <div className="mt-3 border-t border-cream/5 pt-3 text-xs text-cream/60">
+                {booking.booking_addons.length > 0 && (
+                  <div>
+                    <span className="text-cream/40">Extras: </span>
+                    {booking.booking_addons.map((a) => a.name_at_booking).join(', ')}
+                  </div>
+                )}
+                {booking.booking_bundles.length > 0 && (
+                  <div className={booking.booking_addons.length > 0 ? 'mt-1' : ''}>
+                    <span className="text-cream/40">Bundles: </span>
+                    {booking.booking_bundles
+                      .map((b) => `${b.quantity}× ${b.bundle_variants?.inches ?? '?'}" (${b.bundle_variants?.colour ?? '?'})`)
+                      .join(', ')}
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="mt-3 border-t border-cream/5 pt-3">
               {editingNotes === booking.id ? (

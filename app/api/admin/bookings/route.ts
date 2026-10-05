@@ -21,7 +21,9 @@ export async function GET(request: NextRequest) {
   const supabase = createServiceRoleClient();
   let query = supabase
     .from('bookings')
-    .select('*, services(name, service_time_mins)')
+    .select(
+      '*, services(name, service_time_mins), booking_bundles(quantity, price_pence_at_booking, bundle_variants(inches, colour)), booking_addons(name_at_booking, price_delta_pence_at_booking, duration_delta_mins_at_booking)'
+    )
     .in('status', ['pending_payment', 'confirmed', 'completed', 'no_show'])
     .order('appointment_start', { ascending: true });
 
