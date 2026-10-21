@@ -95,15 +95,20 @@ async function fetchSlotOverrides(supabase: SupabaseClient, dateStr: string): Pr
 async function fetchActiveBookings(
   supabase: SupabaseClient,
   fromUtcIso: string,
-  throughUtcIso: string
+  throughUtcIso: string,
+  excludeBookingId?: string
 ): Promise<BookingRangeRow[]> {
   const nowIso = new Date().toISOString();
-  const { data, error } = await supabase
+  let query = supabase
     .from('bookings')
     .select('appointment_start, appointment_end')
     .lt('appointment_start', throughUtcIso)
     .gt('appointment_end', fromUtcIso)
     .or(`status.eq.confirmed,and(status.eq.pending_payment,expires_at.gt.${nowIso})`);
+  // When re-validating a booking that's being edited, exclude it from the
+  // conflict set so its own current slot doesn't read as "taken".
+  if (excludeBookingId) query = query.neq('id', excludeBookingId);
+  const { data, error } = await query;
   if (error || !data) return [];
   return data as BookingRangeRow[];
 }
@@ -156,7 +161,8 @@ export async function getAdminDayAvailability(
   supabase: SupabaseClient,
   serviceId: string,
   dateStr: string, // YYYY-MM-DD, Europe/London calendar date
-  hairIncluded = false
+  hairIncluded = false,
+  excludeBookingId?: string
 ): Promise<{ slots: TimeSlot[]; service: DbService | null }> {
   const service = await fetchService(supabase, serviceId);
   if (!service) return { slots: [], service };
@@ -198,7 +204,7 @@ export async function getAdminDayAvailability(
 
   const dayStartUtc = candidates.reduce((min, c) => (c.start < min ? c.start : min), candidates[0].start);
   const dayEndUtc = candidates.reduce((max, c) => (c.end > max ? c.end : max), candidates[0].end);
-  const bookings = await fetchActiveBookings(supabase, dayStartUtc, dayEndUtc);
+  const bookings = await fetchActiveBookings(supabase, dayStartUtc, dayEndUtc, excludeBookingId);
   const bookingRanges = bookings.map((b) => ({
     start: new Date(b.appointment_start),
     end: addMinutes(new Date(b.appointment_end), bufferMinutes),

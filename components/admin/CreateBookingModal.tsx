@@ -171,7 +171,7 @@ export default function CreateBookingModal() {
 
     close();
     router.refresh();
-    // BookingsCalendar fetches its own data client-side and won't otherwise
+    // CalendarView fetches its own data client-side and won't otherwise
     // notice a router.refresh() (that only re-runs the server-rendered
     // list view) — this lets it opt in to refetching without this component
     // needing to know about it directly.

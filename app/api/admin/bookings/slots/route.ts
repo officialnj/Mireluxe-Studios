@@ -13,6 +13,9 @@ const querySchema = z.object({
     .enum(['true', 'false'])
     .optional()
     .transform((v) => v === 'true'),
+  // When editing an existing booking, exclude it from its own conflict check
+  // so the slot it currently occupies still shows as available.
+  excludeBookingId: z.string().uuid().optional(),
 });
 
 /**
@@ -31,6 +34,7 @@ export async function GET(request: NextRequest) {
     serviceId: request.nextUrl.searchParams.get('serviceId'),
     date: request.nextUrl.searchParams.get('date'),
     hairIncluded: request.nextUrl.searchParams.get('hairIncluded') ?? undefined,
+    excludeBookingId: request.nextUrl.searchParams.get('excludeBookingId') ?? undefined,
   });
   if (!parsed.success) return NextResponse.json({ error: 'invalid_query' }, { status: 400 });
 
@@ -39,7 +43,8 @@ export async function GET(request: NextRequest) {
     supabase,
     parsed.data.serviceId,
     parsed.data.date,
-    parsed.data.hairIncluded
+    parsed.data.hairIncluded,
+    parsed.data.excludeBookingId
   );
   if (!service) return NextResponse.json({ error: 'service_not_found' }, { status: 404 });
 

@@ -20,6 +20,13 @@ const config: Config = {
           soft: '#ede7dc',
           deep: '#e4dccd',
         },
+        // Warm, light surfaces for the admin dashboard (Acuity-style) — a
+        // touch brighter than `cream` so white cards still read as raised.
+        ivory: {
+          DEFAULT: '#faf8f3',
+          soft: '#f4efe6',
+          deep: '#ece5d8',
+        },
         gold: {
           DEFAULT: '#b08d57',
           light: '#c6a678',

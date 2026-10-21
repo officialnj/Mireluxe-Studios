@@ -1,6 +1,5 @@
 import { createServiceRoleClient } from '@/lib/supabase/server';
 import BookingsViewTabs from '@/components/admin/BookingsViewTabs';
-import CreateBookingModal from '@/components/admin/CreateBookingModal';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,13 +18,10 @@ export default async function AdminBookingsPage() {
 
   return (
     <div>
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="font-serif text-2xl font-light">Calendar</h1>
-        {/* Sits above the list/calendar tab switcher (owned by
-            BookingsViewTabs, out of scope here) so it's reachable from
-            either view rather than needing to be duplicated per-view. */}
-        <CreateBookingModal />
-      </div>
+      <h1 className="mb-6 font-serif text-2xl font-light">Calendar</h1>
+      {/* CreateBookingModal lives inside the calendar top bar (and the list
+          view) rather than the page header, so it sits where the action is
+          contextually expected in each view. */}
       <BookingsViewTabs initialBookings={bookings ?? []} />
     </div>
   );
