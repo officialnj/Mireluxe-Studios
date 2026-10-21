@@ -38,17 +38,33 @@ export default function BookingBundleCard({ bundleName, variants, mediaByVariant
     () => Array.from(new Set(variants.map((v) => v.inches))).sort((a, b) => a - b),
     [variants]
   );
-  const [inches, setInches] = useState(inchOptions[0]);
+  // Default to the first IN-STOCK length (same as the shop card) so a customer
+  // lands on something they can actually add — e.g. 18" when only that length
+  // is stocked — instead of the smallest inch showing "Unavailable". Falls back
+  // to the smallest inch when nothing is in stock. Unlike the shop, out-of-stock
+  // here stays strictly unavailable: there is no pre-order on the booking side.
+  const defaultColourFor = (inch: number) => {
+    const atInch = variants.filter((v) => v.inches === inch);
+    return (atInch.find((v) => isPurchasable(v)) ?? atInch[0])?.colour;
+  };
+  const defaultInches = useMemo(() => {
+    const stocked = inchOptions.filter((inch) => variants.some((v) => v.inches === inch && isPurchasable(v)));
+    return stocked[0] ?? inchOptions[0];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inchOptions, variants]);
+  const [inches, setInches] = useState(defaultInches);
 
   const colourOptions = useMemo(
     () => Array.from(new Set(variants.filter((v) => v.inches === inches).map((v) => v.colour))),
     [variants, inches]
   );
-  const [colour, setColour] = useState(colourOptions[0]);
-  // If the previously-picked colour doesn't exist at the newly-selected
-  // length, fall back to the first colour available at that length instead
-  // of silently matching nothing.
-  const effectiveColour = colourOptions.includes(colour) ? colour : colourOptions[0];
+  const [colour, setColour] = useState(() => defaultColourFor(defaultInches));
+  // If the picked colour isn't offered at the selected length, fall back to
+  // the first in-stock colour there (then any colour) instead of matching
+  // nothing.
+  const effectiveColour = colourOptions.includes(colour)
+    ? colour
+    : defaultColourFor(inches) ?? colourOptions[0];
 
   const selectedVariant = variants.find((v) => v.inches === inches && v.colour === effectiveColour);
   const purchasable = selectedVariant ? isPurchasable(selectedVariant) : false;
