@@ -103,7 +103,7 @@ export default async function AdminCustomersPage() {
 
   return (
     <div>
-      <h1 className="mb-6 font-serif text-2xl font-light">Customers</h1>
+      <h1 className="mb-6 font-serif text-2xl font-light">Clients</h1>
       <CustomerDirectory customers={customers} bookings={bookingRows} orders={orderRows} />
     </div>
   );

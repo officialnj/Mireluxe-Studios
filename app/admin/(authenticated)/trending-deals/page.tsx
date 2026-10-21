@@ -14,7 +14,7 @@ export default async function AdminTrendingDealsPage() {
   return (
     <div>
       <h1 className="mb-2 font-serif text-2xl font-light">Trending Deals</h1>
-      <p className="mb-6 text-sm text-cream/60">
+      <p className="mb-6 text-sm text-charcoal/60">
         Create, edit, reorder and switch Trending Deals on/off. These are ordinary services in the &quot;Trending
         Deals&quot; category — the generic Services page can still edit them too.
       </p>

@@ -111,7 +111,7 @@ export default function ManageBookingClient({ booking: initialBooking, service }
         return;
       }
       setBooking((prev) => ({ ...prev, status: 'cancelled' }));
-      setSuccessMessage('Your booking has been cancelled. Any eligible deposit refund has been issued automatically.');
+      setSuccessMessage('Your booking has been cancelled. As per our policy, deposits are non-refundable.');
       setMode('view');
     } catch {
       setErrorMessage('Network error — please check your connection and try again.');
@@ -203,7 +203,8 @@ export default function ManageBookingClient({ booking: initialBooking, service }
         {booking.status === 'confirmed' && mode === 'confirm-cancel' && (
           <div className="mt-6 rounded-2xl border border-red-400/30 bg-red-400/5 p-6">
             <p className="text-sm text-charcoal/75 dark:text-cream/75">
-              Are you sure you want to cancel this booking? This cannot be undone.
+              Are you sure you want to cancel this booking? This cannot be undone, and your deposit is
+              non-refundable.
             </p>
             <div className="mt-4 flex gap-3">
               <Button type="button" variant="outline" size="md" className="flex-1" onClick={() => setMode('view')}>

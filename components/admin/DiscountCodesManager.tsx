@@ -131,7 +131,7 @@ export default function DiscountCodesManager({ initialCodes }: { initialCodes: D
 
   return (
     <div className="space-y-6">
-      {error && <p className="rounded bg-red-500/10 px-3 py-2 text-sm text-red-300">{error}</p>}
+      {error && <p className="rounded bg-red-500/10 px-3 py-2 text-sm text-red-600">{error}</p>}
 
       <button
         onClick={() => setShowNewForm((v) => !v)}
@@ -141,7 +141,7 @@ export default function DiscountCodesManager({ initialCodes }: { initialCodes: D
       </button>
 
       {showNewForm && (
-        <form onSubmit={createCode} className="grid gap-3 rounded-xl border border-cream/10 p-4 md:grid-cols-2">
+        <form onSubmit={createCode} className="grid gap-3 rounded-xl border border-charcoal/10 p-4 md:grid-cols-2">
           <CodeFields draft={newDraft} onChange={(patch) => setNewDraft((prev) => ({ ...prev, ...patch }))} />
           <div className="md:col-span-2">
             <button
@@ -157,17 +157,17 @@ export default function DiscountCodesManager({ initialCodes }: { initialCodes: D
 
       <div className="space-y-4">
         {codes.length === 0 ? (
-          <p className="text-sm text-cream/50">No discount codes yet.</p>
+          <p className="text-sm text-charcoal/50">No discount codes yet.</p>
         ) : (
           codes.map((c) => {
             const draft = edits[c.id];
             if (!draft) return null;
             return (
-              <div key={c.id} className={`rounded-xl border p-4 ${c.active ? 'border-cream/10' : 'border-red-500/20 opacity-70'}`}>
+              <div key={c.id} className={`rounded-xl border p-4 ${c.active ? 'border-charcoal/10' : 'border-red-500/20 opacity-70'}`}>
                 <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <span className="font-mono text-sm font-medium tracking-wide">{c.code}</span>
-                    <span className="text-xs text-cream/50">
+                    <span className="text-xs text-charcoal/50">
                       Used {c.used_count}
                       {c.usage_limit != null ? ` / ${c.usage_limit}` : ' (unlimited)'}
                     </span>
@@ -201,7 +201,7 @@ export default function DiscountCodesManager({ initialCodes }: { initialCodes: D
   );
 }
 
-const inputClass = 'w-full rounded border border-cream/20 bg-transparent px-3 py-2 text-sm';
+const inputClass = 'w-full rounded border border-charcoal/20 bg-transparent px-3 py-2 text-sm';
 
 function CodeFields({ draft, onChange }: { draft: CodeDraft; onChange: (patch: Partial<CodeDraft>) => void }) {
   return (
@@ -268,7 +268,7 @@ function CodeFields({ draft, onChange }: { draft: CodeDraft; onChange: (patch: P
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="mb-1 block text-xs text-cream/50">{label}</label>
+      <label className="mb-1 block text-xs text-charcoal/50">{label}</label>
       {children}
     </div>
   );

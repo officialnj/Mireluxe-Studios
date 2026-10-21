@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { differenceInMinutes } from 'date-fns';
 import { createServiceRoleClient } from '@/lib/supabase/server';
-import { getStripe } from '@/lib/stripe';
 import { SELF_SERVICE_CUTOFF_MINUTES } from '@/lib/booking/constants';
 import { getResend, logEmailResult } from '@/lib/resend';
 import { cancellationConfirmationEmail } from '@/lib/email/templates';
@@ -40,18 +39,11 @@ export async function POST(_request: NextRequest, { params }: { params: { id: st
     return NextResponse.json({ error: 'past_cutoff' }, { status: 409 });
   }
 
-  // Outside the 48-hour cutoff is exactly the case the studio's stated
-  // cancellation policy treats as deposit-refundable (see
-  // CANCELLATION_POLICY_PLACEHOLDER), so refund automatically — same Stripe
-  // call the admin cancel route makes.
-  if (booking.stripe_payment_intent_id) {
-    try {
-      await getStripe().refunds.create({ payment_intent: booking.stripe_payment_intent_id });
-    } catch {
-      return NextResponse.json({ error: 'refund_failed' }, { status: 502 });
-    }
-  }
-
+  // Deposits are strictly non-refundable per studio policy (see
+  // CANCELLATION_POLICY and lib/site.ts). Cancelling forfeits the deposit —
+  // we never issue an automatic Stripe refund here. Any exceptional,
+  // studio-authorised refund must be done deliberately by an admin via the
+  // admin cancel route with an explicit refund flag.
   const { error: updateError } = await supabase
     .from('bookings')
     .update({ status: 'cancelled' })

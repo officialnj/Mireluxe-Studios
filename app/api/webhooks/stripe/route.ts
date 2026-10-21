@@ -146,10 +146,7 @@ async function confirmBooking(supabase: Supabase, intent: Stripe.PaymentIntent, 
   // status === 'cancelled' or 'expired': the customer paid after their
   // 15-minute hold lapsed (swept by the cron job or opportunistically by a
   // later booking attempt) or was explicitly cancelled. The money has been
-  // taken, so either reinstate the booking (slot still free) or refund it
-  // (slot now taken). Previously only 'cancelled' was handled here, so a
-  // late payment against an 'expired' hold fell through both branches
-  // below and was silently dropped: no booking, no refund, no email.
+  // taken, so if the slot is still free we reinstate the booking.
   const { data: reinstated, error: reinstateError } = await supabase
     .from('bookings')
     .update(paidFields)
@@ -167,13 +164,11 @@ async function confirmBooking(supabase: Supabase, intent: Stripe.PaymentIntent, 
     throw new RetryableError(`booking reinstate failed: ${reinstateError.message}`);
   }
 
-  // Slot was taken by someone else in the meantime. Refund in full. The
-  // idempotency key stops a retried event from refunding twice.
-  await getStripe().refunds.create(
-    { payment_intent: intent.id, metadata: { reason: 'slot_no_longer_available', booking_id: booking.id } },
-    { idempotencyKey: `late-payment-refund-${intent.id}` }
-  );
-  await sendLatePaymentRefundEmails(booking, intent.amount_received);
+  // Slot was taken by someone else in the meantime, so this booking cannot be
+  // reinstated. Per the strict non-refundable deposit policy we do NOT refund.
+  // The deposit is retained (and transferable), so notify both the customer
+  // and the studio to rearrange the appointment manually.
+  await sendLatePaymentSlotTakenEmails(booking, intent.amount_received);
 }
 
 async function markShopOrderPaid(supabase: Supabase, intent: Stripe.PaymentIntent, order: ShopOrder & DbShopOrder) {
@@ -200,7 +195,7 @@ async function markShopOrderPaid(supabase: Supabase, intent: Stripe.PaymentInten
   }
 }
 
-async function sendLatePaymentRefundEmails(booking: DbBooking, amountPence: number) {
+async function sendLatePaymentSlotTakenEmails(booking: DbBooking, amountPence: number) {
   const amount = `£${(amountPence / 100).toFixed(2)}`;
   const ref = booking.booking_ref;
 
@@ -211,30 +206,33 @@ async function sendLatePaymentRefundEmails(booking: DbBooking, amountPence: numb
       resend.emails.send({
         from: FROM_ADDRESS,
         to: booking.customer_email,
-        subject: `Your deposit has been refunded (${ref})`,
+        subject: `We couldn't confirm your booking (${ref})`,
         html:
           `<p>Hi ${escapeHtml(booking.customer_name)},</p>` +
-          `<p>Your payment came through after your 15-minute booking hold expired, and the time slot has since been taken. ` +
-          `We have refunded your ${amount} deposit in full. It should reach your account within 5 to 10 working days.</p>` +
-          `<p>Please book another time on our website, or reply to this email and we will help.</p>`,
+          `<p>Your payment came through after your 15-minute booking hold expired, and the time slot has since been taken, ` +
+          `so we were unable to confirm this appointment.</p>` +
+          `<p>As per our policy, your ${amount} deposit is non-refundable, but it is transferable — we would love to find you ` +
+          `another time. Please reply to this email or contact the studio and we will help you rebook.</p>`,
       }),
       resend.emails.send({
         from: FROM_ADDRESS,
         to: ADMIN_NOTIFICATION_EMAILS,
-        subject: `Late payment auto-refunded (${ref})`,
+        subject: `Late payment, slot taken — action needed (${ref})`,
         html:
           `<p>A deposit of ${amount} from ${escapeHtml(booking.customer_name)} (${escapeHtml(booking.customer_email)}) ` +
-          `arrived after the booking hold expired and the slot was already taken. It has been refunded automatically.</p>`,
+          `arrived after the booking hold expired and the slot was already taken. ` +
+          `No refund was issued (deposits are non-refundable). The deposit has been retained and is transferable — ` +
+          `please contact the customer to rearrange their appointment.</p>`,
       }),
     ]);
     if (customerResult.status === 'fulfilled' && customerResult.value) {
-      logEmailResult(`late-payment refund notice for booking ${booking.id}`, customerResult.value);
+      logEmailResult(`late-payment slot-taken notice for booking ${booking.id}`, customerResult.value);
     }
     if (adminResult.status === 'fulfilled' && adminResult.value) {
       logEmailResult(`late-payment admin notice for booking ${booking.id}`, adminResult.value);
     }
   } catch (err) {
-    console.error('[stripe-webhook] refund email failed', err);
+    console.error('[stripe-webhook] late-payment email failed', err);
   }
 }
 

@@ -35,17 +35,32 @@ export default function BundleCard({ bundleName, variants, mediaByVariant }: Pro
     () => Array.from(new Set(variants.map((v) => v.inches))).sort((a, b) => a - b),
     [variants]
   );
-  const [inches, setInches] = useState(inchOptions[0]);
+  // Default to the first IN-STOCK length so a visitor lands on something they
+  // can actually buy. Previously this defaulted to the smallest inch, which
+  // showed "unavailable" whenever only larger lengths were stocked. Falls back
+  // to the smallest inch only when nothing at all is in stock.
+  const defaultColourFor = (inch: number) => {
+    const atInch = variants.filter((v) => v.inches === inch);
+    return (atInch.find((v) => isPurchasable(v)) ?? atInch[0])?.colour;
+  };
+  const defaultInches = useMemo(() => {
+    const stocked = inchOptions.filter((inch) => variants.some((v) => v.inches === inch && isPurchasable(v)));
+    return stocked[0] ?? inchOptions[0];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inchOptions, variants]);
+  const [inches, setInches] = useState(defaultInches);
 
   const colourOptions = useMemo(
     () => Array.from(new Set(variants.filter((v) => v.inches === inches).map((v) => v.colour))),
     [variants, inches]
   );
-  const [colour, setColour] = useState(colourOptions[0]);
-  // If the previously-picked colour doesn't exist at the newly-selected
-  // length, fall back to the first colour available at that length instead
-  // of silently matching nothing.
-  const effectiveColour = colourOptions.includes(colour) ? colour : colourOptions[0];
+  const [colour, setColour] = useState(() => defaultColourFor(defaultInches));
+  // If the picked colour isn't offered at the selected length, fall back to
+  // the first in-stock colour there (then any colour) instead of matching
+  // nothing.
+  const effectiveColour = colourOptions.includes(colour)
+    ? colour
+    : defaultColourFor(inches) ?? colourOptions[0];
 
   const selectedVariant = variants.find((v) => v.inches === inches && v.colour === effectiveColour);
   const purchasable = selectedVariant ? isPurchasable(selectedVariant) : false;
@@ -140,6 +155,50 @@ export default function BundleCard({ bundleName, variants, mediaByVariant }: Pro
     });
   }
 
+  // Pre-order / notify-me for out-of-stock variants — collects an email only,
+  // no payment. Mirakle emails the customer when the length/colour is restocked.
+  const [preorderOpen, setPreorderOpen] = useState(false);
+  const [preorderEmail, setPreorderEmail] = useState('');
+  const [preorderBusy, setPreorderBusy] = useState(false);
+  const [preorderDone, setPreorderDone] = useState(false);
+  const [preorderError, setPreorderError] = useState<string | null>(null);
+
+  // Reset the pre-order form when the shopper switches to a different variant.
+  useEffect(() => {
+    setPreorderOpen(false);
+    setPreorderDone(false);
+    setPreorderError(null);
+  }, [selectedVariant?.id]);
+
+  async function submitPreorder(e: React.FormEvent) {
+    e.preventDefault();
+    if (!selectedVariant) return;
+    const email = preorderEmail.trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      setPreorderError('Please enter a valid email address.');
+      return;
+    }
+    setPreorderBusy(true);
+    setPreorderError(null);
+    const res = await fetch('/api/shop/preorder', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        bundle_id: selectedVariant.bundle_id,
+        bundle_variant_id: selectedVariant.id,
+        inches: selectedVariant.inches,
+        colour: selectedVariant.colour,
+        email,
+      }),
+    });
+    setPreorderBusy(false);
+    if (!res.ok) {
+      setPreorderError('Something went wrong — please try again.');
+      return;
+    }
+    setPreorderDone(true);
+  }
+
   return (
     <div className="group flex h-full flex-col overflow-hidden rounded-2xl border border-charcoal/10 bg-cream-soft/60 transition-all duration-500 ease-luxe hover:-translate-y-1 hover:border-gold/40 hover:shadow-[0_24px_60px_-30px_rgba(26,26,26,0.5)] dark:border-cream/10 dark:bg-charcoal-soft/60">
       {coverImageUrl && (
@@ -183,8 +242,8 @@ export default function BundleCard({ bundleName, variants, mediaByVariant }: Pro
             </span>
           )}
           {!purchasable && (
-            <span className="absolute left-3 top-3 rounded-full bg-charcoal/70 px-3 py-1 text-[0.6rem] font-medium uppercase tracking-[0.15em] text-cream backdrop-blur-sm">
-              Unavailable
+            <span className="absolute left-3 top-3 rounded-full bg-gold/90 px-3 py-1 text-[0.6rem] font-medium uppercase tracking-[0.15em] text-charcoal backdrop-blur-sm">
+              Pre-order
             </span>
           )}
         </div>
@@ -232,15 +291,52 @@ export default function BundleCard({ bundleName, variants, mediaByVariant }: Pro
         </div>
 
         <p className="mt-4 font-serif text-2xl font-light text-gold">
-          {purchasable && selectedVariant ? formatPence(selectedVariant.price_pence) : 'Currently unavailable'}
+          {selectedVariant ? formatPence(selectedVariant.price_pence) : '—'}
         </p>
         <p className="mt-2 text-[0.68rem] uppercase tracking-[0.15em] text-charcoal/45 dark:text-cream/45">
-          Ships in 3–5 working days
+          {purchasable ? 'Ships in 3–5 working days' : 'Currently out of stock'}
         </p>
 
-        <Button size="sm" className="mt-5 w-full" disabled={!purchasable} onClick={handleAdd}>
-          {purchasable ? 'Add to Cart' : 'Unavailable'}
-        </Button>
+        {purchasable ? (
+          <Button size="sm" className="mt-5 w-full" onClick={handleAdd}>
+            Add to Cart
+          </Button>
+        ) : preorderDone ? (
+          <p className="mt-5 rounded-full border border-gold/40 bg-gold/10 px-4 py-2.5 text-center text-xs font-medium text-gold">
+            ✓ We&apos;ll email you when it&apos;s back
+          </p>
+        ) : preorderOpen ? (
+          <form onSubmit={submitPreorder} className="mt-5 space-y-2">
+            <input
+              type="email"
+              required
+              autoFocus
+              value={preorderEmail}
+              onChange={(e) => setPreorderEmail(e.target.value)}
+              placeholder="your@email.com"
+              aria-label="Email for restock notification"
+              className={selectClass}
+            />
+            {preorderError && <p className="text-[0.7rem] text-red-500">{preorderError}</p>}
+            <button
+              type="submit"
+              disabled={preorderBusy}
+              className="w-full rounded-full border-2 border-gold bg-gold/10 px-4 py-2 text-sm font-medium text-gold transition-colors hover:bg-gold hover:text-charcoal disabled:opacity-50"
+            >
+              {preorderBusy ? 'Submitting…' : 'Notify me when available'}
+            </button>
+          </form>
+        ) : (
+          // Contrasting outlined-gold button (vs the solid-gold Add to Cart) so
+          // the pre-order action reads as clearly different.
+          <button
+            type="button"
+            onClick={() => setPreorderOpen(true)}
+            className="mt-5 w-full rounded-full border-2 border-gold bg-transparent px-4 py-2.5 text-sm font-medium text-gold transition-colors hover:bg-gold hover:text-charcoal"
+          >
+            Pre-order
+          </button>
+        )}
       </div>
     </div>
   );

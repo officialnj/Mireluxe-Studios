@@ -39,9 +39,9 @@ export default function BookingSettingsForm({ initialSettings }: { initialSettin
 
   return (
     <div className="max-w-sm space-y-4">
-      {error && <p className="rounded bg-red-500/10 px-3 py-2 text-sm text-red-300">{error}</p>}
+      {error && <p className="rounded bg-red-500/10 px-3 py-2 text-sm text-red-600">{error}</p>}
       <div>
-        <label className="mb-1 block text-xs text-cream/50" htmlFor="buffer-minutes">
+        <label className="mb-1 block text-xs text-charcoal/50" htmlFor="buffer-minutes">
           Buffer time after each appointment (minutes)
         </label>
         <input
@@ -51,11 +51,11 @@ export default function BookingSettingsForm({ initialSettings }: { initialSettin
           max={240}
           value={bufferMinutes}
           onChange={(e) => setBufferMinutes(e.target.value)}
-          className="w-28 rounded border border-cream/20 bg-transparent px-3 py-2 text-sm"
+          className="w-28 rounded border border-charcoal/20 bg-transparent px-3 py-2 text-sm"
         />
       </div>
       <div>
-        <label className="mb-1 block text-xs text-cream/50" htmlFor="advance-days">
+        <label className="mb-1 block text-xs text-charcoal/50" htmlFor="advance-days">
           How far ahead clients can book (days)
         </label>
         <input
@@ -65,7 +65,7 @@ export default function BookingSettingsForm({ initialSettings }: { initialSettin
           max={365}
           value={advanceDays}
           onChange={(e) => setAdvanceDays(e.target.value)}
-          className="w-28 rounded border border-cream/20 bg-transparent px-3 py-2 text-sm"
+          className="w-28 rounded border border-charcoal/20 bg-transparent px-3 py-2 text-sm"
         />
       </div>
       <button

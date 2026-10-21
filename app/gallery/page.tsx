@@ -3,6 +3,9 @@ import path from 'path';
 import type { Metadata } from 'next';
 import PageHero from '@/components/ui/PageHero';
 import GalleryGrid from '@/components/sections/GalleryGrid';
+import { createServiceRoleClient } from '@/lib/supabase/server';
+
+const MEDIA_BUCKET = 'product-media';
 
 export const metadata: Metadata = {
   title: 'Gallery — MIRILUXE Studios',
@@ -34,8 +37,27 @@ function getGalleryImages(): string[] {
     .map((name) => `/Mireluxe-Studios/Gallery/${encodeURIComponent(name)}`);
 }
 
-export default function GalleryPage() {
-  const images = getGalleryImages();
+/** Admin-uploaded gallery images (Supabase), rendered ahead of the
+ *  filesystem portfolio. Returns [] on any error so the page still works. */
+async function getManagedImages(): Promise<string[]> {
+  try {
+    const supabase = createServiceRoleClient();
+    const { data } = await supabase
+      .from('gallery_images')
+      .select('storage_path')
+      .order('sort_order', { ascending: true })
+      .order('created_at', { ascending: true });
+    return (data ?? []).map(
+      (row) => supabase.storage.from(MEDIA_BUCKET).getPublicUrl(row.storage_path).data.publicUrl
+    );
+  } catch {
+    return [];
+  }
+}
+
+export default async function GalleryPage() {
+  const [managed, filesystem] = await Promise.all([getManagedImages(), Promise.resolve(getGalleryImages())]);
+  const images = [...managed, ...filesystem];
 
   return (
     <>

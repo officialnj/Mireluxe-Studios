@@ -43,11 +43,11 @@ function rangeFor(view: ViewMode, anchor: Date): { from: string; through: string
 }
 
 const STATUS_CHIP_CLASS: Record<string, string> = {
-  confirmed: 'bg-emerald-500/15 text-emerald-300',
+  confirmed: 'bg-emerald-500/15 text-emerald-700',
   completed: 'bg-sky-500/15 text-sky-300',
-  no_show: 'bg-red-500/15 text-red-300',
-  cancelled: 'bg-cream/10 text-cream/50',
-  expired: 'bg-cream/10 text-cream/50',
+  no_show: 'bg-red-500/15 text-red-600',
+  cancelled: 'bg-charcoal/10 text-charcoal/50',
+  expired: 'bg-charcoal/10 text-charcoal/50',
 };
 
 // Shared small-pill button look — same convention as BookingsTable.tsx — so
@@ -55,8 +55,8 @@ const STATUS_CHIP_CLASS: Record<string, string> = {
 // a bare underlined text link.
 const PILL = 'inline-flex items-center justify-center whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-medium transition-colors disabled:opacity-50';
 const PILL_GOLD = `${PILL} bg-gold/15 text-gold hover:bg-gold/25`;
-const PILL_NEUTRAL = `${PILL} bg-cream/10 text-cream/70 hover:bg-cream/20`;
-const PILL_RED = `${PILL} bg-red-500/15 text-red-300 hover:bg-red-500/25`;
+const PILL_NEUTRAL = `${PILL} bg-charcoal/10 text-charcoal/70 hover:bg-charcoal/20`;
+const PILL_RED = `${PILL} bg-red-500/15 text-red-600 hover:bg-red-500/25`;
 const PILL_SKY = `${PILL} bg-sky-500/15 text-sky-300 hover:bg-sky-500/25`;
 
 export default function BookingsCalendar() {
@@ -180,13 +180,13 @@ export default function BookingsCalendar() {
     const isPast = new Date(b.appointment_start) <= new Date();
     const canTransition = b.status === 'confirmed' && isPast;
     return (
-      <div className="flex flex-col gap-2 rounded-lg border border-cream/10 px-3 py-2 text-xs">
+      <div className="flex flex-col gap-2 rounded-lg border border-charcoal/10 px-3 py-2 text-xs">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
             <div className="font-medium">
               {formatInTimeZone(new Date(b.appointment_start), STUDIO_TIMEZONE, 'HH:mm')} — {b.customer_name}
             </div>
-            <div className="text-cream/50">
+            <div className="text-charcoal/50">
               {b.services?.name ?? '—'}
               {b.hair_included ? ' (hair included)' : ''}
               {detailed && (
@@ -198,16 +198,16 @@ export default function BookingsCalendar() {
               )}
             </div>
             {detailed && (b.booking_addons.length > 0 || b.booking_bundles.length > 0) && (
-              <div className="mt-0.5 text-cream/60">
+              <div className="mt-0.5 text-charcoal/60">
                 {b.booking_addons.length > 0 && (
                   <div>
-                    <span className="text-cream/40">Extras: </span>
+                    <span className="text-charcoal/40">Extras: </span>
                     {b.booking_addons.map((a) => a.name_at_booking).join(', ')}
                   </div>
                 )}
                 {b.booking_bundles.length > 0 && (
                   <div>
-                    <span className="text-cream/40">Bundles: </span>
+                    <span className="text-charcoal/40">Bundles: </span>
                     {b.booking_bundles
                       .map((bu) => `${bu.quantity}× ${bu.bundle_variants?.inches ?? '?'}" (${bu.bundle_variants?.colour ?? '?'})`)
                       .join(', ')}
@@ -251,7 +251,7 @@ export default function BookingsCalendar() {
                 value={notesDraft}
                 onChange={(e) => setNotesDraft(e.target.value)}
                 rows={2}
-                className="w-full rounded-lg border border-cream/20 bg-transparent px-2 py-1 text-xs"
+                className="w-full rounded-lg border border-charcoal/20 bg-transparent px-2 py-1 text-xs"
               />
               <div className="flex gap-2">
                 <button onClick={() => handleSaveNotes(b.id)} disabled={busyId === b.id} className={PILL_GOLD}>
@@ -268,9 +268,9 @@ export default function BookingsCalendar() {
                 setEditingNotesId(b.id);
                 setNotesDraft(b.notes ?? '');
               }}
-              className="text-left text-cream/50 hover:text-gold"
+              className="text-left text-charcoal/50 hover:text-gold"
             >
-              {b.notes ? b.notes : <span className="italic text-cream/30">Add notes</span>}
+              {b.notes ? b.notes : <span className="italic text-charcoal/30">Add notes</span>}
             </button>
           ))}
       </div>
@@ -302,7 +302,7 @@ export default function BookingsCalendar() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex gap-1 rounded-full border border-cream/10 p-1 text-xs">
+        <div className="flex gap-1 rounded-full border border-charcoal/10 p-1 text-xs">
           {(['month', 'week', 'day'] as ViewMode[]).map((v) => (
             <button
               key={v}
@@ -310,7 +310,7 @@ export default function BookingsCalendar() {
                 setSelectedDate(null);
                 setView(v);
               }}
-              className={`rounded-full px-3 py-1 capitalize ${view === v ? 'bg-gold text-charcoal' : 'text-cream/60 hover:text-cream'}`}
+              className={`rounded-full px-3 py-1 capitalize ${view === v ? 'bg-gold text-charcoal' : 'text-charcoal/60 hover:text-charcoal'}`}
             >
               {v}
             </button>
@@ -327,13 +327,13 @@ export default function BookingsCalendar() {
         </div>
       </div>
 
-      {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-300">{error}</p>}
-      {loading && <p className="text-xs text-cream/40">Loading…</p>}
+      {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-600">{error}</p>}
+      {loading && <p className="text-xs text-charcoal/40">Loading…</p>}
 
       {view === 'month' && (
         <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
           <div>
-            <div className="grid grid-cols-7 gap-1 text-center text-[11px] text-cream/40">
+            <div className="grid grid-cols-7 gap-1 text-center text-[11px] text-charcoal/40">
               {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => (
                 <div key={d} className="py-1">{d}</div>
               ))}
@@ -347,7 +347,7 @@ export default function BookingsCalendar() {
                     key={dateStr}
                     onClick={() => setSelectedDate(dateStr)}
                     className={`flex min-h-[56px] flex-col items-start rounded-lg border p-1.5 text-left text-xs ${
-                      selectedDate === dateStr ? 'border-gold' : 'border-cream/10 hover:border-cream/30'
+                      selectedDate === dateStr ? 'border-gold' : 'border-charcoal/10 hover:border-charcoal/30'
                     } ${isSameMonth(day, anchor) ? '' : 'opacity-30'}`}
                   >
                     <span className={isToday(day) ? 'rounded-full bg-gold px-1.5 text-charcoal' : ''}>{format(day, 'd')}</span>
@@ -359,14 +359,14 @@ export default function BookingsCalendar() {
               })}
             </div>
           </div>
-          <div className="rounded-xl border border-cream/10 p-4">
+          <div className="rounded-xl border border-charcoal/10 p-4">
             {!selectedDate ? (
-              <p className="text-sm text-cream/50">Select a date to see its bookings.</p>
+              <p className="text-sm text-charcoal/50">Select a date to see its bookings.</p>
             ) : (
               <div className="space-y-2">
                 <h3 className="mb-2 text-sm font-medium">{format(new Date(`${selectedDate}T00:00:00`), 'EEEE d MMMM')}</h3>
                 {(bookingsByDate.get(selectedDate) ?? []).length === 0 ? (
-                  <p className="text-xs text-cream/40">No bookings.</p>
+                  <p className="text-xs text-charcoal/40">No bookings.</p>
                 ) : (
                   (bookingsByDate.get(selectedDate) ?? []).map((b) => <BookingLine key={b.id} b={b} detailed />)
                 )}
@@ -382,23 +382,23 @@ export default function BookingsCalendar() {
             const dateStr = format(day, 'yyyy-MM-dd');
             const dayBookings = bookingsByDate.get(dateStr) ?? [];
             return (
-              <div key={dateStr} className="space-y-2 rounded-xl border border-cream/10 p-3">
-                <div className={`text-xs font-medium ${isToday(day) ? 'text-gold' : 'text-cream/70'}`}>
+              <div key={dateStr} className="space-y-2 rounded-xl border border-charcoal/10 p-3">
+                <div className={`text-xs font-medium ${isToday(day) ? 'text-gold' : 'text-charcoal/70'}`}>
                   {format(day, 'EEE d')}
                 </div>
                 {dayBookings.length === 0 ? (
-                  <p className="text-[11px] text-cream/40">—</p>
+                  <p className="text-[11px] text-charcoal/40">—</p>
                 ) : (
                   dayBookings.map((b) => {
                     const isPast = new Date(b.appointment_start) <= new Date();
                     const canTransition = b.status === 'confirmed' && isPast;
                     return (
-                      <div key={b.id} className="rounded-lg border border-cream/10 px-2 py-1 text-[11px]">
+                      <div key={b.id} className="rounded-lg border border-charcoal/10 px-2 py-1 text-[11px]">
                         <div className="flex items-center justify-between gap-1">
                           <div className="font-medium">{formatInTimeZone(new Date(b.appointment_start), STUDIO_TIMEZONE, 'HH:mm')}</div>
                           <StatusChip status={b.status} />
                         </div>
-                        <div className="text-cream/60">{b.customer_name}</div>
+                        <div className="text-charcoal/60">{b.customer_name}</div>
                         <div className="mt-1 flex flex-wrap gap-1.5">
                           {b.status === 'confirmed' && (
                             <>
@@ -434,7 +434,7 @@ export default function BookingsCalendar() {
       {view === 'day' && (
         <div className="space-y-2">
           {(bookingsByDate.get(dayStr) ?? []).length === 0 ? (
-            <p className="text-sm text-cream/50">No bookings this day.</p>
+            <p className="text-sm text-charcoal/50">No bookings this day.</p>
           ) : (
             (bookingsByDate.get(dayStr) ?? []).map((b) => <BookingLine key={b.id} b={b} detailed />)
           )}

@@ -61,12 +61,12 @@ export default function StudioHoursTable({ initialHours }: { initialHours: Studi
 
   return (
     <div className="max-w-xl space-y-4">
-      {error && <p className="rounded bg-red-500/10 px-3 py-2 text-sm text-red-300">{error}</p>}
+      {error && <p className="rounded bg-red-500/10 px-3 py-2 text-sm text-red-600">{error}</p>}
       <div className="space-y-1.5">
         {rows.map((r) => (
           <div
             key={r.day_of_week}
-            className="flex flex-wrap items-center gap-3 rounded-lg border border-cream/10 bg-cream/[0.02] px-3 py-2"
+            className="flex flex-wrap items-center gap-3 rounded-lg border border-charcoal/10 bg-charcoal/[0.02] px-3 py-2"
           >
             <span className="w-24 text-sm">{DAY_LABELS[r.day_of_week]}</span>
             <input
@@ -74,17 +74,17 @@ export default function StudioHoursTable({ initialHours }: { initialHours: Studi
               disabled={r.is_closed}
               value={r.open_time ?? ''}
               onChange={(e) => update(r.day_of_week, { open_time: e.target.value })}
-              className="rounded-lg border border-cream/20 bg-transparent px-2 py-1 text-xs disabled:opacity-40"
+              className="rounded-lg border border-charcoal/20 bg-transparent px-2 py-1 text-xs disabled:opacity-40"
             />
-            <span className="text-xs text-cream/40">to</span>
+            <span className="text-xs text-charcoal/40">to</span>
             <input
               type="time"
               disabled={r.is_closed}
               value={r.close_time ?? ''}
               onChange={(e) => update(r.day_of_week, { close_time: e.target.value })}
-              className="rounded-lg border border-cream/20 bg-transparent px-2 py-1 text-xs disabled:opacity-40"
+              className="rounded-lg border border-charcoal/20 bg-transparent px-2 py-1 text-xs disabled:opacity-40"
             />
-            <label className="flex items-center gap-1.5 text-xs text-cream/60">
+            <label className="flex items-center gap-1.5 text-xs text-charcoal/60">
               <input
                 type="checkbox"
                 checked={r.is_closed}

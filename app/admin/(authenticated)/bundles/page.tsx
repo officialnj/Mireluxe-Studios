@@ -15,7 +15,7 @@ export default async function AdminBundlesPage() {
     <div className="space-y-12">
       <div>
         <h1 className="mb-2 font-serif text-2xl font-light">Products &amp; Bundles</h1>
-        <p className="mb-6 text-sm text-cream/60">
+        <p className="mb-6 text-sm text-charcoal/60">
           Shared inventory for booking add-ons and the /shop storefront — create products, add length/colour variants,
           set price, stock quantity, image and description, and archive (rather than delete) anything retired.
         </p>
@@ -23,7 +23,7 @@ export default async function AdminBundlesPage() {
       </div>
       <div>
         <h2 className="mb-2 font-serif text-xl font-light">Quick Stock Toggle</h2>
-        <p className="mb-6 text-sm text-cream/60">Fast in/out-of-stock flip by length, grouped for a quick daily check.</p>
+        <p className="mb-6 text-sm text-charcoal/60">Fast in/out-of-stock flip by length, grouped for a quick daily check.</p>
         <BundleStockTable initialVariants={variants ?? []} />
       </div>
     </div>

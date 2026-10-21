@@ -17,7 +17,7 @@ export default async function AdminAddonsPage() {
   return (
     <div>
       <h1 className="mb-2 font-serif text-2xl font-light">Add-ons</h1>
-      <p className="mb-6 text-sm text-cream/60">
+      <p className="mb-6 text-sm text-charcoal/60">
         Category-scoped extras customers can add to a booking (e.g. Luxe Freestyle, Premium Slots) — each with its
         own price and duration change, which can be negative (e.g. a shorter style). The &quot;Hair Included
         Styles&quot; group applies whenever a customer books with hair included, regardless of which category the

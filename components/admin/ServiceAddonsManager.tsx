@@ -162,7 +162,7 @@ export default function ServiceAddonsManager({
 
   return (
     <div className="space-y-8">
-      {error && <p className="rounded bg-red-500/10 px-3 py-2 text-sm text-red-300">{error}</p>}
+      {error && <p className="rounded bg-red-500/10 px-3 py-2 text-sm text-red-600">{error}</p>}
 
       {groups.map((group) => {
         const groupAddons = addonsForGroup(group.categoryId);
@@ -170,21 +170,21 @@ export default function ServiceAddonsManager({
         const draft = newDrafts[newKey] ?? EMPTY_DRAFT;
 
         return (
-          <div key={group.key} className="rounded-xl border border-cream/10 p-4">
+          <div key={group.key} className="rounded-xl border border-charcoal/10 p-4">
             <h2 className="mb-3 font-serif text-lg font-light">{group.label}</h2>
 
             <div className="space-y-2">
-              {groupAddons.length === 0 && <p className="text-sm text-cream/50">No add-ons yet.</p>}
+              {groupAddons.length === 0 && <p className="text-sm text-charcoal/50">No add-ons yet.</p>}
               {groupAddons.map((a, index) => {
                 const d = drafts[a.id] ?? draftFromAddon(a);
                 return (
-                  <div key={a.id} className="rounded-lg border border-cream/10 bg-cream/[0.02] p-3">
+                  <div key={a.id} className="rounded-lg border border-charcoal/10 bg-charcoal/[0.02] p-3">
                     <div className="flex flex-wrap items-center gap-2">
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => move(group.categoryId, groupAddons, index, -1)}
                           disabled={index === 0 || busy === 'reorder'}
-                          className="flex h-6 w-6 items-center justify-center rounded-full bg-cream/10 text-cream/60 hover:bg-cream/20 disabled:opacity-30"
+                          className="flex h-6 w-6 items-center justify-center rounded-full bg-charcoal/10 text-charcoal/60 hover:bg-charcoal/20 disabled:opacity-30"
                           aria-label="Move earlier"
                         >
                           ↑
@@ -192,7 +192,7 @@ export default function ServiceAddonsManager({
                         <button
                           onClick={() => move(group.categoryId, groupAddons, index, 1)}
                           disabled={index === groupAddons.length - 1 || busy === 'reorder'}
-                          className="flex h-6 w-6 items-center justify-center rounded-full bg-cream/10 text-cream/60 hover:bg-cream/20 disabled:opacity-30"
+                          className="flex h-6 w-6 items-center justify-center rounded-full bg-charcoal/10 text-charcoal/60 hover:bg-charcoal/20 disabled:opacity-30"
                           aria-label="Move later"
                         >
                           ↓
@@ -201,9 +201,9 @@ export default function ServiceAddonsManager({
                       <input
                         value={d.name}
                         onChange={(e) => setDrafts((prev) => ({ ...prev, [a.id]: { ...d, name: e.target.value } }))}
-                        className="min-w-[160px] flex-1 rounded-lg border border-cream/20 bg-transparent px-2.5 py-1.5 text-sm"
+                        className="min-w-[160px] flex-1 rounded-lg border border-charcoal/20 bg-transparent px-2.5 py-1.5 text-sm"
                       />
-                      <label className="flex items-center gap-1.5 text-xs text-cream/60">
+                      <label className="flex items-center gap-1.5 text-xs text-charcoal/60">
                         <input
                           type="checkbox"
                           checked={a.active}
@@ -221,25 +221,25 @@ export default function ServiceAddonsManager({
                       </button>
                     </div>
                     <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 pl-16 text-xs">
-                      <label className="flex items-center gap-1.5 text-cream/50">
+                      <label className="flex items-center gap-1.5 text-charcoal/50">
                         Price Δ (£)
                         <input
                           value={d.price_pounds}
                           onChange={(e) => setDrafts((prev) => ({ ...prev, [a.id]: { ...d, price_pounds: e.target.value } }))}
                           placeholder="0.00"
-                          className="w-20 rounded-lg border border-cream/20 bg-transparent px-2 py-1 text-sm text-cream"
+                          className="w-20 rounded-lg border border-charcoal/20 bg-transparent px-2 py-1 text-sm text-charcoal"
                         />
                       </label>
-                      <label className="flex items-center gap-1.5 text-cream/50">
+                      <label className="flex items-center gap-1.5 text-charcoal/50">
                         Duration Δ (min)
                         <input
                           value={d.duration_mins}
                           onChange={(e) => setDrafts((prev) => ({ ...prev, [a.id]: { ...d, duration_mins: e.target.value } }))}
                           placeholder="0"
-                          className="w-16 rounded-lg border border-cream/20 bg-transparent px-2 py-1 text-sm text-cream"
+                          className="w-16 rounded-lg border border-charcoal/20 bg-transparent px-2 py-1 text-sm text-charcoal"
                         />
                       </label>
-                      <label className="flex items-center gap-1.5 text-cream/50">
+                      <label className="flex items-center gap-1.5 text-charcoal/50">
                         <input
                           type="checkbox"
                           checked={d.unlocks_premium_slots}
@@ -254,13 +254,13 @@ export default function ServiceAddonsManager({
                 );
               })}
 
-              <div className="rounded-lg border border-dashed border-cream/15 p-3">
+              <div className="rounded-lg border border-dashed border-charcoal/15 p-3">
                 <div className="flex flex-wrap items-center gap-2">
                   <input
                     value={draft.name}
                     onChange={(e) => setNewDrafts((prev) => ({ ...prev, [newKey]: { ...draft, name: e.target.value } }))}
                     placeholder="New add-on name"
-                    className="min-w-[160px] flex-1 rounded-lg border border-cream/20 bg-transparent px-2.5 py-1.5 text-sm"
+                    className="min-w-[160px] flex-1 rounded-lg border border-charcoal/20 bg-transparent px-2.5 py-1.5 text-sm"
                   />
                   <button
                     onClick={() => createAddon(group.categoryId)}
@@ -271,25 +271,25 @@ export default function ServiceAddonsManager({
                   </button>
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
-                  <label className="flex items-center gap-1.5 text-cream/50">
+                  <label className="flex items-center gap-1.5 text-charcoal/50">
                     Price Δ (£)
                     <input
                       value={draft.price_pounds}
                       onChange={(e) => setNewDrafts((prev) => ({ ...prev, [newKey]: { ...draft, price_pounds: e.target.value } }))}
                       placeholder="0.00"
-                      className="w-20 rounded-lg border border-cream/20 bg-transparent px-2 py-1 text-sm text-cream"
+                      className="w-20 rounded-lg border border-charcoal/20 bg-transparent px-2 py-1 text-sm text-charcoal"
                     />
                   </label>
-                  <label className="flex items-center gap-1.5 text-cream/50">
+                  <label className="flex items-center gap-1.5 text-charcoal/50">
                     Duration Δ (min)
                     <input
                       value={draft.duration_mins}
                       onChange={(e) => setNewDrafts((prev) => ({ ...prev, [newKey]: { ...draft, duration_mins: e.target.value } }))}
                       placeholder="0"
-                      className="w-16 rounded-lg border border-cream/20 bg-transparent px-2 py-1 text-sm text-cream"
+                      className="w-16 rounded-lg border border-charcoal/20 bg-transparent px-2 py-1 text-sm text-charcoal"
                     />
                   </label>
-                  <label className="flex items-center gap-1.5 text-cream/50">
+                  <label className="flex items-center gap-1.5 text-charcoal/50">
                     <input
                       type="checkbox"
                       checked={draft.unlocks_premium_slots}

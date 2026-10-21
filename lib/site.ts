@@ -9,7 +9,8 @@ export const SERVICES_CAROUSEL_IMAGES = [
   `${IMG}/services-carousel-3.jpg`,
 ];
 export const CTA_BANNER_IMAGE = `${IMG}/cta-banner.jpg`;
-export const ABOUT_PAGE_HERO_IMAGE = `${IMG}/about-page-hero.jpg`;
+export const ABOUT_PAGE_HERO_IMAGE = `${IMG}/about-first.jpg`;
+export const ABOUT_DETAILS_IMAGE = `${IMG}/about-details.jpg`;
 
 export const NAV_LINKS = [
   { label: 'Home', href: '/' },
@@ -22,14 +23,15 @@ export const NAV_LINKS = [
 
 export const CONTACT = {
   area: 'Wembley · NW London',
-  // Deliberately vague — shown on the public website (contact page, footer)
-  // to anyone, not just confirmed/paid customers. The exact unit address and
-  // Mirakle's personal mobile only go out in post-booking emails, see
-  // PRIVATE_STUDIO_DETAILS below.
+  // Address is deliberately vague on the public website (contact page, footer).
+  // The exact unit address still only goes out in post-booking emails, see
+  // PRIVATE_STUDIO_DETAILS below. The phone, however, is Mirakle's real mobile
+  // and is intentionally public now (she wants clients to be able to reach her
+  // directly) — it matches PRIVATE_STUDIO_DETAILS.phone used in emails.
   address: 'Wembley, North West London, HA9',
   openingHours: '9am – 6pm · Mon–Sat',
   phoneHours: '11am – 5pm',
-  phone: '+44 20 7946 0231',
+  phone: '07944 971069',
   instagram: '@miriluxe.studios',
   instagramUrl: 'https://instagram.com/miriluxe.studios',
   email: 'hello@miriluxestudios.com',

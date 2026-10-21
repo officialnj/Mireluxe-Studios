@@ -15,12 +15,12 @@ export default function BookingsViewTabs({ initialBookings }: { initialBookings:
 
   return (
     <div>
-      <div className="mb-6 flex gap-1 rounded-full border border-cream/10 p-1 text-xs w-fit">
+      <div className="mb-6 flex gap-1 rounded-full border border-charcoal/10 p-1 text-xs w-fit">
         {(['list', 'calendar'] as const).map((v) => (
           <button
             key={v}
             onClick={() => setView(v)}
-            className={`rounded-full px-4 py-1.5 capitalize ${view === v ? 'bg-gold text-charcoal' : 'text-cream/60 hover:text-cream'}`}
+            className={`rounded-full px-4 py-1.5 capitalize ${view === v ? 'bg-gold text-charcoal' : 'text-charcoal/60 hover:text-charcoal'}`}
           >
             {v}
           </button>

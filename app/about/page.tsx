@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import type { Metadata } from 'next';
-import { ABOUT_PAGE_HERO_IMAGE, STATS, WHY_CHOOSE, FAQS } from '@/lib/site';
+import { ABOUT_PAGE_HERO_IMAGE, ABOUT_DETAILS_IMAGE, STATS, WHY_CHOOSE, FAQS } from '@/lib/site';
 import Reveal from '@/components/Reveal';
 import PageHero from '@/components/ui/PageHero';
 import Accordion from '@/components/ui/Accordion';
@@ -77,30 +77,45 @@ export default function AboutPage() {
 
       {/* Why choose us */}
       <section className="container-luxe py-24 lg:py-32">
-        <div className="text-center">
-          <Reveal>
-            <span className="eyebrow">Why choose us</span>
-            <h2 className="mx-auto mt-3 max-w-2xl font-serif text-4xl font-light leading-tight tracking-tightest sm:text-5xl">
-              The details that set MIRILUXE apart
-            </h2>
-          </Reveal>
-        </div>
-        <div className="mt-16 grid grid-cols-1 gap-7 sm:grid-cols-2 lg:grid-cols-4">
-          {WHY_CHOOSE.map((item, i) => (
-            <Reveal key={item.title} delay={i * 0.08}>
-              <div className="flex h-full flex-col rounded-2xl border border-charcoal/10 p-8 transition-colors duration-500 hover:border-gold/40 dark:border-cream/10">
-                <span className="font-serif text-3xl font-light text-gold">
-                  0{i + 1}
-                </span>
-                <h3 className="mt-6 font-serif text-xl font-light tracking-tight">
-                  {item.title}
-                </h3>
-                <p className="mt-3 text-sm leading-relaxed text-charcoal/65 dark:text-cream/65">
-                  {item.body}
-                </p>
-              </div>
+        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-20">
+          {/* Left: heading + cards */}
+          <div>
+            <Reveal>
+              <span className="eyebrow">Why choose us</span>
+              <h2 className="mt-3 max-w-xl font-serif text-4xl font-light leading-tight tracking-tightest sm:text-5xl">
+                The details that set MIRILUXE apart
+              </h2>
             </Reveal>
-          ))}
+            <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2">
+              {WHY_CHOOSE.map((item, i) => (
+                <Reveal key={item.title} delay={i * 0.08}>
+                  <div className="flex h-full flex-col rounded-2xl border border-charcoal/10 p-7 transition-colors duration-500 hover:border-gold/40 dark:border-cream/10">
+                    <span className="font-serif text-3xl font-light text-gold">
+                      0{i + 1}
+                    </span>
+                    <h3 className="mt-5 font-serif text-xl font-light tracking-tight">
+                      {item.title}
+                    </h3>
+                    <p className="mt-3 text-sm leading-relaxed text-charcoal/65 dark:text-cream/65">
+                      {item.body}
+                    </p>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+          {/* Right: feature image */}
+          <Reveal direction="left" delay={0.1}>
+            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-3xl">
+              <Image
+                src={ABOUT_DETAILS_IMAGE}
+                alt="A MIRILUXE client wearing freshly styled braids"
+                fill
+                sizes="(max-width: 1024px) 90vw, 45vw"
+                className="object-cover"
+              />
+            </div>
+          </Reveal>
         </div>
       </section>
 

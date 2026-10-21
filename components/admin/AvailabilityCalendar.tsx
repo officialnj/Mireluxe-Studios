@@ -161,28 +161,28 @@ export default function AvailabilityCalendar({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-4 text-xs text-cream/60">
-        <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-cream/20" /> Default slot</span>
+      <div className="flex flex-wrap items-center gap-4 text-xs text-charcoal/60">
+        <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-charcoal/20" /> Default slot</span>
         <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-emerald-400" /> Admin-added slot</span>
         <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-red-400" /> Admin-blocked</span>
         <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-gold" /> Booked</span>
       </div>
 
-      {error && <p className="rounded bg-red-500/10 px-3 py-2 text-sm text-red-300">{error}</p>}
+      {error && <p className="rounded bg-red-500/10 px-3 py-2 text-sm text-red-600">{error}</p>}
 
       <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
         <div>
           <div className="mb-3 flex items-center justify-between">
-            <button onClick={() => goToMonth(subMonths(monthDate, 1))} className="text-sm text-cream/60 hover:text-gold">
+            <button onClick={() => goToMonth(subMonths(monthDate, 1))} className="text-sm text-charcoal/60 hover:text-gold">
               ← Prev
             </button>
             <h2 className="text-sm font-medium uppercase tracking-wide">{format(monthDate, 'MMMM yyyy')}</h2>
-            <button onClick={() => goToMonth(addMonths(monthDate, 1))} className="text-sm text-cream/60 hover:text-gold">
+            <button onClick={() => goToMonth(addMonths(monthDate, 1))} className="text-sm text-charcoal/60 hover:text-gold">
               Next →
             </button>
           </div>
-          {loading && <p className="mb-2 text-xs text-cream/40">Loading…</p>}
-          <div className="grid grid-cols-7 gap-1 text-center text-[11px] text-cream/40">
+          {loading && <p className="mb-2 text-xs text-charcoal/40">Loading…</p>}
+          <div className="grid grid-cols-7 gap-1 text-center text-[11px] text-charcoal/40">
             {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => (
               <div key={d} className="py-1">{d}</div>
             ))}
@@ -200,7 +200,7 @@ export default function AvailabilityCalendar({
                   key={dateStr}
                   onClick={() => setSelectedDate(dateStr)}
                   className={`flex min-h-[64px] flex-col items-start rounded-lg border p-1.5 text-left text-xs transition ${
-                    selectedDate === dateStr ? 'border-gold' : 'border-cream/10 hover:border-cream/30'
+                    selectedDate === dateStr ? 'border-gold' : 'border-charcoal/10 hover:border-charcoal/30'
                   } ${inMonth ? '' : 'opacity-30'}`}
                 >
                   <span className={isToday(day) ? 'rounded-full bg-gold px-1.5 text-charcoal' : ''}>{format(day, 'd')}</span>
@@ -217,15 +217,15 @@ export default function AvailabilityCalendar({
           </div>
         </div>
 
-        <div className="rounded-xl border border-cream/10 p-4">
+        <div className="rounded-xl border border-charcoal/10 p-4">
           {!selectedDate ? (
-            <p className="text-sm text-cream/50">Select a date to manage its slots.</p>
+            <p className="text-sm text-charcoal/50">Select a date to manage its slots.</p>
           ) : (
             <div className="space-y-5">
               <h3 className="text-sm font-medium">{format(new Date(`${selectedDate}T00:00:00`), 'EEEE d MMMM yyyy')}</h3>
 
               <div>
-                <h4 className="mb-2 text-xs font-medium uppercase tracking-wide text-cream/50">Default grid (08:00–16:00)</h4>
+                <h4 className="mb-2 text-xs font-medium uppercase tracking-wide text-charcoal/50">Default grid (08:00–16:00)</h4>
                 <div className="flex flex-wrap gap-1.5">
                   {defaultHours.map((hh) => {
                     const status = defaultSlotStatus(selectedDate, hh);
@@ -247,7 +247,7 @@ export default function AvailabilityCalendar({
                           key={hh}
                           disabled={busy || !override}
                           onClick={() => override && removeOverride(override.id)}
-                          className="rounded-full border border-red-400/40 bg-red-500/10 px-2 py-1 text-xs text-red-300 hover:bg-red-500/20"
+                          className="rounded-full border border-red-400/40 bg-red-500/10 px-2 py-1 text-xs text-red-600 hover:bg-red-500/20"
                           title="Click to unblock"
                         >
                           {hh} · blocked ✕
@@ -259,7 +259,7 @@ export default function AvailabilityCalendar({
                         key={hh}
                         disabled={busy}
                         onClick={() => addOverride(selectedDate, hh, 'blocked')}
-                        className="rounded-full border border-cream/20 px-2 py-1 text-xs text-cream/70 hover:border-red-400/40 hover:text-red-300"
+                        className="rounded-full border border-charcoal/20 px-2 py-1 text-xs text-charcoal/70 hover:border-red-400/40 hover:text-red-600"
                         title="Click to block"
                       >
                         {hh}
@@ -270,9 +270,9 @@ export default function AvailabilityCalendar({
               </div>
 
               <div>
-                <h4 className="mb-2 text-xs font-medium uppercase tracking-wide text-cream/50">Admin-added slots</h4>
+                <h4 className="mb-2 text-xs font-medium uppercase tracking-wide text-charcoal/50">Admin-added slots</h4>
                 {openOverrides.length === 0 ? (
-                  <p className="text-xs text-cream/40">None.</p>
+                  <p className="text-xs text-charcoal/40">None.</p>
                 ) : (
                   <div className="flex flex-wrap gap-1.5">
                     {openOverrides.map((o) => (
@@ -280,7 +280,7 @@ export default function AvailabilityCalendar({
                         key={o.id}
                         disabled={busyKey === o.id}
                         onClick={() => removeOverride(o.id)}
-                        className="rounded-full border border-emerald-400/40 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-300 hover:bg-emerald-500/20"
+                        className="rounded-full border border-emerald-400/40 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-700 hover:bg-emerald-500/20"
                         title="Click to remove"
                       >
                         {o.start_time.slice(0, 5)} ✕
@@ -293,7 +293,7 @@ export default function AvailabilityCalendar({
                     type="time"
                     value={newSlotTime}
                     onChange={(e) => setNewSlotTime(e.target.value)}
-                    className="rounded border border-cream/20 bg-transparent px-2 py-1 text-xs"
+                    className="rounded border border-charcoal/20 bg-transparent px-2 py-1 text-xs"
                   />
                   <button
                     onClick={() => addOverride(selectedDate, newSlotTime, 'open')}
@@ -306,11 +306,11 @@ export default function AvailabilityCalendar({
               </div>
 
               <div>
-                <h4 className="mb-2 text-xs font-medium uppercase tracking-wide text-cream/50">Bookings this day</h4>
+                <h4 className="mb-2 text-xs font-medium uppercase tracking-wide text-charcoal/50">Bookings this day</h4>
                 {selectedBookings.length === 0 ? (
-                  <p className="text-xs text-cream/40">None.</p>
+                  <p className="text-xs text-charcoal/40">None.</p>
                 ) : (
-                  <ul className="space-y-1 text-xs text-cream/70">
+                  <ul className="space-y-1 text-xs text-charcoal/70">
                     {selectedBookings.map((b) => (
                       <li key={b.id}>
                         {formatInTimeZone(new Date(b.appointment_start), STUDIO_TIMEZONE, 'HH:mm')} — {b.customer_name} ·{' '}

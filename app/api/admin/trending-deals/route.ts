@@ -19,6 +19,7 @@ const bodySchema = z.object({
   morning_only: z.boolean().optional(),
   included_bundle_count: z.number().int().min(0).optional(),
   included_bundle_inches: z.number().int().min(0).nullable().optional(),
+  image_path: z.string().trim().min(1).nullable().optional(),
 });
 
 function slugify(name: string): string {
@@ -101,6 +102,7 @@ export async function POST(request: NextRequest) {
         morning_only: parsed.data.morning_only ?? false,
         included_bundle_count: parsed.data.included_bundle_count ?? 0,
         included_bundle_inches: parsed.data.included_bundle_inches ?? null,
+        image_path: parsed.data.image_path ?? null,
         sort_order: nextSortOrder,
         active: true,
       })

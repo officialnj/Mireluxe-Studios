@@ -98,11 +98,11 @@ export default function ServiceCategoriesManager({ initialCategories }: { initia
 
   return (
     <div className="space-y-6">
-      {error && <p className="rounded bg-red-500/10 px-3 py-2 text-sm text-red-300">{error}</p>}
+      {error && <p className="rounded bg-red-500/10 px-3 py-2 text-sm text-red-600">{error}</p>}
 
-      <form onSubmit={createCategory} className="flex items-end gap-3 rounded-xl border border-cream/10 p-4">
+      <form onSubmit={createCategory} className="flex items-end gap-3 rounded-xl border border-charcoal/10 p-4">
         <div className="flex-1">
-          <label className="mb-1 block text-xs text-cream/50" htmlFor="new-category-name">
+          <label className="mb-1 block text-xs text-charcoal/50" htmlFor="new-category-name">
             New category name
           </label>
           <input
@@ -110,7 +110,7 @@ export default function ServiceCategoriesManager({ initialCategories }: { initia
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             placeholder="e.g. Cornrows"
-            className="w-full rounded border border-cream/20 bg-transparent px-3 py-2 text-sm"
+            className="w-full rounded border border-charcoal/20 bg-transparent px-3 py-2 text-sm"
           />
         </div>
         <button
@@ -123,26 +123,26 @@ export default function ServiceCategoriesManager({ initialCategories }: { initia
       </form>
 
       {categories.length === 0 ? (
-        <p className="text-sm text-cream/50">No service categories yet.</p>
+        <p className="text-sm text-charcoal/50">No service categories yet.</p>
       ) : (
         <div className="space-y-2">
           {categories.map((c, index) => (
             <div
               key={c.id}
-              className="flex flex-wrap items-center gap-3 rounded-xl border border-cream/10 bg-cream/[0.02] px-4 py-3"
+              className="flex flex-wrap items-center gap-3 rounded-xl border border-charcoal/10 bg-charcoal/[0.02] px-4 py-3"
             >
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => move(index, -1)}
                   disabled={index === 0 || busy === 'reorder'}
-                  className="flex h-7 w-7 items-center justify-center rounded-full bg-cream/10 text-cream/60 hover:bg-cream/20 disabled:opacity-30"
+                  className="flex h-7 w-7 items-center justify-center rounded-full bg-charcoal/10 text-charcoal/60 hover:bg-charcoal/20 disabled:opacity-30"
                 >
                   ↑
                 </button>
                 <button
                   onClick={() => move(index, 1)}
                   disabled={index === categories.length - 1 || busy === 'reorder'}
-                  className="flex h-7 w-7 items-center justify-center rounded-full bg-cream/10 text-cream/60 hover:bg-cream/20 disabled:opacity-30"
+                  className="flex h-7 w-7 items-center justify-center rounded-full bg-charcoal/10 text-charcoal/60 hover:bg-charcoal/20 disabled:opacity-30"
                 >
                   ↓
                 </button>
@@ -150,10 +150,10 @@ export default function ServiceCategoriesManager({ initialCategories }: { initia
               <input
                 value={nameEdits[c.id] ?? ''}
                 onChange={(e) => setNameEdits((prev) => ({ ...prev, [c.id]: e.target.value }))}
-                className="min-w-[10rem] flex-1 rounded-lg border border-cream/20 bg-transparent px-2.5 py-1.5 text-sm"
+                className="min-w-[10rem] flex-1 rounded-lg border border-charcoal/20 bg-transparent px-2.5 py-1.5 text-sm"
               />
-              <span className="text-xs text-cream/50">{c.slug}</span>
-              <label className="flex items-center gap-1.5 text-xs text-cream/60">
+              <span className="text-xs text-charcoal/50">{c.slug}</span>
+              <label className="flex items-center gap-1.5 text-xs text-charcoal/60">
                 <input
                   type="checkbox"
                   checked={c.active}

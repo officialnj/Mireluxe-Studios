@@ -83,7 +83,7 @@ function draftToPayload(d: ServiceDraft) {
   };
 }
 
-const inputClass = 'w-full rounded border border-cream/20 bg-transparent px-3 py-2 text-sm';
+const inputClass = 'w-full rounded border border-charcoal/20 bg-transparent px-3 py-2 text-sm';
 
 export default function ServicesTable({
   initialServices,
@@ -216,7 +216,7 @@ export default function ServicesTable({
 
   return (
     <div className="space-y-8">
-      {error && <p className="rounded bg-red-500/10 px-3 py-2 text-sm text-red-300">{error}</p>}
+      {error && <p className="rounded bg-red-500/10 px-3 py-2 text-sm text-red-600">{error}</p>}
 
       <button
         onClick={() => setShowNewForm((v) => !v)}
@@ -226,7 +226,7 @@ export default function ServicesTable({
       </button>
 
       {showNewForm && (
-        <form onSubmit={createService} className="rounded-xl border border-cream/10 p-4">
+        <form onSubmit={createService} className="rounded-xl border border-charcoal/10 p-4">
           <div className="grid gap-3 md:grid-cols-2">
             <ServiceFields draft={newDraft} categories={categories} onChange={(patch) => setNewDraft((prev) => ({ ...prev, ...patch }))} />
           </div>
@@ -244,11 +244,11 @@ export default function ServicesTable({
         const groupServices = servicesByCategory.get(category.id) ?? [];
         return (
           <div key={category.id}>
-            <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-cream/50">
-              {category.name} {!category.active && <span className="text-red-300">(category inactive)</span>}
+            <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-charcoal/50">
+              {category.name} {!category.active && <span className="text-red-600">(category inactive)</span>}
             </h2>
             {groupServices.length === 0 ? (
-              <p className="text-sm text-cream/40">No services in this category yet.</p>
+              <p className="text-sm text-charcoal/40">No services in this category yet.</p>
             ) : (
               <div className="space-y-3">
                 {groupServices.map((s, index) => {
@@ -256,25 +256,25 @@ export default function ServicesTable({
                   if (!draft) return null;
                   const isExpanded = expandedId === s.id;
                   return (
-                    <div key={s.id} className={`rounded-xl border p-4 ${s.active ? 'border-cream/10' : 'border-red-500/20 opacity-70'}`}>
+                    <div key={s.id} className={`rounded-xl border p-4 ${s.active ? 'border-charcoal/10' : 'border-red-500/20 opacity-70'}`}>
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => move(category.id, groupServices, index, -1)}
                             disabled={index === 0 || busy === 'reorder'}
-                            className="flex h-6 w-6 items-center justify-center rounded-full bg-cream/10 text-cream/60 hover:bg-cream/20 disabled:opacity-30"
+                            className="flex h-6 w-6 items-center justify-center rounded-full bg-charcoal/10 text-charcoal/60 hover:bg-charcoal/20 disabled:opacity-30"
                           >
                             ↑
                           </button>
                           <button
                             onClick={() => move(category.id, groupServices, index, 1)}
                             disabled={index === groupServices.length - 1 || busy === 'reorder'}
-                            className="flex h-6 w-6 items-center justify-center rounded-full bg-cream/10 text-cream/60 hover:bg-cream/20 disabled:opacity-30"
+                            className="flex h-6 w-6 items-center justify-center rounded-full bg-charcoal/10 text-charcoal/60 hover:bg-charcoal/20 disabled:opacity-30"
                           >
                             ↓
                           </button>
                           <span className="text-sm font-medium">{s.name}</span>
-                          <span className="text-xs text-cream/40">
+                          <span className="text-xs text-charcoal/40">
                             £{(s.base_price_pence / 100).toFixed(2)}
                             {s.service_time_mins != null ? ` · ${s.service_time_mins}min` : ''}
                           </span>
@@ -291,7 +291,7 @@ export default function ServicesTable({
                           </label>
                           <button
                             onClick={() => setExpandedId(isExpanded ? null : s.id)}
-                            className="inline-flex items-center rounded-full bg-cream/10 px-2.5 py-1 text-xs font-medium text-cream/70 transition-colors hover:bg-cream/20"
+                            className="inline-flex items-center rounded-full bg-charcoal/10 px-2.5 py-1 text-xs font-medium text-charcoal/70 transition-colors hover:bg-charcoal/20"
                           >
                             {isExpanded ? 'Collapse' : 'Edit'}
                           </button>
@@ -323,7 +323,7 @@ export default function ServicesTable({
 
       {uncategorised.length > 0 && (
         <div>
-          <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-red-300">Uncategorised</h2>
+          <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-red-600">Uncategorised</h2>
           <div className="space-y-3">
             {uncategorised.map((s) => {
               const draft = edits[s.id];
@@ -432,7 +432,7 @@ function ServiceFields({
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="mb-1 block text-xs text-cream/50">{label}</label>
+      <label className="mb-1 block text-xs text-charcoal/50">{label}</label>
       {children}
     </div>
   );

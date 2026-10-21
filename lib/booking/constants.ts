@@ -34,8 +34,9 @@ export const RELEASE_DAY_OF_MONTH = 20;
 // minutes of the appointment start, server-enforced.
 export const SELF_SERVICE_CUTOFF_MINUTES = 48 * 60;
 
-// TODO: confirm exact cancellation window/fee with Miracle — placeholder
-// only, referenced by the About page FAQ and booking checkout copy.
-export const CANCELLATION_POLICY_PLACEHOLDER =
-  'Cancellations made at least 48 hours before your appointment are eligible for a full refund of your deposit. ' +
-  'Cancellations within 48 hours, or no-shows, forfeit the deposit. To cancel or reschedule, contact the studio directly.';
+// Strict non-refundable deposit policy (matches lib/site.ts FAQ copy).
+// Referenced by the About page FAQ and booking checkout copy.
+export const CANCELLATION_POLICY =
+  'Deposits are strictly non-refundable. They are transferable to a rescheduled appointment with at least ' +
+  "48 hours' notice. Cancellations, or changes within 48 hours of your appointment, forfeit the deposit. " +
+  'To reschedule, use your booking management link or contact the studio directly.';

@@ -31,6 +31,10 @@ export type DbService = {
   included_bundle_count: number;
   included_bundle_inches: number | null;
   deposit_pence: number;
+  /** Optional feature photo, primarily for Trending Deals cards on the home
+   *  page. Supabase Storage path in the `product-media` bucket (prefix
+   *  `deals/`). Null = render the text-only card. See migration 0020. */
+  image_path: string | null;
   active: boolean;
   sort_order: number;
 };
@@ -130,6 +134,10 @@ export type DbBooking = {
    *  'confirmed'. False for the normal customer self-service flow. */
   created_by_admin: boolean;
   payment_method: 'stripe' | 'cash' | 'other';
+  /** Set when the remaining balance was collected in-studio via the admin
+   *  Checkout tab. Null = still owing. See migration 0023. */
+  balance_collected_at: string | null;
+  balance_payment_method: string | null;
   created_at: string;
   updated_at: string;
 };

@@ -7,8 +7,8 @@ import { computeTotals, formatPence } from '@/lib/booking/pricing';
 import type { DbService, TimeSlot } from '@/lib/booking/types';
 
 const field =
-  'w-full rounded-lg border border-cream/20 bg-transparent px-3 py-2 text-sm outline-none transition-colors placeholder:text-cream/40 focus:border-gold';
-const label = 'mb-1.5 block text-[0.65rem] font-medium uppercase tracking-wide text-cream/50';
+  'w-full rounded-lg border border-charcoal/20 bg-transparent px-3 py-2 text-sm outline-none transition-colors placeholder:text-charcoal/40 focus:border-gold';
+const label = 'mb-1.5 block text-[0.65rem] font-medium uppercase tracking-wide text-charcoal/50';
 
 type FormState = {
   serviceId: string;
@@ -191,15 +191,15 @@ export default function CreateBookingModal() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-charcoal/70 p-4">
-      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-cream/10 bg-charcoal p-6">
+      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-charcoal/10 bg-white p-6 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-serif text-lg font-light">Create Booking</h2>
-          <button onClick={close} className="text-cream/50 hover:text-cream" aria-label="Close">
+          <button onClick={close} className="text-charcoal/50 hover:text-charcoal" aria-label="Close">
             ✕
           </button>
         </div>
 
-        {error && <p className="mb-4 rounded bg-red-500/10 px-3 py-2 text-sm text-red-300">{error}</p>}
+        {error && <p className="mb-4 rounded bg-red-500/10 px-3 py-2 text-sm text-red-600">{error}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -229,7 +229,7 @@ export default function CreateBookingModal() {
                 disabled={service.hair_incl_price_pence == null}
                 onChange={(e) => setForm((f) => ({ ...f, hairIncluded: e.target.checked }))}
               />
-              <label htmlFor="hairIncluded" className="text-sm text-cream/80">
+              <label htmlFor="hairIncluded" className="text-sm text-charcoal/80">
                 Hair included{service.hair_incl_price_pence == null ? ' (not offered for this service)' : ''}
               </label>
             </div>
@@ -250,9 +250,9 @@ export default function CreateBookingModal() {
             <div>
               <label className={label}>Time</label>
               {slotsLoading ? (
-                <p className="pt-2 text-xs text-cream/40">Loading…</p>
+                <p className="pt-2 text-xs text-charcoal/40">Loading…</p>
               ) : slots.length === 0 ? (
-                <p className="pt-2 text-xs text-cream/40">{form.serviceId ? 'No slots available.' : 'Pick a service first.'}</p>
+                <p className="pt-2 text-xs text-charcoal/40">{form.serviceId ? 'No slots available.' : 'Pick a service first.'}</p>
               ) : (
                 <select
                   required
@@ -319,7 +319,7 @@ export default function CreateBookingModal() {
               checked={form.hairPrepAgreed}
               onChange={(e) => setForm((f) => ({ ...f, hairPrepAgreed: e.target.checked }))}
             />
-            <label htmlFor="hairPrepAgreed" className="text-sm text-cream/80">
+            <label htmlFor="hairPrepAgreed" className="text-sm text-charcoal/80">
               Hair-prep agreement confirmed verbally
             </label>
           </div>
@@ -353,14 +353,14 @@ export default function CreateBookingModal() {
           </div>
 
           {totals && (
-            <p className="text-xs text-cream/50">
+            <p className="text-xs text-charcoal/50">
               Total: {formatPence(totals.totalPricePence)} · Computed deposit: {formatPence(totals.depositDuePence)} · Balance due
               at appointment: {formatPence(totals.balanceAtAppointmentPence)}
             </p>
           )}
 
           <div className="flex justify-end gap-3 pt-2">
-            <button type="button" onClick={close} className="text-sm text-cream/60 hover:text-cream">
+            <button type="button" onClick={close} className="text-sm text-charcoal/60 hover:text-charcoal">
               Cancel
             </button>
             <button

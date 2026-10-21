@@ -13,7 +13,7 @@ export default async function AdminServicesPage() {
   return (
     <div>
       <h1 className="mb-2 font-serif text-2xl font-light">Services</h1>
-      <p className="mb-6 text-sm text-cream/60">
+      <p className="mb-6 text-sm text-charcoal/60">
         Create, edit, archive and reorder services. Manage categories on the{' '}
         <a href="/admin/service-categories" className="text-gold hover:underline">
           Service Categories

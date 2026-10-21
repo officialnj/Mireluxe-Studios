@@ -1,5 +1,5 @@
 import { formatInTimeZone } from 'date-fns-tz';
-import { CANCELLATION_POLICY_PLACEHOLDER, STUDIO_TIMEZONE } from '@/lib/booking/constants';
+import { CANCELLATION_POLICY, STUDIO_TIMEZONE } from '@/lib/booking/constants';
 import { formatPence } from '@/lib/booking/pricing';
 import { generateBookingIcs } from '@/lib/booking/ics';
 import { CONTACT, PRIVATE_STUDIO_DETAILS } from '@/lib/site';
@@ -208,7 +208,7 @@ export function customerConfirmationEmail(
         COLOR.text +
         ';">Before your appointment:</strong> please arrive with natural hair freshly washed and blow-dried, free of any oils or conditioners.'
     )}
-    <p style="font-size:13px;color:${COLOR.textMuted};margin:16px 0;">${CANCELLATION_POLICY_PLACEHOLDER}</p>
+    <p style="font-size:13px;color:${COLOR.textMuted};margin:16px 0;">${CANCELLATION_POLICY}</p>
     <p style="text-align:center;font-size:13px;color:${COLOR.textMuted};margin:8px 0 0;">A calendar invite for this appointment is attached to this email.</p>
     ${ctaButton(`${siteUrl}/book/manage/${booking.id}`, 'Manage Your Booking')}
     <p style="text-align:center;margin:8px 0 0;"><a href="${siteUrl}/about" style="color:${COLOR.goldLight};font-size:12px;">Read our full studio policies</a></p>
@@ -348,6 +348,33 @@ export function ownerOrderNotificationEmail(order: ShopOrder): EmailContent {
   };
 }
 
+/** Sent to the studio when a shopper asks to be notified that an out-of-stock
+ *  bundle length/colour is back. No payment is involved — it's a lead. */
+export function preorderNotificationEmail(signup: {
+  bundleName: string;
+  inches: number;
+  colour: string;
+  email: string;
+}): EmailContent {
+  const rows =
+    row('Product', escapeHtml(signup.bundleName)) +
+    row('Length', `${signup.inches}"`) +
+    row('Colour', escapeHtml(signup.colour)) +
+    row('Notify', escapeHtml(signup.email));
+
+  const bodyHtml = `
+    <p style="margin:0 0 8px;">Someone wants to be notified when this bundle is back in stock.</p>
+    ${detailsTable(rows)}
+    <p style="margin:12px 0 0;">Email them once you restock this length &amp; colour.</p>
+  `;
+
+  return {
+    subject: `Pre-order interest — ${signup.bundleName} (${signup.inches}" ${signup.colour})`,
+    html: emailShell({ eyebrow: 'Pre-order', heading: 'Restock notification request', bodyHtml }),
+    replyTo: REPLY_TO_EMAIL,
+  };
+}
+
 // ── 4. Appointment reminder (48h / 24h) ──────────────────────────────────
 
 export function reminderEmail(booking: DbBooking, service: DbService, hoursBefore: 48 | 24): EmailContent {
@@ -421,7 +448,7 @@ export function rescheduleConfirmationEmail(
     <p style="margin:0 0 16px;">Hi ${escapeHtml(booking.customer_name)},</p>
     <p style="margin:0 0 8px;">Your appointment has been rescheduled. Here's your updated booking:</p>
     ${detailsTable(rows)}
-    <p style="font-size:13px;color:${COLOR.textMuted};margin:16px 0;">${CANCELLATION_POLICY_PLACEHOLDER}</p>
+    <p style="font-size:13px;color:${COLOR.textMuted};margin:16px 0;">${CANCELLATION_POLICY}</p>
     ${ctaButton(`${siteUrl}/book/manage/${booking.id}`, 'Manage Your Booking')}
     <p style="margin:24px 0 0;">See you at your new time.<br/>MIRILUXE Studios</p>
   `;
@@ -454,7 +481,7 @@ export function cancellationConfirmationEmail(booking: DbBooking, service: DbSer
     <p style="margin:0 0 8px;">This confirms your MIRILUXE Studios appointment has been cancelled.</p>
     ${detailsTable(rows)}
     ${noteBox(
-      'As this cancellation was made outside our 48-hour window, your deposit refund is being processed automatically and should appear back on your original payment method within 5&ndash;10 business days.'
+      'As per our booking policy, deposits are non-refundable. If you believe this cancellation is an exception, please reply to this email and we will be happy to help.'
     )}
     <p style="margin:24px 0 0;">We hope to welcome you back soon.<br/>MIRILUXE Studios</p>
   `;

@@ -431,11 +431,11 @@ export default function ProductsManager({
 
   return (
     <div className="space-y-8">
-      {error && <p className="rounded bg-red-500/10 px-3 py-2 text-sm text-red-300">{error}</p>}
+      {error && <p className="rounded bg-red-500/10 px-3 py-2 text-sm text-red-600">{error}</p>}
 
-      <form onSubmit={createBundle} className="flex items-end gap-3 rounded-xl border border-cream/10 p-4">
+      <form onSubmit={createBundle} className="flex items-end gap-3 rounded-xl border border-charcoal/10 p-4">
         <div className="flex-1">
-          <label className="mb-1 block text-xs text-cream/50" htmlFor="new-bundle-name">
+          <label className="mb-1 block text-xs text-charcoal/50" htmlFor="new-bundle-name">
             New product name
           </label>
           <input
@@ -443,7 +443,7 @@ export default function ProductsManager({
             value={newBundleName}
             onChange={(e) => setNewBundleName(e.target.value)}
             placeholder="e.g. Curly Bulk Bundle"
-            className="w-full rounded border border-cream/20 bg-transparent px-3 py-2 text-sm"
+            className="w-full rounded border border-charcoal/20 bg-transparent px-3 py-2 text-sm"
           />
         </div>
         <button
@@ -462,13 +462,13 @@ export default function ProductsManager({
           return (
             <div
               key={bundle.id}
-              className={`rounded-xl border p-4 ${bundle.active ? 'border-cream/10' : 'border-red-500/20 opacity-70'}`}
+              className={`rounded-xl border p-4 ${bundle.active ? 'border-charcoal/10' : 'border-red-500/20 opacity-70'}`}
             >
               <div className="mb-4 flex flex-wrap items-center gap-3">
                 <input
                   value={bundleNameEdits[bundle.id] ?? ''}
                   onChange={(e) => setBundleNameEdits((prev) => ({ ...prev, [bundle.id]: e.target.value }))}
-                  className="rounded border border-cream/20 bg-transparent px-3 py-1.5 text-sm font-medium"
+                  className="rounded border border-charcoal/20 bg-transparent px-3 py-1.5 text-sm font-medium"
                 />
                 <button
                   onClick={() => saveBundleName(bundle.id)}
@@ -493,66 +493,66 @@ export default function ProductsManager({
                   const vd = variantEdits[v.id];
                   if (!vd) return null;
                   return (
-                    <div key={v.id} className="rounded-lg border border-cream/10 bg-cream/[0.02] p-3">
+                    <div key={v.id} className="rounded-lg border border-charcoal/10 bg-charcoal/[0.02] p-3">
                       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                        <label className="flex flex-col gap-1 text-[10px] uppercase tracking-wide text-cream/40">
+                        <label className="flex flex-col gap-1 text-[10px] uppercase tracking-wide text-charcoal/40">
                           Length (in)
                           <input
                             type="number"
                             value={vd.inches}
                             onChange={(e) => updateVariantDraft(v.id, { inches: e.target.value })}
-                            className="rounded-lg border border-cream/20 bg-transparent px-2 py-1.5 text-sm normal-case text-cream"
+                            className="rounded-lg border border-charcoal/20 bg-transparent px-2 py-1.5 text-sm normal-case text-charcoal"
                           />
                         </label>
-                        <label className="flex flex-col gap-1 text-[10px] uppercase tracking-wide text-cream/40">
+                        <label className="flex flex-col gap-1 text-[10px] uppercase tracking-wide text-charcoal/40">
                           Colour
                           <input
                             value={vd.colour}
                             onChange={(e) => updateVariantDraft(v.id, { colour: e.target.value })}
-                            className="rounded-lg border border-cream/20 bg-transparent px-2 py-1.5 text-sm normal-case text-cream"
+                            className="rounded-lg border border-charcoal/20 bg-transparent px-2 py-1.5 text-sm normal-case text-charcoal"
                           />
                         </label>
-                        <label className="flex flex-col gap-1 text-[10px] uppercase tracking-wide text-cream/40">
+                        <label className="flex flex-col gap-1 text-[10px] uppercase tracking-wide text-charcoal/40">
                           Price £
                           <input
                             type="number"
                             step="0.01"
                             value={vd.price_pounds}
                             onChange={(e) => updateVariantDraft(v.id, { price_pounds: e.target.value })}
-                            className="rounded-lg border border-cream/20 bg-transparent px-2 py-1.5 text-sm normal-case text-cream"
+                            className="rounded-lg border border-charcoal/20 bg-transparent px-2 py-1.5 text-sm normal-case text-charcoal"
                           />
                         </label>
-                        <label className="flex flex-col gap-1 text-[10px] uppercase tracking-wide text-cream/40">
+                        <label className="flex flex-col gap-1 text-[10px] uppercase tracking-wide text-charcoal/40">
                           Stock qty
                           <input
                             type="number"
                             value={vd.stock_quantity}
                             onChange={(e) => updateVariantDraft(v.id, { stock_quantity: e.target.value })}
-                            className="rounded-lg border border-cream/20 bg-transparent px-2 py-1.5 text-sm normal-case text-cream"
+                            className="rounded-lg border border-charcoal/20 bg-transparent px-2 py-1.5 text-sm normal-case text-charcoal"
                           />
                         </label>
                       </div>
                       <div className="mt-2 grid gap-2 sm:grid-cols-2">
-                        <label className="flex flex-col gap-1 text-[10px] uppercase tracking-wide text-cream/40">
+                        <label className="flex flex-col gap-1 text-[10px] uppercase tracking-wide text-charcoal/40">
                           Image URL
                           <input
                             value={vd.image_url}
                             placeholder="https://…"
                             onChange={(e) => updateVariantDraft(v.id, { image_url: e.target.value })}
-                            className="rounded-lg border border-cream/20 bg-transparent px-2 py-1.5 text-sm normal-case text-cream"
+                            className="rounded-lg border border-charcoal/20 bg-transparent px-2 py-1.5 text-sm normal-case text-charcoal"
                           />
                         </label>
-                        <label className="flex flex-col gap-1 text-[10px] uppercase tracking-wide text-cream/40">
+                        <label className="flex flex-col gap-1 text-[10px] uppercase tracking-wide text-charcoal/40">
                           Description
                           <input
                             value={vd.description}
                             onChange={(e) => updateVariantDraft(v.id, { description: e.target.value })}
-                            className="rounded-lg border border-cream/20 bg-transparent px-2 py-1.5 text-sm normal-case text-cream"
+                            className="rounded-lg border border-charcoal/20 bg-transparent px-2 py-1.5 text-sm normal-case text-charcoal"
                           />
                         </label>
                       </div>
                       <div className="mt-2 flex flex-wrap items-center gap-3">
-                        <label className="flex items-center gap-1.5 text-xs text-cream/60">
+                        <label className="flex items-center gap-1.5 text-xs text-charcoal/60">
                           <input
                             type="checkbox"
                             checked={v.in_stock}
@@ -573,20 +573,20 @@ export default function ProductsManager({
                   );
                 })}
 
-                <div className="rounded-lg border border-dashed border-cream/15 p-3">
+                <div className="rounded-lg border border-dashed border-charcoal/15 p-3">
                   <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                     <input
                       type="number"
                       placeholder="Length (in)"
                       value={draft.inches}
                       onChange={(e) => setNewVariantDrafts((prev) => ({ ...prev, [bundle.id]: { ...draft, inches: e.target.value } }))}
-                      className="rounded-lg border border-cream/20 bg-transparent px-2 py-1.5 text-sm"
+                      className="rounded-lg border border-charcoal/20 bg-transparent px-2 py-1.5 text-sm"
                     />
                     <input
                       placeholder="Colour"
                       value={draft.colour}
                       onChange={(e) => setNewVariantDrafts((prev) => ({ ...prev, [bundle.id]: { ...draft, colour: e.target.value } }))}
-                      className="rounded-lg border border-cream/20 bg-transparent px-2 py-1.5 text-sm"
+                      className="rounded-lg border border-charcoal/20 bg-transparent px-2 py-1.5 text-sm"
                     />
                     <input
                       type="number"
@@ -594,14 +594,14 @@ export default function ProductsManager({
                       placeholder="Price £"
                       value={draft.price_pounds}
                       onChange={(e) => setNewVariantDrafts((prev) => ({ ...prev, [bundle.id]: { ...draft, price_pounds: e.target.value } }))}
-                      className="rounded-lg border border-cream/20 bg-transparent px-2 py-1.5 text-sm"
+                      className="rounded-lg border border-charcoal/20 bg-transparent px-2 py-1.5 text-sm"
                     />
                     <input
                       type="number"
                       placeholder="Stock qty"
                       value={draft.stock_quantity}
                       onChange={(e) => setNewVariantDrafts((prev) => ({ ...prev, [bundle.id]: { ...draft, stock_quantity: e.target.value } }))}
-                      className="rounded-lg border border-cream/20 bg-transparent px-2 py-1.5 text-sm"
+                      className="rounded-lg border border-charcoal/20 bg-transparent px-2 py-1.5 text-sm"
                     />
                   </div>
                   <div className="mt-2 grid gap-2 sm:grid-cols-2">
@@ -609,13 +609,13 @@ export default function ProductsManager({
                       placeholder="Image URL"
                       value={draft.image_url}
                       onChange={(e) => setNewVariantDrafts((prev) => ({ ...prev, [bundle.id]: { ...draft, image_url: e.target.value } }))}
-                      className="rounded-lg border border-cream/20 bg-transparent px-2 py-1.5 text-sm"
+                      className="rounded-lg border border-charcoal/20 bg-transparent px-2 py-1.5 text-sm"
                     />
                     <input
                       placeholder="Description"
                       value={draft.description}
                       onChange={(e) => setNewVariantDrafts((prev) => ({ ...prev, [bundle.id]: { ...draft, description: e.target.value } }))}
-                      className="rounded-lg border border-cream/20 bg-transparent px-2 py-1.5 text-sm"
+                      className="rounded-lg border border-charcoal/20 bg-transparent px-2 py-1.5 text-sm"
                     />
                   </div>
                   <button
@@ -628,10 +628,10 @@ export default function ProductsManager({
                 </div>
               </div>
 
-              <div className="mt-4 space-y-3 border-t border-cream/10 pt-4">
-                <h3 className="text-[0.7rem] font-medium uppercase tracking-wide text-cream/50">Photos &amp; videos</h3>
+              <div className="mt-4 space-y-3 border-t border-charcoal/10 pt-4">
+                <h3 className="text-[0.7rem] font-medium uppercase tracking-wide text-charcoal/50">Photos &amp; videos</h3>
                 {bundleVariants.length === 0 ? (
-                  <p className="text-[0.7rem] text-cream/40">Add a variant above before uploading media.</p>
+                  <p className="text-[0.7rem] text-charcoal/40">Add a variant above before uploading media.</p>
                 ) : (
                   bundleVariants.map((v) => (
                     <VariantMediaManager
@@ -684,12 +684,12 @@ function VariantMediaManager({
   const uploadStage = busy && STAGE_LABEL[busy] ? busy : null;
 
   return (
-    <div className="rounded-lg border border-cream/10 p-3">
+    <div className="rounded-lg border border-charcoal/10 p-3">
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
         <span className="text-xs font-medium">
           {variant.inches}&quot; · {variant.colour}
         </span>
-        <label className={`text-xs ${uploadStage ? 'cursor-not-allowed text-cream/40' : 'cursor-pointer text-gold hover:underline'}`}>
+        <label className={`text-xs ${uploadStage ? 'cursor-not-allowed text-charcoal/40' : 'cursor-pointer text-gold hover:underline'}`}>
           {uploadStage ? STAGE_LABEL[uploadStage] : '+ Add photo/video'}
           <input
             type="file"
@@ -705,14 +705,14 @@ function VariantMediaManager({
         </label>
       </div>
 
-      {error && <p className="mb-2 text-[0.7rem] text-red-300">{error}</p>}
+      {error && <p className="mb-2 text-[0.7rem] text-red-600">{error}</p>}
 
       {media.length === 0 ? (
-        <p className="text-[0.7rem] text-cream/40">No media yet — the storefront falls back to the Image URL field above.</p>
+        <p className="text-[0.7rem] text-charcoal/40">No media yet — the storefront falls back to the Image URL field above.</p>
       ) : (
         <div className="flex flex-wrap gap-3">
           {media.map((m, index) => (
-            <div key={m.id} className="w-24 rounded border border-cream/10 p-2 text-center">
+            <div key={m.id} className="w-24 rounded border border-charcoal/10 p-2 text-center">
               <div className="relative mx-auto mb-1 h-16 w-16 overflow-hidden rounded bg-charcoal/40">
                 {/* Plain <img>, not next/image — these are Supabase Storage
                     URLs and next.config.mjs has no remotePatterns entry for
@@ -724,7 +724,7 @@ function VariantMediaManager({
                   className="h-full w-full object-cover"
                 />
                 {m.media_type === 'video' && (
-                  <span className="absolute bottom-0.5 right-0.5 rounded bg-charcoal/80 px-1 text-[0.55rem] uppercase text-cream">
+                  <span className="absolute bottom-0.5 right-0.5 rounded bg-charcoal/80 px-1 text-[0.55rem] uppercase text-white">
                     Video
                   </span>
                 )}
@@ -733,7 +733,7 @@ function VariantMediaManager({
                 <button
                   onClick={() => onMove(index, -1)}
                   disabled={index === 0 || busy === 'reorder'}
-                  className="text-cream/50 hover:text-gold disabled:opacity-30"
+                  className="text-charcoal/50 hover:text-gold disabled:opacity-30"
                   aria-label="Move earlier"
                 >
                   ↑
@@ -741,7 +741,7 @@ function VariantMediaManager({
                 <button
                   onClick={() => onMove(index, 1)}
                   disabled={index === media.length - 1 || busy === 'reorder'}
-                  className="text-cream/50 hover:text-gold disabled:opacity-30"
+                  className="text-charcoal/50 hover:text-gold disabled:opacity-30"
                   aria-label="Move later"
                 >
                   ↓
@@ -749,7 +749,7 @@ function VariantMediaManager({
                 <button
                   onClick={() => onDelete(m.id)}
                   disabled={busy === `deleting-${m.id}`}
-                  className="rounded-full bg-red-500/15 px-1.5 text-red-300 transition-colors hover:bg-red-500/25 disabled:opacity-30"
+                  className="rounded-full bg-red-500/15 px-1.5 text-red-600 transition-colors hover:bg-red-500/25 disabled:opacity-30"
                 >
                   {busy === `deleting-${m.id}` ? '…' : 'Del'}
                 </button>

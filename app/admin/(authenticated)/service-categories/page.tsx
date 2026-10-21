@@ -13,7 +13,7 @@ export default async function AdminServiceCategoriesPage() {
   return (
     <div>
       <h1 className="mb-2 font-serif text-2xl font-light">Service Categories</h1>
-      <p className="mb-6 text-sm text-cream/60">
+      <p className="mb-6 text-sm text-charcoal/60">
         Create, rename, reorder and switch service categories on/off. Categories group services shown on the booking
         page and in the Services admin below.
       </p>

@@ -44,18 +44,18 @@ export type CustomerOrderRow = {
 type SortKey = 'activity' | 'name' | 'spend' | 'visits';
 
 const BOOKING_STATUS_STYLE: Record<BookingStatus, string> = {
-  confirmed: 'bg-emerald-500/15 text-emerald-300',
-  completed: 'bg-emerald-500/15 text-emerald-300',
+  confirmed: 'bg-emerald-500/15 text-emerald-700',
+  completed: 'bg-emerald-500/15 text-emerald-700',
   pending_payment: 'bg-gold/15 text-gold',
-  cancelled: 'bg-red-500/15 text-red-300',
-  expired: 'bg-cream/10 text-cream/50',
-  no_show: 'bg-red-500/15 text-red-300',
+  cancelled: 'bg-red-500/15 text-red-600',
+  expired: 'bg-charcoal/10 text-charcoal/50',
+  no_show: 'bg-red-500/15 text-red-600',
 };
 
 const ORDER_STATUS_STYLE: Record<ShopOrderPaymentStatus, string> = {
-  paid: 'bg-emerald-500/15 text-emerald-300',
+  paid: 'bg-emerald-500/15 text-emerald-700',
   pending_payment: 'bg-gold/15 text-gold',
-  cancelled: 'bg-red-500/15 text-red-300',
+  cancelled: 'bg-red-500/15 text-red-600',
 };
 
 function formatDate(iso: string) {
@@ -130,7 +130,7 @@ export default function CustomerDirectory({
   }, [customers, query, sortKey]);
 
   if (customers.length === 0) {
-    return <p className="text-sm text-cream/60">No customers yet.</p>;
+    return <p className="text-sm text-charcoal/60">No customers yet.</p>;
   }
 
   return (
@@ -141,9 +141,9 @@ export default function CustomerDirectory({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search by name, email, or phone…"
-          className="w-72 max-w-full rounded border border-cream/20 bg-transparent px-3 py-2 text-sm placeholder:text-cream/40 focus:border-gold focus:outline-none"
+          className="w-72 max-w-full rounded border border-charcoal/20 bg-transparent px-3 py-2 text-sm placeholder:text-charcoal/40 focus:border-gold focus:outline-none"
         />
-        <div className="flex items-center gap-2 text-xs text-cream/50">
+        <div className="flex items-center gap-2 text-xs text-charcoal/50">
           <span>Sort:</span>
           {(
             [
@@ -157,14 +157,14 @@ export default function CustomerDirectory({
               key={key}
               onClick={() => setSortKey(key)}
               className={`rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
-                sortKey === key ? 'bg-gold/15 text-gold' : 'bg-cream/10 text-cream/70 hover:bg-cream/20'
+                sortKey === key ? 'bg-gold/15 text-gold' : 'bg-charcoal/10 text-charcoal/70 hover:bg-charcoal/20'
               }`}
             >
               {label}
             </button>
           ))}
         </div>
-        <span className="text-xs text-cream/40">
+        <span className="text-xs text-charcoal/40">
           {filtered.length} customer{filtered.length === 1 ? '' : 's'}
         </span>
       </div>
@@ -175,47 +175,47 @@ export default function CustomerDirectory({
           const customerBookings = bookingsByEmail.get(customer.email) ?? [];
           const customerOrders = ordersByEmail.get(customer.email) ?? [];
           return (
-            <div key={customer.email} className="rounded-xl border border-cream/10 bg-cream/[0.02]">
+            <div key={customer.email} className="rounded-xl border border-charcoal/10 bg-charcoal/[0.02]">
               <button
                 onClick={() => setExpanded(isOpen ? null : customer.email)}
                 className="flex w-full flex-wrap items-center justify-between gap-3 px-4 py-3 text-left"
               >
                 <div>
                   <div className="text-sm font-medium">{customer.name}</div>
-                  <div className="text-xs text-cream/50">
+                  <div className="text-xs text-charcoal/50">
                     {customer.email}
                     {customer.phone ? ` · ${customer.phone}` : ''}
                   </div>
                   {customer.nameVariants.length > 1 && (
-                    <div className="mt-0.5 text-xs text-cream/30">
+                    <div className="mt-0.5 text-xs text-charcoal/30">
                       Also seen as: {customer.nameVariants.filter((n) => n !== customer.name).join(', ')}
                     </div>
                   )}
                 </div>
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-cream/60">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-charcoal/60">
                   <span>{customer.bookingsCount} bookings</span>
                   <span>{customer.ordersCount} orders</span>
-                  <span className="font-medium text-cream">{formatPence(customer.lifetimeSpendPence)}</span>
+                  <span className="font-medium text-charcoal">{formatPence(customer.lifetimeSpendPence)}</span>
                   <span className="whitespace-nowrap">{formatDate(customer.lastActivityAt)}</span>
                 </div>
               </button>
               {isOpen && (
-                <div className="border-t border-cream/5 bg-cream/[0.02] px-4 py-4">
+                <div className="border-t border-charcoal/5 bg-charcoal/[0.02] px-4 py-4">
                   <div className="grid gap-6 md:grid-cols-2">
                     <div>
-                      <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-cream/50">Booking history</h3>
+                      <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-charcoal/50">Booking history</h3>
                       {customerBookings.length === 0 ? (
-                        <p className="text-xs text-cream/40">No bookings.</p>
+                        <p className="text-xs text-charcoal/40">No bookings.</p>
                       ) : (
                         <ul className="space-y-2">
                           {customerBookings.map((b) => (
                             <li key={b.id} className="flex flex-wrap items-center justify-between gap-2 text-xs">
-                              <span className="text-cream/70">
+                              <span className="text-charcoal/70">
                                 {formatDate(b.appointmentStart)} · {b.serviceName}
                               </span>
                               <span className="flex items-center gap-2">
                                 <span className={`rounded-full px-2 py-0.5 ${BOOKING_STATUS_STYLE[b.status]}`}>{b.status}</span>
-                                <span className="text-cream/50">{formatPence(b.amountPence)}</span>
+                                <span className="text-charcoal/50">{formatPence(b.amountPence)}</span>
                               </span>
                             </li>
                           ))}
@@ -223,21 +223,21 @@ export default function CustomerDirectory({
                       )}
                     </div>
                     <div>
-                      <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-cream/50">Order history</h3>
+                      <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-charcoal/50">Order history</h3>
                       {customerOrders.length === 0 ? (
-                        <p className="text-xs text-cream/40">No shop orders.</p>
+                        <p className="text-xs text-charcoal/40">No shop orders.</p>
                       ) : (
                         <ul className="space-y-2">
                           {customerOrders.map((o) => (
                             <li key={o.id} className="text-xs">
                               <div className="flex flex-wrap items-center justify-between gap-2">
-                                <span className="text-cream/70">{formatDate(o.createdAt)}</span>
+                                <span className="text-charcoal/70">{formatDate(o.createdAt)}</span>
                                 <span className="flex items-center gap-2">
                                   <span className={`rounded-full px-2 py-0.5 ${ORDER_STATUS_STYLE[o.status]}`}>{o.status}</span>
-                                  <span className="text-cream/50">{formatPence(o.subtotalPence)}</span>
+                                  <span className="text-charcoal/50">{formatPence(o.subtotalPence)}</span>
                                 </span>
                               </div>
-                              <div className="mt-0.5 text-cream/40">
+                              <div className="mt-0.5 text-charcoal/40">
                                 {o.items.map((item) => `${item.name} ×${item.quantity}`).join(', ')}
                               </div>
                             </li>

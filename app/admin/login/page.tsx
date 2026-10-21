@@ -31,12 +31,12 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-charcoal px-6 text-cream">
-      <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4 rounded-2xl border border-cream/10 p-8">
+    <div className="flex min-h-screen items-center justify-center bg-cream-soft px-6 text-charcoal">
+      <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4 rounded-2xl border border-charcoal/10 bg-white p-8 shadow-sm">
         <h1 className="font-serif text-2xl font-light">MIRILUXE Admin</h1>
-        {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-300">{error}</p>}
+        {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-600">{error}</p>}
         <div>
-          <label className="mb-1 block text-xs uppercase tracking-luxe text-cream/60" htmlFor="email">
+          <label className="mb-1 block text-xs uppercase tracking-luxe text-charcoal/60" htmlFor="email">
             Email
           </label>
           <input
@@ -45,11 +45,11 @@ export default function AdminLoginPage() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-lg border border-cream/20 bg-transparent px-3 py-2 text-sm outline-none focus:border-gold"
+            className="w-full rounded-lg border border-charcoal/20 bg-transparent px-3 py-2 text-sm outline-none focus:border-gold"
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs uppercase tracking-luxe text-cream/60" htmlFor="password">
+          <label className="mb-1 block text-xs uppercase tracking-luxe text-charcoal/60" htmlFor="password">
             Password
           </label>
           <input
@@ -58,7 +58,7 @@ export default function AdminLoginPage() {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-lg border border-cream/20 bg-transparent px-3 py-2 text-sm outline-none focus:border-gold"
+            className="w-full rounded-lg border border-charcoal/20 bg-transparent px-3 py-2 text-sm outline-none focus:border-gold"
           />
         </div>
         <button

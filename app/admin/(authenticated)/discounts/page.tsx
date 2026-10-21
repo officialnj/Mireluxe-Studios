@@ -14,7 +14,7 @@ export default async function AdminDiscountsPage() {
   return (
     <div>
       <h1 className="mb-2 font-serif text-2xl font-light">Discount Codes</h1>
-      <p className="mb-6 text-sm text-cream/60">
+      <p className="mb-6 text-sm text-charcoal/60">
         Create and manage shop discount codes. Codes are matched case-insensitively at checkout. There is no
         delete — an unwanted code is switched off instead.
       </p>

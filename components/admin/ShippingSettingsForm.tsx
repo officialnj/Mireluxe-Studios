@@ -51,9 +51,9 @@ export default function ShippingSettingsForm({ initialSettings }: { initialSetti
 
   return (
     <div className="max-w-sm space-y-4">
-      {error && <p className="rounded bg-red-500/10 px-3 py-2 text-sm text-red-300">{error}</p>}
+      {error && <p className="rounded bg-red-500/10 px-3 py-2 text-sm text-red-600">{error}</p>}
       <div>
-        <label className="mb-1 block text-xs text-cream/50" htmlFor="flat-rate">
+        <label className="mb-1 block text-xs text-charcoal/50" htmlFor="flat-rate">
           Flat shipping rate (£)
         </label>
         <input
@@ -63,11 +63,11 @@ export default function ShippingSettingsForm({ initialSettings }: { initialSetti
           step="0.01"
           value={flatRate}
           onChange={(e) => setFlatRate(e.target.value)}
-          className="w-28 rounded border border-cream/20 bg-transparent px-3 py-2 text-sm"
+          className="w-28 rounded border border-charcoal/20 bg-transparent px-3 py-2 text-sm"
         />
       </div>
       <div>
-        <label className="flex items-center gap-2 text-xs text-cream/50">
+        <label className="flex items-center gap-2 text-xs text-charcoal/50">
           <input
             type="checkbox"
             checked={freeShippingEnabled}
@@ -75,10 +75,10 @@ export default function ShippingSettingsForm({ initialSettings }: { initialSetti
           />
           Offer free shipping above a spend threshold
         </label>
-        <p className="mt-1 text-[11px] text-cream/30">Leave unchecked for no free-shipping offer.</p>
+        <p className="mt-1 text-[11px] text-charcoal/30">Leave unchecked for no free-shipping offer.</p>
         {freeShippingEnabled && (
           <div className="mt-2">
-            <label className="mb-1 block text-xs text-cream/50" htmlFor="free-shipping-threshold">
+            <label className="mb-1 block text-xs text-charcoal/50" htmlFor="free-shipping-threshold">
               Free shipping threshold (£)
             </label>
             <input
@@ -88,7 +88,7 @@ export default function ShippingSettingsForm({ initialSettings }: { initialSetti
               step="0.01"
               value={threshold}
               onChange={(e) => setThreshold(e.target.value)}
-              className="w-28 rounded border border-cream/20 bg-transparent px-3 py-2 text-sm"
+              className="w-28 rounded border border-charcoal/20 bg-transparent px-3 py-2 text-sm"
             />
           </div>
         )}

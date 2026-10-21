@@ -20,7 +20,7 @@ export default async function AdminBookingsPage() {
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="font-serif text-2xl font-light">Bookings</h1>
+        <h1 className="font-serif text-2xl font-light">Calendar</h1>
         {/* Sits above the list/calendar tab switcher (owned by
             BookingsViewTabs, out of scope here) so it's reachable from
             either view rather than needing to be duplicated per-view. */}

@@ -29,14 +29,14 @@ export default function BundleStockTable({ initialVariants }: { initialVariants:
   return (
     <div className="space-y-6">
       {[...byInches.entries()].map(([inches, group]) => (
-        <div key={inches} className="rounded-xl border border-cream/10 p-4">
+        <div key={inches} className="rounded-xl border border-charcoal/10 p-4">
           <h2 className="mb-3 text-sm font-medium">{inches}&quot;</h2>
           <div className="flex flex-wrap gap-3">
             {group.map((v) => (
               <label
                 key={v.id}
                 className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm ${
-                  v.in_stock ? 'border-cream/20' : 'border-red-500/30 text-red-300'
+                  v.in_stock ? 'border-charcoal/20' : 'border-red-500/30 text-red-600'
                 }`}
               >
                 <input

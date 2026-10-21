@@ -1,16 +1,20 @@
 'use client';
 
-import { useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import Reveal from '@/components/Reveal';
 import SectionHeader from '@/components/ui/SectionHeader';
 import { ButtonLink } from '@/components/ui/Button';
 import { formatPence } from '@/lib/booking/pricing';
+import { createBrowserSupabaseClient } from '@/lib/supabase/browser';
 import type { DbService } from '@/lib/booking/types';
+
+const MEDIA_BUCKET = 'product-media';
 
 // Visual clone of components/sections/ServicesCarousel.tsx (round arrow
 // buttons, snap-scroll track, w-[85vw]/sm:w-[380px] cards, gold-filled
-// solid button) per the rebuild brief — cards here are text-only (no images
-// yet) with a dark background and a subtle gold border instead of a photo.
+// solid button). Deals with an uploaded image_path show a full-bleed photo
+// banner at the top of the card; deals without one keep the text-only card
+// with a dark background and a subtle gold border instead of a photo.
 function Arrow({ dir }: { dir: 'left' | 'right' }) {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -21,8 +25,12 @@ function Arrow({ dir }: { dir: 'left' | 'right' }) {
 
 export default function DealsSection({ deals }: { deals: DbService[] }) {
   const trackRef = useRef<HTMLDivElement>(null);
+  const supabase = useMemo(() => createBrowserSupabaseClient(), []);
 
   if (deals.length === 0) return null;
+
+  const imageUrl = (path: string | null) =>
+    path ? supabase.storage.from(MEDIA_BUCKET).getPublicUrl(path).data.publicUrl : null;
 
   const scrollBy = (dir: number) => {
     const el = trackRef.current;
@@ -65,9 +73,18 @@ export default function DealsSection({ deals }: { deals: DbService[] }) {
               ? `50% deposit — ${formatPence(Math.round(price * 0.5))} due today`
               : '£20 flat deposit due today';
 
+            const src = imageUrl(deal.image_path);
+
             return (
               <Reveal key={deal.id} delay={i * 0.08} className="w-[85vw] shrink-0 snap-start sm:w-[380px]">
-                <div className="flex h-full flex-col rounded-2xl border border-gold/25 bg-charcoal-soft p-6 text-cream shadow-[0_24px_60px_-30px_rgba(0,0,0,0.6)] transition-all duration-500 ease-luxe hover:-translate-y-1 hover:border-gold/50">
+                <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-gold/25 bg-charcoal-soft text-cream shadow-[0_24px_60px_-30px_rgba(0,0,0,0.6)] transition-all duration-500 ease-luxe hover:-translate-y-1 hover:border-gold/50">
+                  {src && (
+                    <div className="relative aspect-[4/3] w-full overflow-hidden">
+                      {/* eslint-disable-next-line @next/next/no-img-element -- Storage host isn't in next.config remotePatterns */}
+                      <img src={src} alt={deal.name} loading="lazy" className="h-full w-full object-cover" />
+                    </div>
+                  )}
+                  <div className="flex flex-1 flex-col p-6">
                   <span className="inline-block w-fit rounded-full border border-gold/40 px-3 py-1 text-[0.6rem] font-medium uppercase tracking-luxe text-gold">
                     {hairIncluded ? 'Hair Included' : 'No Hair Included'}
                   </span>
@@ -90,6 +107,7 @@ export default function DealsSection({ deals }: { deals: DbService[] }) {
                   <ButtonLink href={`/book?service=${deal.slug}`} variant="solid" size="sm" className="mt-6 w-full">
                     Book Now
                   </ButtonLink>
+                  </div>
                 </div>
               </Reveal>
             );

@@ -57,11 +57,11 @@ export default function BlockedDatesForm({ initialBlockedDates }: { initialBlock
 
   return (
     <div className="max-w-xl space-y-8">
-      <form onSubmit={handleAdd} className="space-y-4 rounded-xl border border-cream/10 p-6">
-        <h2 className="text-sm font-medium uppercase tracking-wide text-cream/60">Block a date</h2>
-        {error && <p className="rounded bg-red-500/10 px-3 py-2 text-sm text-red-300">{error}</p>}
+      <form onSubmit={handleAdd} className="space-y-4 rounded-xl border border-charcoal/10 p-6">
+        <h2 className="text-sm font-medium uppercase tracking-wide text-charcoal/60">Block a date</h2>
+        {error && <p className="rounded bg-red-500/10 px-3 py-2 text-sm text-red-600">{error}</p>}
         <div>
-          <label className="mb-1 block text-xs text-cream/50" htmlFor="blocked-date">
+          <label className="mb-1 block text-xs text-charcoal/50" htmlFor="blocked-date">
             Date
           </label>
           <input
@@ -70,7 +70,7 @@ export default function BlockedDatesForm({ initialBlockedDates }: { initialBlock
             required
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="w-full rounded border border-cream/20 bg-transparent px-3 py-2 text-sm"
+            className="w-full rounded border border-charcoal/20 bg-transparent px-3 py-2 text-sm"
           />
         </div>
         <label className="flex items-center gap-2 text-sm">
@@ -80,7 +80,7 @@ export default function BlockedDatesForm({ initialBlockedDates }: { initialBlock
         {!wholeDay && (
           <div className="flex gap-4">
             <div>
-              <label className="mb-1 block text-xs text-cream/50" htmlFor="start-time">
+              <label className="mb-1 block text-xs text-charcoal/50" htmlFor="start-time">
                 From
               </label>
               <input
@@ -88,11 +88,11 @@ export default function BlockedDatesForm({ initialBlockedDates }: { initialBlock
                 type="time"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
-                className="rounded border border-cream/20 bg-transparent px-3 py-2 text-sm"
+                className="rounded border border-charcoal/20 bg-transparent px-3 py-2 text-sm"
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs text-cream/50" htmlFor="end-time">
+              <label className="mb-1 block text-xs text-charcoal/50" htmlFor="end-time">
                 To
               </label>
               <input
@@ -100,20 +100,20 @@ export default function BlockedDatesForm({ initialBlockedDates }: { initialBlock
                 type="time"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
-                className="rounded border border-cream/20 bg-transparent px-3 py-2 text-sm"
+                className="rounded border border-charcoal/20 bg-transparent px-3 py-2 text-sm"
               />
             </div>
           </div>
         )}
         <div>
-          <label className="mb-1 block text-xs text-cream/50" htmlFor="reason">
+          <label className="mb-1 block text-xs text-charcoal/50" htmlFor="reason">
             Reason (optional)
           </label>
           <input
             id="reason"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            className="w-full rounded border border-cream/20 bg-transparent px-3 py-2 text-sm"
+            className="w-full rounded border border-charcoal/20 bg-transparent px-3 py-2 text-sm"
           />
         </div>
         <button
@@ -126,15 +126,15 @@ export default function BlockedDatesForm({ initialBlockedDates }: { initialBlock
       </form>
 
       <div>
-        <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-cream/60">Current blocks</h2>
+        <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-charcoal/60">Current blocks</h2>
         {initialBlockedDates.length === 0 ? (
-          <p className="text-sm text-cream/50">No blocked dates.</p>
+          <p className="text-sm text-charcoal/50">No blocked dates.</p>
         ) : (
           <ul className="space-y-2">
             {initialBlockedDates.map((b) => (
               <li
                 key={b.id}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-cream/10 px-4 py-2 text-sm"
+                className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-charcoal/10 px-4 py-2 text-sm"
               >
                 <span>
                   {b.blocked_date}
@@ -143,7 +143,7 @@ export default function BlockedDatesForm({ initialBlockedDates }: { initialBlock
                 </span>
                 <button
                   onClick={() => handleRemove(b.id)}
-                  className="inline-flex items-center rounded-full bg-red-500/15 px-2.5 py-1 text-xs font-medium text-red-300 transition-colors hover:bg-red-500/25"
+                  className="inline-flex items-center rounded-full bg-red-500/15 px-2.5 py-1 text-xs font-medium text-red-600 transition-colors hover:bg-red-500/25"
                 >
                   Remove
                 </button>

@@ -17,6 +17,7 @@ const bodySchema = z.object({
   morning_only: z.boolean().optional(),
   included_bundle_count: z.number().int().min(0).optional(),
   included_bundle_inches: z.number().int().min(0).nullable().optional(),
+  image_path: z.string().trim().min(1).nullable().optional(),
   // "on/off" — services.active already does the job, no new column needed.
   active: z.boolean().optional(),
 });

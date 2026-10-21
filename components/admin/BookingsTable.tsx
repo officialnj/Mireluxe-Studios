@@ -14,11 +14,11 @@ export type BookingRow = DbBooking & {
 };
 
 const STATUS_CHIP_CLASS: Record<string, string> = {
-  confirmed: 'bg-emerald-500/15 text-emerald-300',
+  confirmed: 'bg-emerald-500/15 text-emerald-700',
   completed: 'bg-sky-500/15 text-sky-300',
-  no_show: 'bg-red-500/15 text-red-300',
-  cancelled: 'bg-cream/10 text-cream/50',
-  expired: 'bg-cream/10 text-cream/50',
+  no_show: 'bg-red-500/15 text-red-600',
+  cancelled: 'bg-charcoal/10 text-charcoal/50',
+  expired: 'bg-charcoal/10 text-charcoal/50',
 };
 
 // Shared small-pill button look reused across every admin action button —
@@ -26,8 +26,8 @@ const STATUS_CHIP_CLASS: Record<string, string> = {
 // a distinct tappable control instead of running together in a dense row.
 const PILL = 'inline-flex items-center justify-center whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium transition-colors disabled:opacity-50';
 const PILL_GOLD = `${PILL} bg-gold/15 text-gold hover:bg-gold/25`;
-const PILL_NEUTRAL = `${PILL} bg-cream/10 text-cream/70 hover:bg-cream/20`;
-const PILL_RED = `${PILL} bg-red-500/15 text-red-300 hover:bg-red-500/25`;
+const PILL_NEUTRAL = `${PILL} bg-charcoal/10 text-charcoal/70 hover:bg-charcoal/20`;
+const PILL_RED = `${PILL} bg-red-500/15 text-red-600 hover:bg-red-500/25`;
 const PILL_SKY = `${PILL} bg-sky-500/15 text-sky-300 hover:bg-sky-500/25`;
 
 export default function BookingsTable({ initialBookings }: { initialBookings: BookingRow[] }) {
@@ -120,17 +120,17 @@ export default function BookingsTable({ initialBookings }: { initialBookings: Bo
   }
 
   if (initialBookings.length === 0) {
-    return <p className="text-sm text-cream/60">No upcoming bookings.</p>;
+    return <p className="text-sm text-charcoal/60">No upcoming bookings.</p>;
   }
 
   return (
     <div className="space-y-3">
-      {error && <p className="rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-2 text-sm text-red-300">{error}</p>}
+      {error && <p className="rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-2 text-sm text-red-600">{error}</p>}
       {initialBookings.map((booking) => {
         const isPast = new Date(booking.appointment_start) <= new Date();
         const canTransition = booking.status === 'confirmed' && isPast;
         return (
-          <div key={booking.id} className="rounded-xl border border-cream/10 bg-cream/[0.02] p-4">
+          <div key={booking.id} className="rounded-xl border border-charcoal/10 bg-charcoal/[0.02] p-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <div className="flex flex-wrap items-center gap-2">
@@ -138,7 +138,7 @@ export default function BookingsTable({ initialBookings }: { initialBookings: Bo
                     {formatInTimeZone(new Date(booking.appointment_start), STUDIO_TIMEZONE, 'd MMM yyyy, h:mmaaa')}
                   </span>
                   {booking.created_by_admin && (
-                    <span className="rounded bg-cream/10 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-cream/50">
+                    <span className="rounded bg-charcoal/10 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-charcoal/50">
                       manual
                     </span>
                   )}
@@ -147,33 +147,33 @@ export default function BookingsTable({ initialBookings }: { initialBookings: Bo
                   </span>
                 </div>
                 <div className="mt-1 text-sm">{booking.customer_name}</div>
-                <div className="text-xs text-cream/50">
+                <div className="text-xs text-charcoal/50">
                   {booking.customer_email} · {booking.customer_phone}
                 </div>
               </div>
               <div className="text-right text-sm">
-                <div className="text-cream/50">
+                <div className="text-charcoal/50">
                   {booking.services?.name ?? '—'}
                   {booking.hair_included ? ' (hair included)' : ''}
                 </div>
                 <div className="font-medium">{formatPence(booking.total_price_pence)}</div>
-                <div className="text-xs text-cream/40">
+                <div className="text-xs text-charcoal/40">
                   {formatPence(booking.deposit_paid_pence || booking.deposit_due_pence)} deposit
                 </div>
               </div>
             </div>
 
             {(booking.booking_addons.length > 0 || booking.booking_bundles.length > 0) && (
-              <div className="mt-3 border-t border-cream/5 pt-3 text-xs text-cream/60">
+              <div className="mt-3 border-t border-charcoal/5 pt-3 text-xs text-charcoal/60">
                 {booking.booking_addons.length > 0 && (
                   <div>
-                    <span className="text-cream/40">Extras: </span>
+                    <span className="text-charcoal/40">Extras: </span>
                     {booking.booking_addons.map((a) => a.name_at_booking).join(', ')}
                   </div>
                 )}
                 {booking.booking_bundles.length > 0 && (
                   <div className={booking.booking_addons.length > 0 ? 'mt-1' : ''}>
-                    <span className="text-cream/40">Bundles: </span>
+                    <span className="text-charcoal/40">Bundles: </span>
                     {booking.booking_bundles
                       .map((b) => `${b.quantity}× ${b.bundle_variants?.inches ?? '?'}" (${b.bundle_variants?.colour ?? '?'})`)
                       .join(', ')}
@@ -182,14 +182,14 @@ export default function BookingsTable({ initialBookings }: { initialBookings: Bo
               </div>
             )}
 
-            <div className="mt-3 border-t border-cream/5 pt-3">
+            <div className="mt-3 border-t border-charcoal/5 pt-3">
               {editingNotes === booking.id ? (
                 <div className="flex flex-col gap-2">
                   <textarea
                     value={notesDraft}
                     onChange={(e) => setNotesDraft(e.target.value)}
                     rows={2}
-                    className="w-full rounded-lg border border-cream/20 bg-transparent px-2 py-1.5 text-xs"
+                    className="w-full rounded-lg border border-charcoal/20 bg-transparent px-2 py-1.5 text-xs"
                   />
                   <div className="flex gap-2">
                     <button onClick={() => handleSaveNotes(booking.id)} disabled={busy === booking.id} className={PILL_GOLD}>
@@ -206,22 +206,22 @@ export default function BookingsTable({ initialBookings }: { initialBookings: Bo
                     setEditingNotes(booking.id);
                     setNotesDraft(booking.notes ?? '');
                   }}
-                  className="text-left text-xs text-cream/60 hover:text-gold"
+                  className="text-left text-xs text-charcoal/60 hover:text-gold"
                   title="Edit notes"
                 >
-                  {booking.notes ? booking.notes : <span className="italic text-cream/30">Add notes</span>}
+                  {booking.notes ? booking.notes : <span className="italic text-charcoal/30">Add notes</span>}
                 </button>
               )}
             </div>
 
-            <div className="mt-3 border-t border-cream/5 pt-3">
+            <div className="mt-3 border-t border-charcoal/5 pt-3">
               {rescheduling === booking.id ? (
                 <div className="flex flex-wrap items-center gap-2">
                   <input
                     type="datetime-local"
                     value={newStart}
                     onChange={(e) => setNewStart(e.target.value)}
-                    className="rounded-lg border border-cream/20 bg-transparent px-2 py-1.5 text-xs"
+                    className="rounded-lg border border-charcoal/20 bg-transparent px-2 py-1.5 text-xs"
                   />
                   <button onClick={() => handleReschedule(booking.id)} disabled={busy === booking.id} className={PILL_GOLD}>
                     Save

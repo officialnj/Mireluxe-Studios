@@ -11,9 +11,12 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const admin = await getAdminUser();
   if (!admin) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
 
+  // Deposits are strictly non-refundable per studio policy, so cancelling
+  // NEVER refunds by default. A refund only happens when an admin explicitly
+  // opts in with { refund: true } for an exceptional, studio-authorised case.
   const body = await request.json().catch(() => ({}));
   const parsed = bodySchema.safeParse(body);
-  const refund = parsed.success ? (parsed.data.refund ?? true) : true;
+  const refund = parsed.success ? (parsed.data.refund ?? false) : false;
 
   const supabase = createServiceRoleClient();
   const { data: booking, error } = await supabase.from('bookings').select('*').eq('id', params.id).single();

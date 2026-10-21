@@ -1,7 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import type { DbService } from '@/lib/booking/types';
+import { createBrowserSupabaseClient } from '@/lib/supabase/browser';
+
+const BUCKET = 'product-media';
 
 type DealDraft = {
   name: string;
@@ -14,6 +17,7 @@ type DealDraft = {
   morning_only: boolean;
   included_bundle_count: string;
   included_bundle_inches: string;
+  image_path: string | null;
 };
 
 const emptyDraft: DealDraft = {
@@ -27,6 +31,7 @@ const emptyDraft: DealDraft = {
   morning_only: false,
   included_bundle_count: '0',
   included_bundle_inches: '',
+  image_path: null,
 };
 
 function toDraft(s: DbService): DealDraft {
@@ -41,6 +46,7 @@ function toDraft(s: DbService): DealDraft {
     morning_only: s.morning_only,
     included_bundle_count: s.included_bundle_count.toString(),
     included_bundle_inches: s.included_bundle_inches != null ? s.included_bundle_inches.toString() : '',
+    image_path: s.image_path ?? null,
   };
 }
 
@@ -56,6 +62,7 @@ function draftToPayload(d: DealDraft) {
     morning_only: d.morning_only,
     included_bundle_count: d.included_bundle_count ? parseInt(d.included_bundle_count, 10) : 0,
     included_bundle_inches: d.included_bundle_inches ? parseInt(d.included_bundle_inches, 10) : null,
+    image_path: d.image_path,
   };
 }
 
@@ -156,7 +163,7 @@ export default function TrendingDealsManager({ initialDeals }: { initialDeals: D
 
   return (
     <div className="space-y-6">
-      {error && <p className="rounded bg-red-500/10 px-3 py-2 text-sm text-red-300">{error}</p>}
+      {error && <p className="rounded bg-red-500/10 px-3 py-2 text-sm text-red-600">{error}</p>}
 
       <button
         onClick={() => setShowNewForm((v) => !v)}
@@ -166,7 +173,7 @@ export default function TrendingDealsManager({ initialDeals }: { initialDeals: D
       </button>
 
       {showNewForm && (
-        <form onSubmit={createDeal} className="grid gap-3 rounded-xl border border-cream/10 p-4 md:grid-cols-2">
+        <form onSubmit={createDeal} className="grid gap-3 rounded-xl border border-charcoal/10 p-4 md:grid-cols-2">
           <DealFields draft={newDraft} onChange={(patch) => setNewDraft((prev) => ({ ...prev, ...patch }))} />
           <div className="md:col-span-2">
             <button type="submit" disabled={busy === 'create'} className="rounded-full bg-gold px-4 py-2 text-xs font-medium text-charcoal disabled:opacity-50">
@@ -178,19 +185,19 @@ export default function TrendingDealsManager({ initialDeals }: { initialDeals: D
 
       <div className="space-y-4">
         {deals.length === 0 ? (
-          <p className="text-sm text-cream/50">No Trending Deals yet.</p>
+          <p className="text-sm text-charcoal/50">No Trending Deals yet.</p>
         ) : (
           deals.map((deal, index) => {
             const draft = edits[deal.id];
             if (!draft) return null;
             return (
-              <div key={deal.id} className={`rounded-xl border p-4 ${deal.active ? 'border-cream/10' : 'border-red-500/20 opacity-70'}`}>
+              <div key={deal.id} className={`rounded-xl border p-4 ${deal.active ? 'border-charcoal/10' : 'border-red-500/20 opacity-70'}`}>
                 <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
-                    <button onClick={() => move(index, -1)} disabled={index === 0 || busy === 'reorder'} className="flex h-6 w-6 items-center justify-center rounded-full bg-cream/10 text-cream/60 hover:bg-cream/20 disabled:opacity-30">
+                    <button onClick={() => move(index, -1)} disabled={index === 0 || busy === 'reorder'} className="flex h-6 w-6 items-center justify-center rounded-full bg-charcoal/10 text-charcoal/60 hover:bg-charcoal/20 disabled:opacity-30">
                       ↑
                     </button>
-                    <button onClick={() => move(index, 1)} disabled={index === deals.length - 1 || busy === 'reorder'} className="flex h-6 w-6 items-center justify-center rounded-full bg-cream/10 text-cream/60 hover:bg-cream/20 disabled:opacity-30">
+                    <button onClick={() => move(index, 1)} disabled={index === deals.length - 1 || busy === 'reorder'} className="flex h-6 w-6 items-center justify-center rounded-full bg-charcoal/10 text-charcoal/60 hover:bg-charcoal/20 disabled:opacity-30">
                       ↓
                     </button>
                     <span className="text-sm font-medium">{deal.name}</span>
@@ -224,11 +231,16 @@ export default function TrendingDealsManager({ initialDeals }: { initialDeals: D
   );
 }
 
-const inputClass = 'w-full rounded border border-cream/20 bg-transparent px-3 py-2 text-sm';
+const inputClass = 'w-full rounded border border-charcoal/20 bg-transparent px-3 py-2 text-sm';
 
 function DealFields({ draft, onChange }: { draft: DealDraft; onChange: (patch: Partial<DealDraft>) => void }) {
   return (
     <>
+      <div className="md:col-span-2">
+        <Field label="Deal image (shown on the home page card)">
+          <ImageUploader value={draft.image_path} onChange={(image_path) => onChange({ image_path })} />
+        </Field>
+      </div>
       <Field label="Name">
         <input value={draft.name} onChange={(e) => onChange({ name: e.target.value })} className={inputClass} />
       </Field>
@@ -271,8 +283,88 @@ function DealFields({ draft, onChange }: { draft: DealDraft; onChange: (patch: P
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="mb-1 block text-xs text-cream/50">{label}</label>
+      <label className="mb-1 block text-xs text-charcoal/50">{label}</label>
       {children}
+    </div>
+  );
+}
+
+/**
+ * Deal image uploader. Uploads the file straight from the admin's browser to
+ * the public `product-media` bucket (prefix `deals/`) using their own
+ * authenticated session — same model as the product media uploader — then
+ * hands the Storage path up via onChange so it saves with the rest of the
+ * deal. Only the path is persisted; the public URL is derived at render time.
+ */
+function ImageUploader({ value, onChange }: { value: string | null; onChange: (path: string | null) => void }) {
+  const supabase = useMemo(() => createBrowserSupabaseClient(), []);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  const previewUrl = value ? supabase.storage.from(BUCKET).getPublicUrl(value).data.publicUrl : null;
+
+  async function handleFile(file: File) {
+    if (!file.type.startsWith('image/')) {
+      setErr('Please choose an image file.');
+      return;
+    }
+    setErr(null);
+    setBusy(true);
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    const path = `deals/${Date.now()}-${Math.round(file.size)}.${ext}`;
+    const { error } = await supabase.storage.from(BUCKET).upload(path, file, { contentType: file.type || undefined });
+    setBusy(false);
+    if (error) {
+      setErr('Upload failed — try again.');
+      return;
+    }
+    onChange(path);
+  }
+
+  return (
+    <div className="flex items-center gap-4">
+      <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-lg border border-charcoal/15 bg-charcoal/5">
+        {previewUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element -- Storage host isn't in next.config remotePatterns
+          <img src={previewUrl} alt="Deal preview" className="h-full w-full object-cover" />
+        ) : (
+          <span className="flex h-full w-full items-center justify-center text-[0.65rem] text-charcoal/40">No image</span>
+        )}
+      </div>
+      <div className="flex flex-col gap-2">
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) handleFile(f);
+            e.target.value = '';
+          }}
+        />
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            disabled={busy}
+            className="rounded-full bg-gold/15 px-3 py-1 text-xs font-medium text-gold hover:bg-gold/25 disabled:opacity-50"
+          >
+            {busy ? 'Uploading…' : value ? 'Replace image' : 'Upload image'}
+          </button>
+          {value && (
+            <button
+              type="button"
+              onClick={() => onChange(null)}
+              className="rounded-full bg-charcoal/10 px-3 py-1 text-xs text-charcoal/60 hover:bg-charcoal/20"
+            >
+              Remove
+            </button>
+          )}
+        </div>
+        {err && <p className="text-[0.7rem] text-red-600">{err}</p>}
+      </div>
     </div>
   );
 }
