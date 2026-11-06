@@ -25,13 +25,19 @@ type Props = {
    *  public reads) rather than each card querying independently. */
   mediaByVariant?: Record<string, DbBundleMedia[]>;
   onAdd: (variant: DbBundleVariant) => void;
+  /** Hair-included mode: the customer is choosing the hair that comes with
+   *  their package — no price shown, not limited to retail shop stock, and
+   *  the button selects (replaces) rather than adds. */
+  included?: boolean;
+  /** In included mode, the currently chosen variant id (to show "Selected"). */
+  selectedVariantId?: string | null;
 };
 
 const selectClass =
   'w-full rounded-lg border border-charcoal/20 bg-transparent px-3 py-2 text-sm outline-none focus:border-gold dark:border-cream/20 dark:[color-scheme:dark]';
 const fieldLabel = 'mb-1 block text-[0.65rem] uppercase tracking-luxe text-charcoal/50 dark:text-cream/50';
 
-export default function BookingBundleCard({ bundleName, variants, mediaByVariant, onAdd }: Props) {
+export default function BookingBundleCard({ bundleName, variants, mediaByVariant, onAdd, included = false, selectedVariantId = null }: Props) {
   const supabase = useMemo(() => createBrowserSupabaseClient(), []);
 
   const inchOptions = useMemo(
@@ -67,7 +73,9 @@ export default function BookingBundleCard({ bundleName, variants, mediaByVariant
     : defaultColourFor(inches) ?? colourOptions[0];
 
   const selectedVariant = variants.find((v) => v.inches === inches && v.colour === effectiveColour);
-  const purchasable = selectedVariant ? isPurchasable(selectedVariant) : false;
+  const purchasable = selectedVariant ? included || isPurchasable(selectedVariant) : false;
+  const cardIsChosen = included && selectedVariantId != null && variants.some((v) => v.id === selectedVariantId);
+  const thisIsChosen = included && selectedVariant != null && selectedVariant.id === selectedVariantId;
 
   // Media gallery: prefer the selected variant's own bundle_media, falling
   // back to any variant's media, then the legacy single image_url field,
@@ -146,7 +154,7 @@ export default function BookingBundleCard({ bundleName, variants, mediaByVariant
   }
 
   return (
-    <div className="group flex h-full flex-col overflow-hidden rounded-2xl border border-charcoal/10 bg-cream-soft/60 transition-all duration-500 ease-luxe hover:-translate-y-1 hover:border-gold/40 hover:shadow-[0_24px_60px_-30px_rgba(26,26,26,0.5)] dark:border-cream/10 dark:bg-charcoal-soft/60">
+    <div className={`group flex h-full flex-col overflow-hidden rounded-2xl border ${cardIsChosen ? 'border-gold ring-1 ring-gold' : 'border-charcoal/10 dark:border-cream/10'} bg-cream-soft/60 transition-all duration-500 ease-luxe hover:-translate-y-1 hover:border-gold/40 hover:shadow-[0_24px_60px_-30px_rgba(26,26,26,0.5)] dark:bg-charcoal-soft/60`}>
       {coverImageUrl && (
         <div
           className="relative aspect-square w-full overflow-hidden"
@@ -235,12 +243,22 @@ export default function BookingBundleCard({ bundleName, variants, mediaByVariant
           </div>
         </div>
 
-        <p className="mt-4 font-serif text-2xl font-light text-gold">
-          {purchasable && selectedVariant ? formatPence(selectedVariant.price_pence) : 'Currently unavailable'}
-        </p>
+        {included ? (
+          <p className="mt-4 text-sm font-medium uppercase tracking-luxe text-gold">Included · no extra cost</p>
+        ) : (
+          <p className="mt-4 font-serif text-2xl font-light text-gold">
+            {purchasable && selectedVariant ? formatPence(selectedVariant.price_pence) : 'Currently unavailable'}
+          </p>
+        )}
 
-        <Button size="sm" className="mt-5 w-full" disabled={!purchasable} onClick={handleAdd}>
-          {purchasable ? 'Add to Booking' : 'Unavailable'}
+        <Button
+          size="sm"
+          variant={thisIsChosen ? 'outline' : undefined}
+          className="mt-5 w-full"
+          disabled={!purchasable || thisIsChosen}
+          onClick={handleAdd}
+        >
+          {included ? (thisIsChosen ? 'Selected ✓' : 'Choose this hair') : purchasable ? 'Add to Booking' : 'Unavailable'}
         </Button>
       </div>
     </div>

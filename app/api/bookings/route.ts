@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createServiceRoleClient } from '@/lib/supabase/server';
 import { getDayAvailability } from '@/lib/booking/availability';
-import { computeTotals, type AddOnLine, type BundleLine } from '@/lib/booking/pricing';
+import { computeTotals, includedBundleQuantity, type AddOnLine, type BundleLine } from '@/lib/booking/pricing';
 import { BOOKING_HOLD_MINUTES } from '@/lib/booking/constants';
 import { getStripe } from '@/lib/stripe';
 import type { DbBundleVariant, DbServiceAddon } from '@/lib/booking/types';
@@ -101,7 +101,27 @@ export async function POST(request: NextRequest) {
   }
 
   const bundleLines: BundleLine[] = [];
-  if (payload.bundleLines.length > 0) {
+  if (payload.hairIncluded && payload.bundleLines.length > 0) {
+    // Hair-included: the customer picks exactly ONE hair choice (curl
+    // pattern via the bundle product, plus length and colour) that comes with
+    // the package at no extra cost. Quantity is set by the service, never the
+    // client. Retail shop stock isn't required here — booking hair is studio
+    // supply and never decrements shop inventory — but the variant and its
+    // bundle product must still exist and be active.
+    if (payload.bundleLines.length > 1) {
+      return NextResponse.json({ error: 'too_many_hair_choices' }, { status: 400 });
+    }
+    const { data: variant } = await supabase
+      .from('bundle_variants')
+      .select('*, bundles!inner(active)')
+      .eq('id', payload.bundleLines[0].bundleVariantId)
+      .eq('bundles.active', true)
+      .maybeSingle();
+    if (!variant) {
+      return NextResponse.json({ error: 'bundle_variant_unavailable' }, { status: 400 });
+    }
+    bundleLines.push({ variant: variant as DbBundleVariant, quantity: includedBundleQuantity(serviceRow) });
+  } else if (payload.bundleLines.length > 0) {
     const variantIds = payload.bundleLines.map((line) => line.bundleVariantId);
     // Effective purchasability is in_stock AND a real remaining quantity —
     // re-checked here server-side regardless of what the client claims, so
@@ -188,7 +208,8 @@ export async function POST(request: NextRequest) {
           booking_id: booking.id,
           bundle_variant_id: line.variant.id,
           quantity: line.quantity,
-          price_pence_at_booking: line.variant.price_pence,
+          // 0 marks hair included in the package price (no extra charge).
+          price_pence_at_booking: payload.hairIncluded ? 0 : line.variant.price_pence,
         }))
       );
     }

@@ -7,6 +7,7 @@ import { computeTotals, formatPence, WITHOUT_HAIR_FLAT_DEPOSIT_PENCE } from '@/l
 import { statusStyle } from '@/lib/admin/bookingStatus';
 import type { DbService, DbServiceAddon, TimeSlot } from '@/lib/booking/types';
 import type { BookingRow } from '@/components/admin/BookingsTable';
+import { bundleCurlPattern, isIncludedBundle } from '@/lib/booking/bundleLabel';
 
 type Mode = 'view' | 'edit';
 
@@ -310,10 +311,21 @@ function ViewBody({ booking, style }: { booking: BookingRow; style: ReturnType<t
         <Row label="Add-ons">{booking.booking_addons.map((a) => a.name_at_booking).join(', ')}</Row>
       )}
       {booking.booking_bundles.length > 0 && (
-        <Row label="Bundles">
-          {booking.booking_bundles
-            .map((b) => `${b.quantity}× ${b.bundle_variants?.inches ?? '?'}" ${b.bundle_variants?.colour ?? ''}`)
-            .join(', ')}
+        <Row label="Hair bundles">
+          <ul className="space-y-2">
+            {booking.booking_bundles.map((b, i) => (
+              <li key={i} className="rounded-lg border border-charcoal/10 bg-white px-3 py-2">
+                <div className="font-medium">{bundleCurlPattern(b)}</div>
+                <div className="mt-0.5 text-xs text-charcoal/60">
+                  Length: {b.bundle_variants ? `${b.bundle_variants.inches}"` : '—'} · Colour:{' '}
+                  {b.bundle_variants?.colour ?? '—'} · Qty: {b.quantity}
+                </div>
+                <div className="mt-0.5 text-xs text-charcoal/45">
+                  {isIncludedBundle(b) ? 'Included in price' : `${formatPence(b.price_pence_at_booking)} each`}
+                </div>
+              </li>
+            ))}
+          </ul>
         </Row>
       )}
       <Row label="Contact">
@@ -470,7 +482,7 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   return (
     <div>
       <p className="text-[0.62rem] uppercase tracking-luxe text-charcoal/45">{label}</p>
-      <p className="mt-0.5 text-charcoal/80">{children}</p>
+      <div className="mt-0.5 text-charcoal/80">{children}</div>
     </div>
   );
 }

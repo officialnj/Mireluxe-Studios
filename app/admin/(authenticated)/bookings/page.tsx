@@ -11,7 +11,7 @@ export default async function AdminBookingsPage() {
   const { data: bookings } = await supabase
     .from('bookings')
     .select(
-      '*, services(name, service_time_mins), booking_bundles(quantity, price_pence_at_booking, bundle_variants(inches, colour)), booking_addons(name_at_booking, price_delta_pence_at_booking, duration_delta_mins_at_booking)'
+      '*, services(name, service_time_mins), booking_bundles(quantity, price_pence_at_booking, bundle_variants(inches, colour, bundles(name))), booking_addons(name_at_booking, price_delta_pence_at_booking, duration_delta_mins_at_booking)'
     )
     .in('status', ['pending_payment', 'confirmed', 'completed', 'no_show'])
     .order('appointment_start', { ascending: true });

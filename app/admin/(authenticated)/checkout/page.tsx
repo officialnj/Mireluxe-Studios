@@ -1,5 +1,6 @@
 import { createServiceRoleClient } from '@/lib/supabase/server';
 import CheckoutCenter, { type CheckoutItem } from '@/components/admin/CheckoutCenter';
+import { bundleCurlPattern, isIncludedBundle, type BookingBundleRow } from '@/lib/booking/bundleLabel';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,9 +15,7 @@ type Row = {
   balance_payment_method: string | null;
   services: { name: string } | null;
   booking_addons: { name_at_booking: string; price_delta_pence_at_booking: number }[] | null;
-  booking_bundles:
-    | { quantity: number; price_pence_at_booking: number; bundle_variants: { inches: number; colour: string } | null }[]
-    | null;
+  booking_bundles: BookingBundleRow[] | null;
 };
 
 /** Acuity-style "Checkout Center": upcoming confirmed appointments with the
@@ -32,7 +31,7 @@ export default async function AdminCheckoutPage() {
   const { data } = await supabase
     .from('bookings')
     .select(
-      'id, booking_ref, customer_name, appointment_start, total_price_pence, deposit_paid_pence, balance_collected_at, balance_payment_method, services(name), booking_addons(name_at_booking, price_delta_pence_at_booking), booking_bundles(quantity, price_pence_at_booking, bundle_variants(inches, colour))'
+      'id, booking_ref, customer_name, appointment_start, total_price_pence, deposit_paid_pence, balance_collected_at, balance_payment_method, services(name), booking_addons(name_at_booking, price_delta_pence_at_booking), booking_bundles(quantity, price_pence_at_booking, bundle_variants(inches, colour, bundles(name)))'
     )
     .eq('status', 'confirmed')
     .gte('appointment_start', todayStart.toISOString())
@@ -57,7 +56,9 @@ export default async function AdminCheckoutPage() {
           price_pence: a.price_delta_pence_at_booking,
         })),
         bundles: (b.booking_bundles ?? []).map((bb) => ({
-          label: bb.bundle_variants ? `${bb.bundle_variants.inches}" ${bb.bundle_variants.colour}` : 'Bundle',
+          label: bb.bundle_variants
+            ? `${bundleCurlPattern(bb)} · ${bb.bundle_variants.inches}" · ${bb.bundle_variants.colour}${isIncludedBundle(bb) ? ' (included)' : ''}`
+            : 'Bundle',
           quantity: bb.quantity,
           price_pence: bb.price_pence_at_booking,
         })),

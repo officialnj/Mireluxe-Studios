@@ -45,6 +45,8 @@ type EmailContent = {
 };
 
 export type BundleLineInfo = {
+  /** Bundle product name — the curl pattern, e.g. "Deep Wave". */
+  bundleName: string | null;
   inches: number;
   colour: string;
   quantity: number;
@@ -91,7 +93,9 @@ function bundleLinesText(bundleLines: BundleLineInfo[]): string {
   return bundleLines
     .map(
       (line) =>
-        `${line.quantity}&times; ${line.inches}&Prime; bundle (${escapeHtml(line.colour)}) &mdash; ${formatPence(line.pricePence * line.quantity)}`
+        `${line.quantity}&times; ${line.bundleName ? `${escapeHtml(line.bundleName)} &middot; ` : ''}${line.inches}&Prime; &middot; ${escapeHtml(line.colour)} &mdash; ${
+          line.pricePence === 0 ? 'included' : formatPence(line.pricePence * line.quantity)
+        }`
     )
     .join('<br/>');
 }

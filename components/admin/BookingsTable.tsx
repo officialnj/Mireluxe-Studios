@@ -6,10 +6,11 @@ import { formatInTimeZone } from 'date-fns-tz';
 import { STUDIO_TIMEZONE } from '@/lib/booking/constants';
 import { formatPence } from '@/lib/booking/pricing';
 import type { DbBooking } from '@/lib/booking/types';
+import { formatBookingBundle, isIncludedBundle, type BookingBundleRow } from '@/lib/booking/bundleLabel';
 
 export type BookingRow = DbBooking & {
   services: { name: string; service_time_mins: number } | null;
-  booking_bundles: { quantity: number; price_pence_at_booking: number; bundle_variants: { inches: number; colour: string } | null }[];
+  booking_bundles: BookingBundleRow[];
   booking_addons: { name_at_booking: string; price_delta_pence_at_booking: number; duration_delta_mins_at_booking: number }[];
 };
 
@@ -175,7 +176,7 @@ export default function BookingsTable({ initialBookings }: { initialBookings: Bo
                   <div className={booking.booking_addons.length > 0 ? 'mt-1' : ''}>
                     <span className="text-charcoal/40">Bundles: </span>
                     {booking.booking_bundles
-                      .map((b) => `${b.quantity}× ${b.bundle_variants?.inches ?? '?'}" (${b.bundle_variants?.colour ?? '?'})`)
+                      .map((b) => `${formatBookingBundle(b)}${isIncludedBundle(b) ? ' (included)' : ''}`)
                       .join(', ')}
                   </div>
                 )}

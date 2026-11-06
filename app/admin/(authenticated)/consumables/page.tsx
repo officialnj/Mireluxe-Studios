@@ -1,6 +1,7 @@
 import { formatInTimeZone } from 'date-fns-tz';
 import { createServiceRoleClient } from '@/lib/supabase/server';
 import { STUDIO_TIMEZONE } from '@/lib/booking/constants';
+import { formatBookingBundle, type BookingBundleRow } from '@/lib/booking/bundleLabel';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,14 +12,14 @@ type ConsumablesRow = {
   appointment_start: string;
   status: string;
   services: { name: string; xpression_packs: string | null } | null;
-  booking_bundles: Array<{ quantity: number; bundle_variants: { inches: number; colour: string } | null }>;
+  booking_bundles: BookingBundleRow[];
 };
 
 export default async function AdminConsumablesPage() {
   const supabase = createServiceRoleClient();
   const { data } = await supabase
     .from('bookings')
-    .select('id, booking_ref, customer_name, appointment_start, status, services(name, xpression_packs), booking_bundles(quantity, bundle_variants(inches, colour))')
+    .select('id, booking_ref, customer_name, appointment_start, status, services(name, xpression_packs), booking_bundles(quantity, price_pence_at_booking, bundle_variants(inches, colour, bundles(name)))')
     .in('status', ['pending_payment', 'confirmed'])
     .gte('appointment_start', new Date().toISOString())
     .order('appointment_start', { ascending: true });
@@ -61,7 +62,7 @@ export default async function AdminConsumablesPage() {
                     Bundles:{' '}
                     {b.booking_bundles
                       .filter((line) => line.bundle_variants)
-                      .map((line) => `${line.quantity}× ${line.bundle_variants!.inches}" (${line.bundle_variants!.colour})`)
+                      .map((line) => formatBookingBundle(line))
                       .join(', ')}
                   </span>
                 )}

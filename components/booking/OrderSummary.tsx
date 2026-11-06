@@ -39,7 +39,7 @@ export default function OrderSummary({ serviceName, hairIncluded, bundleLines, a
             {line.quantity}× {line.bundleName ? `${line.bundleName} — ` : ''}
             {line.inches}&quot; bundle ({line.colour})
           </span>
-          <span>{formatPence(line.pricePence * line.quantity)}</span>
+          <span>{hairIncluded || line.pricePence === 0 ? 'Included' : formatPence(line.pricePence * line.quantity)}</span>
         </div>
       ))}
       {addOnLines.map((line) => (

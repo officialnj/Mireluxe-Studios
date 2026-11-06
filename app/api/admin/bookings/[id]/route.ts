@@ -163,7 +163,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   const { data: updated } = await supabase
     .from('bookings')
     .select(
-      '*, services(name, service_time_mins), booking_bundles(quantity, price_pence_at_booking, bundle_variants(inches, colour)), booking_addons(name_at_booking, price_delta_pence_at_booking, duration_delta_mins_at_booking)'
+      '*, services(name, service_time_mins), booking_bundles(quantity, price_pence_at_booking, bundle_variants(inches, colour, bundles(name))), booking_addons(name_at_booking, price_delta_pence_at_booking, duration_delta_mins_at_booking)'
     )
     .eq('id', booking.id)
     .single();

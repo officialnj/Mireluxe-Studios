@@ -16,9 +16,14 @@ type Props = {
   variants: DbBundleVariant[];
   lines: BundleLine[];
   onChange: (lines: BundleLine[]) => void;
+  /** Hair-included package: the customer picks exactly one hair choice
+   *  (curl pattern + length + colour) at no extra cost; choosing another
+   *  replaces it. Quantity is fixed by the service (`includedQuantity`). */
+  included?: boolean;
+  includedQuantity?: number;
 };
 
-export default function BundleCatalog({ bundles, variants, lines, onChange }: Props) {
+export default function BundleCatalog({ bundles, variants, lines, onChange, included = false, includedQuantity = 1 }: Props) {
   // One shared fetch of bundle_media for every variant on this step, rather
   // than each card querying independently — same pattern as ShopGrid.tsx.
   const variantIdsKey = useMemo(() => variants.map((v) => v.id).sort().join(','), [variants]);
@@ -63,6 +68,10 @@ export default function BundleCatalog({ bundles, variants, lines, onChange }: Pr
   );
 
   function handleAddVariant(variant: DbBundleVariant) {
+    if (included) {
+      onChange([{ variantId: variant.id, inches: variant.inches, colour: variant.colour, quantity: includedQuantity }]);
+      return;
+    }
     const existing = lines.find((l) => l.variantId === variant.id);
     if (existing) {
       onChange(lines.map((l) => (l.variantId === variant.id ? { ...l, quantity: l.quantity + 1 } : l)));
@@ -104,6 +113,8 @@ export default function BundleCatalog({ bundles, variants, lines, onChange }: Pr
             variants={g.variants}
             mediaByVariant={mediaByVariant}
             onAdd={handleAddVariant}
+            included={included}
+            selectedVariantId={included ? lines[0]?.variantId ?? null : null}
           />
         ))}
       </div>
@@ -118,8 +129,9 @@ export default function BundleCatalog({ bundles, variants, lines, onChange }: Pr
                 className="flex items-center justify-between rounded-lg border border-charcoal/12 px-4 py-2.5 text-sm dark:border-cream/12"
               >
                 <span>
+                  {included && <span className="mr-1 text-gold">Your hair:</span>}
                   {line.quantity}× {name ? `${name} — ` : ''}
-                  {line.inches}&quot; bundle ({line.colour})
+                  {line.inches}&quot; bundle ({line.colour}){included ? ' · included' : ''}
                 </span>
                 <button
                   type="button"

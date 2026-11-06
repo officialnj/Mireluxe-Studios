@@ -3,6 +3,7 @@ import { getResend, logEmailResult } from '@/lib/resend';
 import { customerConfirmationEmail, ownerNotificationEmail, type AddOnLineInfo, type BundleLineInfo } from '@/lib/email/templates';
 import { ADMIN_NOTIFICATION_EMAILS } from '@/lib/site';
 import type { DbBooking, DbService } from '@/lib/booking/types';
+import { bundleCurlPattern, type BookingBundleRow } from '@/lib/booking/bundleLabel';
 
 export const CONFIRMATION_FROM_ADDRESS = 'MIRILUXE Studios <bookings@miriluxe.co.uk>';
 
@@ -18,14 +19,15 @@ export async function sendConfirmationEmails(supabase: Supabase, booking: DbBook
 
   const { data: bookingBundles } = await supabase
     .from('booking_bundles')
-    .select('quantity, price_pence_at_booking, bundle_variants(inches, colour)')
+    .select('quantity, price_pence_at_booking, bundle_variants(inches, colour, bundles(name))')
     .eq('booking_id', booking.id);
 
-  const bundleLines: BundleLineInfo[] = (bookingBundles ?? [])
+  const bundleLines: BundleLineInfo[] = ((bookingBundles ?? []) as unknown as BookingBundleRow[])
     .filter((line) => line.bundle_variants)
     .map((line) => ({
-      inches: (line.bundle_variants as unknown as { inches: number; colour: string }).inches,
-      colour: (line.bundle_variants as unknown as { inches: number; colour: string }).colour,
+      bundleName: bundleCurlPattern(line),
+      inches: line.bundle_variants!.inches,
+      colour: line.bundle_variants!.colour,
       quantity: line.quantity,
       pricePence: line.price_pence_at_booking,
     }));

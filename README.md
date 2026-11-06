@@ -22,6 +22,7 @@ The site replaces two third-party tools the studio used before: **Acuity Schedul
 ### Key business rules (encoded in code, not just copy)
 
 - **Deposits:** without-hair bookings pay a flat **£20** deposit. Hair-included bookings pay **50% of the total** (service, add-ons and bundles). The rest is paid in the studio on the day and tracked in the admin *Checkout* tab. See `lib/booking/pricing.ts`.
+- **Hair-included packages:** in the bundle step, the client picks one hair choice (bundle type / curl pattern, length, colour) at **no extra cost**. The quantity comes from the service's *included bundles* setting (default 1). It is saved with £0 price and shown as "included" in the admin. Paid bundles are only for bookings without hair, e.g. Touch-Ups.
 - **Deposits are non-refundable.** They can be moved to a new date with 48 hours' notice. Self-service reschedule/cancel is blocked within 48h of the appointment (`SELF_SERVICE_CUTOFF_MINUTES`).
 - **Slot grid:** hourly start times from **08:00 to 16:00** (Europe/London). Certain add-ons unlock **premium slots** (06:00, 20:00, 21:00). The admin can add extra one-off start times (`slot_overrides`) or block days and time ranges (`blocked_dates`).
 - **Minimum notice:** no slot can be booked less than 2 hours ahead.
@@ -113,7 +114,7 @@ The site replaces two third-party tools the studio used before: **Acuity Schedul
 ```
 1. Service      → category + style, with or without hair
 2. Add-ons      → optional extras per category (price/duration deltas; some unlock premium slots)
-3. Bundles      → (hair-included styles only) add hair from shop stock
+3. Bundles      → hair-included: choose 1 free hair (type, length, colour); Touch-Ups: buy bundles
 4. Date & time  → DatePicker + TimeSlotPicker, fed by /api/availability/days|slots
 5. Details      → name, email, phone, notes, hair-prep agreement (required)
 6. Payment      → POST /api/bookings creates a pending booking + Stripe PaymentIntent;

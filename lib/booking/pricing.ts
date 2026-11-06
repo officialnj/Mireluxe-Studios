@@ -38,6 +38,9 @@ const MIN_DURATION_MINS = 15;
  * service; "with hair" bookings pay 50% of the total price — service plus
  * every add-on/bundle — rounded to the nearest penny.
  *
+ * Bundles are free (included) when hairIncluded is true, and priced per
+ * variant otherwise.
+ *
  * Duration: base duration is `service.hair_incl_service_time_mins` when
  * hair is included and set, falling back to `service.service_time_mins`
  * otherwise — same null-fallback convention `hair_incl_price_pence` already
@@ -52,7 +55,13 @@ export function computeTotals(
 ): BookingTotals {
   const servicePricePence =
     hairIncluded && service.hair_incl_price_pence != null ? service.hair_incl_price_pence : service.base_price_pence;
-  const bundlesPricePence = bundleLines.reduce((sum, line) => sum + line.variant.price_pence * line.quantity, 0);
+  // Hair-included bookings: the customer just picks the hair (curl pattern,
+  // length, colour) that comes with the package, so the bundle costs nothing
+  // extra — it's already part of hair_incl_price_pence. Only bookings
+  // without hair (e.g. Touch-Ups) pay for bundles as an add-on.
+  const bundlesPricePence = hairIncluded
+    ? 0
+    : bundleLines.reduce((sum, line) => sum + line.variant.price_pence * line.quantity, 0);
   const addOnsPricePence = addOnLines.reduce((sum, line) => sum + line.addon.price_delta_pence, 0);
   const totalPricePence = servicePricePence + bundlesPricePence + addOnsPricePence;
   const depositDuePence = hairIncluded ? Math.round(totalPricePence * 0.5) : WITHOUT_HAIR_FLAT_DEPOSIT_PENCE;
@@ -82,4 +91,10 @@ export function formatPence(pence: number): string {
  *  `stock_quantity` is real inventory. Both must hold. */
 export function isPurchasable(variant: DbBundleVariant): boolean {
   return variant.in_stock === true && variant.stock_quantity > 0;
+}
+
+/** How many bundles come with a hair-included package. Uses the service's
+ *  included_bundle_count when the admin has set it, otherwise 1. */
+export function includedBundleQuantity(service: Pick<DbService, 'included_bundle_count'>): number {
+  return service.included_bundle_count > 0 ? service.included_bundle_count : 1;
 }

@@ -12,7 +12,7 @@ import PaymentStep from '@/components/booking/PaymentStep';
 import { type BundleLine } from '@/components/booking/BundleUpsell';
 import BundleCatalog from '@/components/booking/BundleCatalog';
 import AddOnPicker from '@/components/booking/AddOnPicker';
-import { computeTotals, formatPence, type AddOnLine } from '@/lib/booking/pricing';
+import { computeTotals, formatPence, includedBundleQuantity, type AddOnLine } from '@/lib/booking/pricing';
 import { useCart } from '@/components/CartProvider';
 import type { DbBundle, DbBundleVariant, DbService, DbServiceAddon, DbServiceCategory, TimeSlot } from '@/lib/booking/types';
 
@@ -122,7 +122,8 @@ export default function BookingForm({ categories, services, bundles, bundleVaria
     cart.setBundleLines(
       lines.map((l) => ({
         ...l,
-        pricePence: bundleVariants.find((v) => v.id === l.variantId)?.price_pence ?? 0,
+        // Hair-included packages: the chosen hair is part of the package price.
+        pricePence: hairIncluded ? 0 : bundleVariants.find((v) => v.id === l.variantId)?.price_pence ?? 0,
       }))
     );
   }
@@ -192,8 +193,13 @@ export default function BookingForm({ categories, services, bundles, bundleVaria
     inches: l.variant.inches,
     colour: l.variant.colour,
     quantity: l.quantity,
-    pricePence: l.variant.price_pence,
+    pricePence: hairIncluded ? 0 : l.variant.price_pence,
   }));
+
+  // A hair-included package must have its hair chosen before moving on —
+  // unless no bundle products are currently listed at all, in which case the
+  // customer isn't blocked from booking.
+  const hairChoiceRequired = bundles.some((b) => b.active && bundleVariants.some((v) => v.bundle_id === b.id));
 
   const summaryAddOnLines = selectedAddons.map((a) => ({ id: a.id, name: a.name, priceDeltaPence: a.price_delta_pence }));
 
@@ -223,7 +229,11 @@ export default function BookingForm({ categories, services, bundles, bundleVaria
           serviceId: activeService.id,
           hairIncluded,
           addOnIds,
-          bundleLines: bundleLines.map((l) => ({ bundleVariantId: l.variantId, quantity: l.quantity })),
+          // Hair-included packages carry exactly one (free) hair choice.
+          bundleLines: (hairIncluded ? bundleLines.slice(0, 1) : bundleLines).map((l) => ({
+            bundleVariantId: l.variantId,
+            quantity: l.quantity,
+          })),
           date: dateStr,
           slotStart: selectedSlot.start,
           customerName,
@@ -469,11 +479,13 @@ export default function BookingForm({ categories, services, bundles, bundleVaria
 
       {step === 'bundles' && activeService && bundleStepApplies && (
         <Reveal>
-          <h2 className="font-serif text-2xl font-light tracking-tight">3 · Add bundles</h2>
-          {hairIncluded && activeService.included_bundle_count > 0 ? (
+          <h2 className="font-serif text-2xl font-light tracking-tight">
+            {hairIncluded ? '3 · Choose your hair' : '3 · Add bundles'}
+          </h2>
+          {hairIncluded ? (
             <p className="mt-2 text-sm text-charcoal/65 dark:text-cream/65">
-              Your package already includes {activeService.included_bundle_count}× {activeService.included_bundle_inches}&quot;
-              bundles. Add extra bundles or a different length/colour below — entirely optional.
+              Hair is included in your package. Choose the bundle type, length and colour you&apos;d like — at no extra
+              cost.
             </p>
           ) : (
             <p className="mt-2 text-sm text-charcoal/65 dark:text-cream/65">
@@ -482,7 +494,14 @@ export default function BookingForm({ categories, services, bundles, bundleVaria
           )}
 
           <div className="mt-6">
-            <BundleCatalog bundles={bundles} variants={bundleVariants} lines={bundleLines} onChange={setBundleLines} />
+            <BundleCatalog
+              bundles={bundles}
+              variants={bundleVariants}
+              lines={bundleLines}
+              onChange={setBundleLines}
+              included={hairIncluded}
+              includedQuantity={includedBundleQuantity(activeService)}
+            />
           </div>
 
           {totals && (
@@ -501,8 +520,20 @@ export default function BookingForm({ categories, services, bundles, bundleVaria
             <Button type="button" variant="outline" size="md" className="flex-1" onClick={() => setStep('addons')}>
               Back
             </Button>
-            <Button type="button" size="md" className="flex-1" onClick={() => setStep('datetime')}>
-              {bundleLines.length > 0 ? 'Continue' : 'Continue without bundles'}
+            <Button
+              type="button"
+              size="md"
+              className="flex-1"
+              disabled={hairIncluded && hairChoiceRequired && bundleLines.length === 0}
+              onClick={() => setStep('datetime')}
+            >
+              {hairIncluded
+                ? bundleLines.length > 0 || !hairChoiceRequired
+                  ? 'Continue'
+                  : 'Choose your hair to continue'
+                : bundleLines.length > 0
+                  ? 'Continue'
+                  : 'Continue without bundles'}
             </Button>
           </div>
         </Reveal>
